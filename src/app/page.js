@@ -22,19 +22,19 @@ export default async function Home() {
 
   return (
     <ScrollArea useScrollAreaId>
-      <FloatingHeader scrollTitle="熊布朗 (Peng.G)" />
+      <FloatingHeader scrollTitle="叶振幸 (Zen)" />
       <div className="content-wrapper">
         <div className="content">
           <PageTitle title="Home" className="lg:hidden" />
           <p>
-            Hi, I am Peng.G (熊布朗)
+            Hi, I am Zen (叶振幸)
             <br />
-            AI Product Manager & Software Architect👋 <br />
-            Shipping AI-native products—RAG platforms, autonomous agents & LLM infra.
+            Open Source Intern , Mathematics & Applied Math Student 👋<br />
+            Bridging Mathematics & AI—Python & Deep Learning frameworks (MindSpore/PyTorch).
             <br />
-            Born in China, shaped in Seoul, now building from Paris.
+            From Mathematical Modeling to AI-driven diagnostics.
             <br />
-            Exploring GenAI × productivity; writing about it every week—let’s chat!
+            Exploring Open Source × Deep Learning; Passionate about building open source projects—let’s chat!
           </p>
           <Button asChild variant="link" className="inline px-0">
             <Link href="/writing">

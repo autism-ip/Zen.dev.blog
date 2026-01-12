@@ -1,5 +1,5 @@
 export const sharedMetadata = {
-  title: '熊布朗（Peng.G）',
+  title: '叶振幸（Zen）',
   description:
     "Paris-based AI Product Manager & vibecoder, shipping AI products and open-source projects with a maker's spirit.",
   url: process.env.NEXT_PUBLIC_SITE_URL || 'https://me.deeptoai.com',
