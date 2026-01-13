@@ -66,9 +66,9 @@ export default async function WritingSlug(props) {
     dateModified,
     author: {
       '@type': 'Person',
-      name: '熊布朗 (Peng.G)'
+      name: '叶振幸 (Zen)'
     },
-    url: `https://me.deeptoai.com/writing/${slug}`
+    url: `https://zenhungyep.com/writing/${slug}`
   }
 
   return (
@@ -106,7 +106,7 @@ export async function generateMetadata(props) {
   if (!seoData) {
     return {
       title: 'Blog Post',
-      description: 'A blog post by 熊布朗 (Peng.G)'
+      description: 'A blog post by 叶振幸 (Zen)'
     }
   }
 

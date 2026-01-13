@@ -9,10 +9,10 @@ export async function GET() {
   const allPosts = await getAllPosts()
   const sortedPosts = getSortedPosts(allPosts)
   const date = new Date()
-  const siteURL = 'https://me.deeptoai.com'
+  const siteURL = 'https://zenhungyep.com'
   const author = {
-    name: '熊布朗 (Peng.G)',
-    link: 'https://me.deeptoai.com'
+    name: '叶振幸 (Zen)',
+    link: 'https://zenhungyep.com'
   }
 
   const feed = new Feed({

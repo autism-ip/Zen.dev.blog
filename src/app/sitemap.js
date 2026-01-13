@@ -16,7 +16,7 @@ export default async function sitemap() {
     const sortedWritings = getSortedPosts(allPosts)
     const writings = sortedWritings.map((post) => {
       return {
-        url: `https://me.deeptoai.com/writing/${post.slug}`,
+        url: `https://zenhungyep.com/writing/${post.slug}`,
         lastModified: post.sys.publishedAt,
         changeFrequency: 'yearly',
         priority: 0.5
@@ -25,7 +25,7 @@ export default async function sitemap() {
 
     const mappedBookmarks = (bookmarks || []).map((bookmark) => {
       return {
-        url: `https://me.deeptoai.com/bookmarks/${bookmark.slug}`,
+        url: `https://zenhungyep.com/bookmarks/${bookmark.slug}`,
         lastModified: new Date(),
         changeFrequency: 'daily',
         priority: 1
@@ -45,7 +45,7 @@ export default async function sitemap() {
       if (['bookmarks'].includes(page.slug)) priority = 1
 
       return {
-        url: `https://me.deeptoai.com/${page.slug}`,
+        url: `https://zenhungyep.com/${page.slug}`,
         lastModified,
         changeFrequency,
         priority
@@ -54,13 +54,13 @@ export default async function sitemap() {
 
     return [
       {
-        url: 'https://me.deeptoai.com',
+        url: 'https://zenhungyep.com',
         lastModified: new Date(),
         changeFrequency: 'yearly',
         priority: 1
       },
       {
-        url: 'https://me.deeptoai.com/musings',
+        url: 'https://zenhungyep.com/musings',
         lastModified: new Date(),
         changeFrequency: 'daily',
         priority: 0.8
@@ -74,7 +74,7 @@ export default async function sitemap() {
     // 返回基本的 sitemap，不包含书签
     return [
       {
-        url: 'https://me.deeptoai.com',
+        url: 'https://zenhungyep.com',
         lastModified: new Date(),
         changeFrequency: 'yearly',
         priority: 1
