@@ -68,7 +68,7 @@ export async function POST(request) {
     }
 
     // 从环境变量获取仓库信息，如果没有则使用默认值
-    const githubRepo = process.env.GITHUB_REPO || 'foreveryh/git-thoughts'
+    const githubRepo = process.env.GITHUB_REPO || 'autism-ip/git-thoughts'
     const githubApiUrl = `https://api.github.com/repos/${githubRepo}/issues`
 
     const response = await fetch(githubApiUrl, {

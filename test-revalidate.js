@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const SECRET = 'R5SIkzrbOocVTaBngWP8tRN3ESUljZAUvf/fhk0/rMI='
+const SECRET = 'G3n_9LoNg_R4ndom_Str1nG_2025'
 
 // 测试函数
 async function testRevalidateAPI(baseUrl, testCase) {

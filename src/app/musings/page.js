@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/scroll-area'
 async function getMusings() {
   try {
     // 首先尝试从GitHub获取真实数据
-    const response = await fetch('https://raw.githubusercontent.com/foreveryh/git-thoughts/main/public/issues.json', {
+    const response = await fetch('https://raw.githubusercontent.com/autism-ip/git-thoughts/main/public/issues.json', {
       next: { revalidate: 86400 } // 24小时重新验证 (86400秒)
     })
 
@@ -58,7 +58,7 @@ export default async function MusingsPage({ searchParams }) {
                 <p className="mt-1 text-xs text-gray-500">
                   Learn more about this implementation:{' '}
                   <a
-                    href="https://github.com/foreveryh/git-thoughts"
+                    href="https://github.com/autism-ip/git-thoughts"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 underline hover:text-blue-800"
@@ -94,7 +94,7 @@ export default async function MusingsPage({ searchParams }) {
               <p className="mt-1 text-xs text-gray-500">
                 Learn more about this implementation:{' '}
                 <a
-                  href="https://github.com/foreveryh/git-thoughts"
+                  href="https://github.com/autism-ip/git-thoughts"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 underline hover:text-blue-800"
