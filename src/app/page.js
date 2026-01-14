@@ -22,12 +22,12 @@ export default async function Home() {
 
   return (
     <ScrollArea useScrollAreaId>
-      <FloatingHeader scrollTitle="叶振幸 (Zen)" />
+      <FloatingHeader scrollTitle="Zen" />
       <div className="content-wrapper">
         <div className="content">
           <PageTitle title="Home" className="lg:hidden" />
           <p>
-            Hi, I am Zen (叶振幸)
+            Hi, I am Zen. 
             <br />
             Open Source Intern , Mathematics & Applied Math Student 👋<br />
             Bridging Mathematics & AI—Python & Deep Learning frameworks (MindSpore/PyTorch).

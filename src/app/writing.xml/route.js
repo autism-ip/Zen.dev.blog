@@ -11,7 +11,7 @@ export async function GET() {
   const date = new Date()
   const siteURL = 'https://zenhungyep.com'
   const author = {
-    name: '叶振幸 (Zen)',
+    name: 'Zen',
     link: 'https://zenhungyep.com'
   }
 
