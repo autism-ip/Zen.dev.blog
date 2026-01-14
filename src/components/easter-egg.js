@@ -9,15 +9,6 @@ export const EasterEgg = ({ tools = [] }) => {
   const [displayText, setDisplayText] = useState('')
   const [isAnimating, setIsAnimating] = useState(false)
 
-  useEffect(() => {
-    const listener = new KonamiListener(() => {
-      startTerminalAnimation()
-    })
-
-    listener.start()
-    return () => listener.stop()
-  }, [tools, startTerminalAnimation])
-
   const startTerminalAnimation = useCallback(() => {
     setIsActive(true)
     setIsAnimating(true)
@@ -31,6 +22,15 @@ export const EasterEgg = ({ tools = [] }) => {
       animateTools(allTools)
     }, 500)
   }, [tools])
+
+  useEffect(() => {
+    const listener = new KonamiListener(() => {
+      startTerminalAnimation()
+    })
+
+    listener.start()
+    return () => listener.stop()
+  }, [tools, startTerminalAnimation])
 
   const animateTools = (allTools) => {
     if (!allTools || allTools.length === 0) {
