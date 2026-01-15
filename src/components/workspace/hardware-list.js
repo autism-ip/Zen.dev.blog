@@ -16,6 +16,10 @@ export function HardwareList({ items }) {
         return '🎧'
       case 'lighting':
         return '💡'
+      case 'mouse':
+        return '🖱️'
+      case 'glasses':
+        return '👓'
       default:
         return '⚙️'
     }

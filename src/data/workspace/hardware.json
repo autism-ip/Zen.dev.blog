@@ -1,38 +1,32 @@
 [
   {
-    "name": "MacBook Pro M2",
-    "detail": "64GB RAM, 2TB SSD, 16-inch",
-    "role": "Main development machine",
+    "name": "GIGABYTE AERO 16 XE5",
+    "detail": "16GB RAM, 1TB SSD, 16-inch",
+    "role": "Windows development machine",
     "category": "laptop"
   },
   {
-    "name": "LG UltraFine Display",
-    "detail": "32-inch, 4K UHD, USB-C",
-    "role": "Primary monitor",
-    "category": "display"
+    "name": "Razer Basilisk Ultimate",
+    "detail": "Wireless, compact",
+    "role": "Daily mouse",
+    "category": "mouse"
   },
   {
-    "name": "Apple Magic Trackpad",
-    "detail": "Multi-Touch, Space Gray",
-    "role": "Primary input device",
-    "category": "input"
-  },
-  {
-    "name": "Logitech MX Keys Mini",
-    "detail": "Wireless, backlit, compact layout",
+    "name": "Logitech Alto Keys K75M",
+    "detail": "Wireless, Bluetooth, Mechanical, Backlit",
     "role": "Daily keyboard",
     "category": "input"
   },
   {
-    "name": "B&O Beoplay HX & iFLYBUDS Pro",
-    "detail": "Premium over-ear headphones & wireless earbuds",
-    "role": "Audio monitoring and calls",
+    "name": "SONY WH-1000XM5",
+    "detail": "Noise-cancelling over-ear headphones",
+    "role": "Noise-cancelling over-ear headphones",
     "category": "audio"
   },
   {
-    "name": "Elgato Ring Light",
-    "detail": "12-inch, adjustable brightness",
-    "role": "Video calls lighting",
-    "category": "lighting"
+    "name": "INAIR 2 Pro",
+    "detail": "AR glasses",
+    "role": "Personal AR device",
+    "category": "glasses"
   }
 ]
