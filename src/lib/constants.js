@@ -73,13 +73,13 @@ export const PROFILES = {
 }
 
 // 支持多个 Twitter 收藏夹
-export const TWEETS_COLLECTION_IDS = [56292239, 57413563, 57414510] // 添加你的第二个 Twitter 收藏夹 ID
+export const TWEETS_COLLECTION_IDS = [65591006,65591012,65590917]
 
 export const COLLECTION_IDS = [
-  55349123,
+  0,
   ...TWEETS_COLLECTION_IDS, // 展开所有 Twitter 收藏夹 ID
-  55351618,
-  55351620,
+  65582294,
+  65591019,
   55858229,
   55858636,
   55858640,
