@@ -1,12 +1,12 @@
 [
   {
-    "project": "Building ARA - Autonomous Research Agent",
-    "description": "Advanced AI research agent powered by LangGraph for autonomous information discovery and synthesis",
-    "since": "2025-05-01"
+    "project": "ClarifyLung AI",
+    "description": "Dual-stream AI system fusing CNN local features and Transformer global context for interpretable lung cancer screening using Grad-CAM++.",
+    "since": "2025-10-20"
   },
   {
-    "project": "Building Latour - Free Image Generation Service",
-    "description": "Web-based platform providing free AI image generation services for everyone",
-    "since": "2025-05-01"
+    "project": "Unsupervised Lung Cancer Detection (MIS-FM Finetuned)",
+    "description": "Unsupervised anomaly detection system for 3D CT scans using reconstruction error analysis from a fine-tuned MIS-FM foundation model.",
+    "since": "2025-04-20"
   }
 ]

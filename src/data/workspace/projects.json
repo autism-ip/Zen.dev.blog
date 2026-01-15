@@ -1,20 +1,26 @@
 [
   {
-    "title": "MentisSandbox",
+    "title": "ClarifyLung AI",
     "status": "Live",
-    "tagline": "Secure, persistent sandbox environment for AI Agents with real-time feedback",
-    "link": "https://github.com/foreveryh/sandboxai",
-    "stack": ["Docker", "WebSocket", "Python", "LangGraph", "CrewAI"],
-    "startDate": "2025-04-01",
+    "tagline": "Dual-stream AI system fusing CNN Mutil-Scale Attention and Transformer global context for interpretable early lung cancer screening.",
+    "link": null,
+    "stack": ["Docker", "Next.js", "Cross Attention","Mutil-Scale Attention","Pytorch","Python"],
+    "startDate": "2025-10-20",
     "image": null
   },
   {
-    "title": "Mentis",
-    "status": "Building",
-    "tagline": "Scalable multi-Agent Development Kit with state-driven planning supervisor",
-    "link": "https://github.com/foreveryh/mentis",
-    "stack": ["LangGraph", "Python", "Multi-Agent Systems", "AI Coordination"],
-    "startDate": "2025-03-01",
+    "title": "Unsupervised Lung Cancer Detection (MIS-FM Finetuned)",
+    "status": "Live",
+    "tagline": "Unsupervised anomaly detection system using fine-tuned MIS-FM model and reconstruction error analysis for 3D CT scans",
+    "link": null,
+    "stack": [
+      "Python",
+      "MIS-FM (FMUNetV3)",
+      "PyTorch",
+      "Seaborn",
+      "3D U-Net"
+    ],
+    "startDate": "2025-04-20",
     "image": null
   }
 ]
