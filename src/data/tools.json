@@ -75,12 +75,12 @@
           "tip": "Containerization for development"
         },
         {
-          "slug": "comet",
-          "name": "Comet",
-          "desc": "AI-powered Browser",
-          "url": "https://www.perplexity.ai/comet",
+          "slug": "dify",
+          "name": "Dify",
+          "desc": "AI-powered workflow engine",
+          "url": "https://cloud.dify.ai",
           "tags": ["Infra"],
-          "tip": "Alt + S for summarising page"
+          "tip": "Try to create a AI workflow"
         }
       ]
     }
