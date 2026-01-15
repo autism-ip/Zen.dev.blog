@@ -27,7 +27,7 @@ export default async function Home() {
         <div className="content">
           <PageTitle title="Home" className="lg:hidden" />
           <p>
-            Hi, I am Zen. 
+            Hi, I am Zen(叶振幸).
             <br />
             Open Source Intern , Mathematics & Applied Math Student 👋<br />
             Bridging Mathematics & AI—Python & Deep Learning frameworks (MindSpore/PyTorch).
