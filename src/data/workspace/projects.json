@@ -3,7 +3,7 @@
     "title": "ClarifyLung AI",
     "status": "Live",
     "tagline": "Dual-stream AI system fusing CNN Mutil-Scale Attention and Transformer global context for interpretable early lung cancer screening.",
-    "link": null,
+    "link": "https://lungcancerdetection.top",
     "stack": ["Docker", "Next.js", "Cross Attention","Mutil-Scale Attention","Pytorch","Python"],
     "startDate": "2025-10-20",
     "image": null
