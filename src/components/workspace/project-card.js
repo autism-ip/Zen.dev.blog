@@ -64,7 +64,7 @@ export function ProjectCard({ title, tagline, status, stack, link, startDate }) 
       </div>
 
       {/* Hover effect overlay */}
-      <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-50/0 to-indigo-50/0 opacity-0 transition-opacity duration-200 group-hover:from-blue-50/50 group-hover:to-indigo-50/50 group-hover:opacity-100" />
+      <div className="pointer-events-none absolute inset-0 rounded-lg bg-gradient-to-r from-blue-50/0 to-indigo-50/0 opacity-0 transition-opacity duration-200 group-hover:from-blue-50/50 group-hover:to-indigo-50/50 group-hover:opacity-100" />
     </motion.div>
   )
 }
