@@ -31,7 +31,7 @@ export function HardwareList({ items }) {
       <div className="flex justify-center">
         <div className="relative aspect-[4/3] w-full max-w-lg overflow-hidden rounded-lg shadow-sm">
           <CldImage
-            src="IMG_2986_ug6t2w"
+            src="IMG_3023_seksb4"
             alt="My Desk Setup"
             width={600}
             height={450}
