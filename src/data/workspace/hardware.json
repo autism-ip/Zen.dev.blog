@@ -6,6 +6,12 @@
     "category": "laptop"
   },
   {
+    "name": "MacBook Air M1 2020",
+    "detail": "8GB RAM, 512GB SSD, 13-inch",
+    "role": "Mac development machine",
+    "category": "laptop"
+  },
+  {
     "name": "Razer Basilisk Ultimate",
     "detail": "Wireless, compact",
     "role": "Daily mouse",
