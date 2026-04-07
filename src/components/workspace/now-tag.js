@@ -15,7 +15,7 @@ export function NowTag({ projects }) {
   return (
     <div className="relative overflow-hidden rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 shadow-sm">
       <div className="relative z-10">
-        <div className="mb-4 flex items-center gap-3">
+        <div className="mb-4 flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
             <ClockIcon className="h-4 w-4 text-blue-600" />
           </div>

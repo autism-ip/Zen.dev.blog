@@ -54,6 +54,7 @@ export function MediaCard({ item, isHovered, onClick }) {
                 alt={`${item.sourceType} ${item.mediaType}`}
                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                 loading="lazy"
+                decoding="async"
                 onError={(e) => {
                   console.error('Video thumbnail failed to load:', thumbnailUrl)
                   e.target.style.display = 'none'
@@ -94,6 +95,7 @@ export function MediaCard({ item, isHovered, onClick }) {
             className="h-auto w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
             style={{ height: `${calculatedHeight}px` }}
             loading="lazy"
+            decoding="async"
           />
         )}
 
@@ -130,7 +132,7 @@ export function MediaCard({ item, isHovered, onClick }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: isHovered ? 1 : 0 }}
             transition={{ duration: 0.2 }}
-            className="absolute bottom-3 left-3 flex items-center gap-3 text-white"
+            className="absolute bottom-3 left-3 flex items-center gap-2 text-white"
           >
             {item.likes && (
               <div className="flex items-center gap-1 rounded-full bg-black/50 px-2 py-1 text-xs backdrop-blur-sm">

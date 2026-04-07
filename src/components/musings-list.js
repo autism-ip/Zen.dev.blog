@@ -58,7 +58,7 @@ function MusingCard({ musing }) {
             href={musing.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 transition-all hover:bg-gray-100 hover:text-gray-900"
+            className="flex items-center gap-2 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 transition-all hover:bg-gray-100 hover:text-gray-900"
           >
             <ExternalLink size={12} />
             <span>Source</span>
@@ -91,7 +91,7 @@ function MusingCard({ musing }) {
 
         {/* Tags */}
         {musing.tags && musing.tags.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-1.5">
+          <div className="mt-3 flex flex-wrap gap-2">
             {musing.tags.map((tag) => (
               <span
                 key={tag}

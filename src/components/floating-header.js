@@ -71,52 +71,55 @@ export const FloatingHeader = memo(({ scrollTitle, title, goBackLink, bookmarks,
   )
 
   return (
-    <header className="sticky inset-x-0 top-0 z-10 mx-auto flex h-12 w-full shrink-0 items-center overflow-hidden border-b bg-white text-sm font-medium lg:hidden">
+    <header className="sticky inset-x-0 top-0 z-10 mx-auto flex h-12 w-full shrink-0 items-center border-b bg-white text-sm font-medium lg:hidden">
       <div className="flex size-full items-center px-3">
-        <div className="flex w-full items-center justify-between gap-2">
-          <div className="flex flex-1 items-center gap-1">
-            {goBackLink ? (
-              <Button variant="ghost" size="icon" className="shrink-0" asChild>
-                <Link href={goBackLink} title="Go back">
-                  <ArrowLeftIcon size={16} />
-                </Link>
-              </Button>
-            ) : (
-              memoizedMobileDrawer
-            )}
-            <div className="flex flex-1 items-center justify-between">
-              {scrollTitle && (
-                <span
-                  className="line-clamp-2 font-semibold tracking-tight"
-                  style={{
-                    transform: `translateY(${transformValues.translateY}%)`,
-                    opacity: transformValues.opacity
-                  }}
-                >
-                  {scrollTitle}
-                </span>
-              )}
-              {title && memoizedBalancer}
-              <div className="flex items-center gap-2">
-                {(isWritingIndexPage || isBookmarksIndexPage) && (
-                  <Button variant="outline" size="xs" asChild>
-                    <a
-                      href={isWritingIndexPage ? '/writing.xml' : '/bookmarks.xml'}
-                      title="RSS feed"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <RadioIcon size={16} className="mr-2" />
-                      RSS feed
-                    </a>
-                  </Button>
-                )}
-                {isBookmarkPath && memoizedSubmitBookmarkDrawer}
-              </div>
-            </div>
-          </div>
+        {/* Left: hamburger or back button (fixed width) */}
+        <div className="shrink-0">
+          {goBackLink ? (
+            <Button variant="ghost" size="icon" className="min-h-[44px] min-w-[44px]" asChild>
+              <Link href={goBackLink} title="Go back">
+                <ArrowLeftIcon size={16} />
+              </Link>
+            </Button>
+          ) : (
+            memoizedMobileDrawer
+          )}
+        </div>
+
+        {/* Center: title (flex-1, truncated) */}
+        <div className="flex min-w-0 flex-1 items-center justify-center truncate px-2">
+          {scrollTitle && (
+            <span
+              className="line-clamp-2 font-semibold tracking-tight"
+              style={{
+                transform: `translateY(${transformValues.translateY}%)`,
+                opacity: transformValues.opacity
+              }}
+            >
+              {scrollTitle}
+            </span>
+          )}
+          {title && !scrollTitle && memoizedBalancer}
+        </div>
+
+        {/* Right: action buttons (fixed width) */}
+        <div className="flex shrink-0 items-center gap-2">
+          {(isWritingIndexPage || isBookmarksIndexPage) && (
+            <Button variant="outline" size="xs" asChild>
+              <a
+                href={isWritingIndexPage ? '/writing.xml' : '/bookmarks.xml'}
+                title="RSS feed"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <RadioIcon size={16} className="mr-1" />
+                <span className="hidden sm:inline">RSS feed</span>
+              </a>
+            </Button>
+          )}
+          {isBookmarkPath && memoizedSubmitBookmarkDrawer}
           {/* This is a hack to show writing views with framer motion reveal effect */}
-          {scrollTitle && isWritingPath && <div className="flex min-w-[50px] justify-end">{children}</div>}
+          {scrollTitle && isWritingPath && children}
         </div>
       </div>
     </header>

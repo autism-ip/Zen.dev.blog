@@ -47,7 +47,7 @@ const DrawerContent = memo(({ className, children, ...props }) => {
 DrawerContent.displayName = 'DrawerContent'
 
 function DrawerHeader({ className, ...props }) {
-  return <div className={cn('grid gap-1.5 p-4 text-center sm:text-left', className)} {...props} />
+  return <div className={cn('grid gap-2 p-4 text-center sm:text-left', className)} {...props} />
 }
 
 function DrawerFooter({ className, ...props }) {

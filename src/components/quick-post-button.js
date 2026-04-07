@@ -232,7 +232,7 @@ export function QuickPostButton() {
             </div>
           </div>
 
-          <div className="mt-6 flex justify-end gap-3">
+          <div className="mt-6 flex justify-end gap-2">
             <button
               type="button"
               onClick={() => setIsOpen(false)}

@@ -76,6 +76,7 @@ function options(links) {
               height={asset.height || 300}
               alt={asset.description || asset.title}
               loading={isEagerLoading ? 'eager' : 'lazy'}
+              decoding="async"
               className="animate-reveal"
               // eslint-disable-next-line react/no-unknown-property
               nopin="nopin"

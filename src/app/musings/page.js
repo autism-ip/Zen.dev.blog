@@ -7,9 +7,8 @@ import { ScrollArea } from '@/components/scroll-area'
 
 async function getMusings() {
   try {
-    // 首先尝试从GitHub获取真实数据
     const response = await fetch('https://raw.githubusercontent.com/autism-ip/git-thoughts/main/public/issues.json', {
-      next: { revalidate: 86400 } // 24小时重新验证 (86400秒)
+      next: { revalidate: 86400 }
     })
 
     if (!response.ok) {
@@ -21,7 +20,6 @@ async function getMusings() {
   } catch (error) {
     console.error('Failed to fetch musings from GitHub:', error)
 
-    // 如果GitHub数据获取失败，在开发环境中使用测试数据作为fallback
     if (process.env.NODE_ENV === 'development') {
       try {
         const fs = await import('fs')
@@ -39,10 +37,10 @@ async function getMusings() {
   }
 }
 
-export default async function MusingsPage({ searchParams }) {
+export default async function MusingsPage(props) {
   const musings = await getMusings()
-  const params = await searchParams
-  const selectedTag = params?.tag
+  const searchParams = await props.searchParams
+  const selectedTag = searchParams?.tag
 
   if (musings === null) {
     return (
@@ -52,16 +50,16 @@ export default async function MusingsPage({ searchParams }) {
         <div className="content-wrapper">
           <div className="content">
             <PageTitle title="Musings" className="lg:hidden" />
-            <div className="mb-6 flex items-center justify-between">
+            <div className="mb-8 flex items-center justify-between">
               <div>
-                <p className="text-gray-600">Thoughts and reflections powered by GitHub Issues</p>
-                <p className="mt-1 text-xs text-gray-500">
-                  Learn more about this implementation:{' '}
+                <p className="text-gray-500">Thoughts and reflections, powered by GitHub Issues</p>
+                <p className="mt-1 text-xs text-gray-400">
+                  Learn more:{' '}
                   <a
                     href="https://github.com/autism-ip/git-thoughts"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 underline hover:text-blue-800"
+                    className="text-gray-500 transition-colors hover:text-gray-700"
                   >
                     git-thoughts
                   </a>
@@ -69,11 +67,9 @@ export default async function MusingsPage({ searchParams }) {
               </div>
               <QuickPostButton />
             </div>
-            <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-              <h2 className="font-semibold text-red-800">Unable to Load Content</h2>
-              <p className="mt-1 text-sm text-red-700">
-                Sorry, unable to fetch the latest musings. Please try again later.
-              </p>
+            <div className="rounded-2xl border border-gray-100 bg-white py-16 text-center">
+              <p className="text-gray-400">Unable to load musings</p>
+              <p className="mt-1 text-sm text-gray-300">Please try again later</p>
             </div>
           </div>
         </div>
@@ -88,16 +84,16 @@ export default async function MusingsPage({ searchParams }) {
       <div className="content-wrapper">
         <div className="content">
           <PageTitle title="Musings" className="lg:hidden" />
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-8 flex items-center justify-between">
             <div>
-              <p className="text-gray-600">Thoughts and reflections powered by GitHub Issues</p>
-              <p className="mt-1 text-xs text-gray-500">
-                Learn more about this implementation:{' '}
+              <p className="text-gray-500">Thoughts and reflections, powered by GitHub Issues</p>
+              <p className="mt-1 text-xs text-gray-400">
+                Learn more:{' '}
                 <a
                   href="https://github.com/autism-ip/git-thoughts"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 underline hover:text-blue-800"
+                  className="text-gray-500 transition-colors hover:text-gray-700"
                 >
                   git-thoughts
                 </a>
@@ -118,5 +114,4 @@ export const metadata = {
   description: 'Thoughts and reflections powered by GitHub Issues'
 }
 
-// 确保页面使用 ISR
-export const revalidate = 3600 // 1小时 (3600秒)
+export const revalidate = 3600

@@ -50,7 +50,7 @@ export function HardwareList({ items }) {
       </div>
 
       {/* Hardware List */}
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
         {items.map((item, index) => (
           <motion.div
             key={index}
@@ -59,7 +59,7 @@ export function HardwareList({ items }) {
             transition={{ delay: index * 0.1 }}
             className="group rounded-lg border bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-md"
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-base">
                 {getCategoryIcon(item.category)}
               </div>

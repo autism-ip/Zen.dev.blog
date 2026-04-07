@@ -86,7 +86,7 @@ export default async function WritingSlug(props) {
                   {dateString}
                 </time>
               }
-              className="mb-6 flex flex-col gap-3"
+              className="mb-6 flex flex-col gap-2"
             />
             <RichText content={content} />
           </article>

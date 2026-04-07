@@ -8,7 +8,8 @@ import {
   NavigationIcon,
   PencilLineIcon,
   SparklesIcon,
-  Wand2Icon
+  Wand2Icon,
+  UsersIcon
 } from 'lucide-react'
 
 export const PROFILES = {
@@ -126,6 +127,11 @@ export const LINKS = [
     href: '/musings',
     label: 'Musings',
     icon: <MessageCircleIcon size={16} />
+  },
+  {
+    href: '/friends',
+    label: 'Friends',
+    icon: <UsersIcon size={16} />
   }
 ]
 

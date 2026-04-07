@@ -14,7 +14,10 @@
     "unused": "next-unused",
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
-    "outdated": "bun outdated"
+    "outdated": "bun outdated",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "engines": {
     "node": "20.x"
@@ -36,7 +39,6 @@
     "class-variance-authority": "^0.7.1",
     "classix": "^2.2.2",
     "cloudinary": "^2.6.1",
-    "dotenv": "^16.5.0",
     "embla-carousel-react": "^8.6.0",
     "feed": "^4.2.2",
     "framer-motion": "^12.15.0",
@@ -46,6 +48,7 @@
     "lucide-react": "^0.475.0",
     "markdown-to-jsx": "^7.7.6",
     "next-cloudinary": "^6.16.0",
+    "penflow": "^0.1.0",
     "react-error-boundary": "^6.0.0",
     "react-hook-form": "^7.56.3",
     "react-intersection-observer": "^9.16.0",
@@ -79,6 +82,7 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "globals": "^16.1.0",
+    "jsdom": "^24.0.0",
     "next": "15.2.8",
     "next-unused": "^0.0.6",
     "postcss": "^8.5.3",
@@ -87,7 +91,8 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "tailwindcss": "^4.1.7",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "vitest": "^1.4.0"
   },
   "overrides": {
     "eslint": "$eslint"

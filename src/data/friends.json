@@ -1,0 +1,18 @@
+{
+  "friends": [
+    {
+      "name": "Zen",
+      "url": "https://zenhungyep.com/",
+      "avatar": "https://zenhungyep.com/assets/dp.jpg",
+      "github": "autism-ip",
+      "signature": "Zen Yep"
+    },
+    {
+      "name": "Penn",
+      "url": "https://pennlam.com/",
+      "avatar": "https://www.pennlam.com/assets/me.avif",
+      "github": "penn-lam",
+      "signature": "Penn Lam"
+    }
+  ]
+}

@@ -52,7 +52,7 @@ export function ProjectCard({ title, tagline, status, stack, link, startDate }) 
         {startDate && <span className="text-xs text-gray-500">Started {formatDate(startDate)}</span>}
       </div>
 
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-2">
         {stack.map((tech, index) => (
           <span
             key={index}

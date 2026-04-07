@@ -19,6 +19,7 @@ export const JourneyCard = memo(({ title, description, image, index }) => {
             width={image.width}
             height={image.height}
             loading={index < 1 ? 'eager' : 'lazy'}
+            decoding="async"
             className="animate-reveal"
             // eslint-disable-next-line react/no-unknown-property
             nopin="nopin"

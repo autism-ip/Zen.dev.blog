@@ -123,7 +123,10 @@ export function LightboxViewer({ isOpen, media, allMedia, onClose, onNavigate })
             <img
               src={media.imageUrl}
               alt={media.title || 'Image'}
+              width={1200}
+              height={800}
               className="max-h-full max-w-full rounded-lg object-contain"
+              decoding="async"
             />
           )}
         </div>

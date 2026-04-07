@@ -15,7 +15,7 @@ export function MobileDrawer() {
   return (
     <Drawer>
       <DrawerTrigger asChild>
-        <Button variant="ghost" size="icon" title="Toggle drawer">
+        <Button variant="ghost" size="icon" title="Toggle drawer" className="min-h-[44px] min-w-[44px]">
           <CommandIcon size={16} />
         </Button>
       </DrawerTrigger>

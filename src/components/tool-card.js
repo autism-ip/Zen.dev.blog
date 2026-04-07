@@ -63,7 +63,7 @@ export const ToolCard = ({ tool, index }) => {
     >
       <motion.div className="thumbnail-shadow relative flex h-full min-h-[180px] flex-col overflow-hidden rounded-xl border border-gray-200/60 bg-white/80 p-6 backdrop-blur-sm transition-all duration-300 hover:bg-white/90">
         <div className="mb-3 flex items-start justify-between">
-          <div className="flex min-w-0 flex-1 items-center gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
             <motion.div
               className="relative size-10 flex-shrink-0"
               whileHover={{ rotate: 5 }}
@@ -97,7 +97,7 @@ export const ToolCard = ({ tool, index }) => {
         <p className="mb-4 flex-1 text-sm leading-relaxed text-gray-600">{tool.desc}</p>
 
         <motion.div
-          className="mb-2 flex flex-wrap gap-1.5"
+          className="mb-2 flex flex-wrap gap-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: index * 0.1 + 0.3, duration: 0.3 }}

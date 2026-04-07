@@ -57,6 +57,7 @@ export function Carousel({ images = [] }) {
                   src={imageItem.url}
                   alt={imageItem.title}
                   loading="lazy"
+                  decoding="async"
                   className="aspect-square border-none object-cover"
                 />
               </CardContent>

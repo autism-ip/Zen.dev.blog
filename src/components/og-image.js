@@ -1,20 +1,13 @@
 export const OpenGraphImage = ({ title, description, icon, url }) => {
   return (
-    <div
-      style={{
-        backgroundColor: 'white',
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        position: 'relative'
-      }}
-    >
+    <div style={{ display: 'flex', position: 'relative', height: '100%', width: '100%', backgroundColor: 'white' }}>
       <div
         style={{
           position: 'absolute',
-          inset: 0,
-          height: '100%',
-          width: '100%',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
           backgroundImage:
             'linear-gradient(to right, #80808012 1px, transparent 1px), linear-gradient(to bottom, #80808012 1px, transparent 1px)',
           backgroundSize: '24px 24px'
@@ -23,45 +16,35 @@ export const OpenGraphImage = ({ title, description, icon, url }) => {
       <div
         style={{
           position: 'absolute',
-          top: 60,
-          left: 60,
-          fontSize: '2rem',
-          lineHeight: 1,
-          background: '#000',
-          color: '#fff',
-          padding: '0.75rem 1.25rem',
-          borderRadius: 9999
-        }}
-      >
-        {`zenhungyep.com${url ? `/${url}` : ''}`}
-      </div>
-      <span
-        style={{
+          top: '64px',
+          left: '64px',
           display: 'flex',
-          flexDirection: 'column',
-          gap: '0.5rem',
-          position: 'absolute',
-          bottom: 100,
-          left: 60,
-          width: '80%'
+          borderRadius: '9999px',
+          backgroundColor: 'black',
+          padding: '12px 20px'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          {icon}
-          <span
-            style={{
-              fontSize: '4.75rem',
-              lineHeight: 1,
-              fontWeight: 600
-            }}
-          >
-            {title}
-          </span>
+        <span
+          style={{ fontSize: '24px', lineHeight: 1, color: 'white' }}
+        >{`zenhungyep.com${url ? `/${url}` : ''}`}</span>
+      </div>
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '96px',
+          left: '64px',
+          display: 'flex',
+          width: '80%',
+          flexDirection: 'column',
+          gap: '8px'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {icon && <span style={{ display: 'flex' }}>{icon}</span>}
+          <span style={{ fontSize: '76px', lineHeight: 1, fontWeight: 600 }}>{title}</span>
         </div>
-        {description && (
-          <span style={{ fontSize: '2.5rem', lineHeight: '3rem', marginTop: '1rem' }}>{description}</span>
-        )}
-      </span>
+        {description && <span style={{ marginTop: '16px', fontSize: '40px', lineHeight: '48px' }}>{description}</span>}
+      </div>
     </div>
   )
 }

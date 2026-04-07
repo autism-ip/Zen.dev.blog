@@ -63,7 +63,14 @@ export default function DebugOG() {
 
         <div className="rounded-lg bg-yellow-50 p-4">
           <h2 className="mb-3 text-lg font-semibold">Preview</h2>
-          <img src="/opengraph-image" alt="OG Image Preview" className="max-w-md rounded border" />
+          <img
+            src="/opengraph-image"
+            alt="OG Image Preview"
+            width={1200}
+            height={630}
+            className="max-w-md rounded border"
+            decoding="async"
+          />
         </div>
       </div>
     </div>

@@ -54,7 +54,7 @@ export const SideMenu = ({ children, title, bookmarks = [], isInner }) => {
       <ScrollArea
         className={cn(
           'hidden bg-zinc-50 lg:flex lg:flex-col lg:border-r',
-          isInner ? 'lg:w-80 xl:w-96' : 'lg:w-60 xl:w-72'
+          isInner ? 'lg:w-80 xl:w-96' : 'lg:w-64 xl:w-72'
         )}
       >
         {title && (
