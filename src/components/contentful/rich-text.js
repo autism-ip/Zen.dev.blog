@@ -10,17 +10,118 @@ const CodeBlock = dynamic(() => import('@/components/contentful/code-block').the
 const DynamicIframe = dynamic(() => import('@/components/contentful/iframe').then((mod) => mod.Iframe))
 import { dasherize } from '@/lib/utils'
 
+async function renderEmbeddedEntry(entry) {
+  switch (entry.__typename) {
+    case 'ContentEmbed': {
+      const { embedUrl, title, type } = entry
+
+      switch (type) {
+        case 'Video': {
+          const YouTubeEmbed = await import('@next/third-parties/google').then((mod) => mod.YouTubeEmbed)
+          const videoId = embedUrl.split('/embed/')[1]
+
+          return (
+            <ShowInView>
+              <YouTubeEmbed
+                videoid={videoId}
+                playlabel={title}
+                params="fs=0;controls=0&mute=1"
+                className="aspect-video"
+              />
+              {title && <div className="py-2 text-center text-xs font-light text-gray-500">{title}</div>}
+            </ShowInView>
+          )
+        }
+        case 'SoundCloud': {
+          return <DynamicIframe embedUrl={embedUrl} title={title} scrolling="no" className="h-[166px]" />
+        }
+        case 'link': {
+          return (
+            <Link
+              href={embedUrl}
+              className="my-2 block rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50"
+            >
+              <span className="font-medium text-gray-900">{title}</span>
+              <span className="mt-1 block text-xs text-gray-500">{new URL(embedUrl).hostname}</span>
+            </Link>
+          )
+        }
+        default:
+          return null
+      }
+    }
+    case 'CodeBlock': {
+      return <CodeBlock {...entry} />
+    }
+    case 'Tweet': {
+      const { id } = entry
+      return <TweetCard id={id} />
+    }
+    case 'Carousel': {
+      const Carousel = await import('@/components/contentful/carousel').then((mod) => mod.Carousel)
+      return <Carousel images={entry.imagesCollection?.items} />
+    }
+    case 'Seo': {
+      const img = parseMarkdownImage(entry.description)
+      if (!img) return null
+      return (
+        <figure className="mb-6 flex flex-col gap-2 overflow-hidden rounded-xl">
+          <img
+            src={img.src}
+            alt={img.alt || entry.title || ''}
+            loading="lazy"
+            decoding="async"
+            className="animate-reveal"
+          />
+          {img.alt && (
+            <figcaption className="text-center text-xs font-light break-all text-gray-500">{img.alt}</figcaption>
+          )}
+        </figure>
+      )
+    }
+    default:
+      return null
+  }
+}
+
+// 解析 Seo entry 中 markdown 图片语法: ![alt](url)
+function parseMarkdownImage(description) {
+  if (!description) return null
+  const match = description.match(/!\[(?<alt>[^\]]*)\]\((?<url>[^)]+)\)/)
+  if (!match) return null
+  const { alt, url } = match.groups
+  // 补全协议
+  const src = url.startsWith('//') ? `https:${url}` : url
+  return { src, alt }
+}
+
 function options(links) {
   const findAsset = (id) => links?.assets.block.find((item) => item.sys.id === id)
-  const findInlineEntry = (id) => links?.entries.inline.find((item) => item.sys.id === id)
+  const findEntry = (id) =>
+    links?.entries.block.find((item) => item.sys.id === id) ?? links?.entries.inline.find((item) => item.sys.id === id)
 
   return {
+    preserveWhitespace: true,
     renderMark: {
       [MARKS.BOLD]: (text) => <span className="font-semibold text-black">{text}</span>,
       [MARKS.ITALIC]: (text) => <span className="italic">{text}</span>,
       [MARKS.CODE]: (text) => <code className="inline-code">{text}</code>
     },
     renderNode: {
+      [BLOCKS.HEADING_1]: (_, children) => {
+        const id = dasherize(children)
+        const url = `h1-${id}`
+        return (
+          <h1
+            id={url}
+            className="group relative mt-8 mb-3 w-fit cursor-pointer before:absolute before:-left-4 hover:before:content-['#']"
+          >
+            <a href={`#${url}`} className="group-hover:underline group-hover:underline-offset-4">
+              {children}
+            </a>
+          </h1>
+        )
+      },
       [BLOCKS.HEADING_2]: (_, children) => {
         const id = dasherize(children)
         const url = `h2-${id}`
@@ -49,9 +150,12 @@ function options(links) {
           </h3>
         )
       },
-      // Must be a <div> instead of <p> to avoid descendant issue, hence to avoid mismatching UI between server and client on hydration.
       [BLOCKS.PARAGRAPH]: (_, children) => (
-        <div className="mb-4 leading-[1.75] last:mb-0 [&:has(+ul)]:mb-1">{children}</div>
+        <p className="mb-6 leading-[1.75] last:mb-0 [&:has(+ul)]:mb-1">{children}</p>
+      ),
+      // Contentful 中部分段落使用 heading-6 节点类型存储，按段落样式渲染
+      [BLOCKS.HEADING_6]: (_, children) => (
+        <p className="mb-6 leading-[1.75] last:mb-0 [&:has(+ul)]:mb-1">{children}</p>
       ),
       [BLOCKS.UL_LIST]: (_, children) => <ul className="mb-4 flex list-disc flex-col gap-0.5 pl-6">{children}</ul>,
       [BLOCKS.OL_LIST]: (_, children) => (
@@ -78,7 +182,6 @@ function options(links) {
               loading={isEagerLoading ? 'eager' : 'lazy'}
               decoding="async"
               className="animate-reveal"
-              // eslint-disable-next-line react/no-unknown-property
               nopin="nopin"
             />
             {asset.description && (
@@ -90,52 +193,31 @@ function options(links) {
         )
       },
       [BLOCKS.HR]: () => <hr className="my-12" />,
+      [BLOCKS.TABLE]: (_, children) => (
+        <div className="mb-6 overflow-x-auto">
+          <table className="w-full border-collapse rounded-lg border border-gray-200">{children}</table>
+        </div>
+      ),
+      [BLOCKS.TABLE_ROW]: (_, children) => <tr className="border-b border-gray-100 last:border-b-0">{children}</tr>,
+      [BLOCKS.TABLE_CELL]: (_, children) => (
+        <td className="border-r border-gray-100 px-3 py-2 last:border-r-0">{children}</td>
+      ),
+      [BLOCKS.TABLE_HEADER_CELL]: (_, children) => (
+        <th className="border-r border-b border-gray-200 bg-gray-50 px-3 py-2 text-left font-semibold last:border-r-0">
+          {children}
+        </th>
+      ),
+      [BLOCKS.EMBEDDED_ENTRY]: async (node) => {
+        const entry = findEntry(node.data.target.sys.id)
+        if (!entry) return null
+        return renderEmbeddedEntry(entry)
+      },
       [INLINES.HYPERLINK]: (node, children) => <Link href={node.data.uri}>{children}</Link>,
       [INLINES.EMBEDDED_ENTRY]: async (node) => {
-        const entry = findInlineEntry(node.data.target.sys.id)
-
-        switch (entry.__typename) {
-          case 'ContentEmbed': {
-            const { embedUrl, title, type } = entry
-
-            switch (type) {
-              case 'Video': {
-                const YouTubeEmbed = await import('@next/third-parties/google').then((mod) => mod.YouTubeEmbed)
-                const videoId = embedUrl.split('/embed/')[1]
-
-                return (
-                  <ShowInView>
-                    <YouTubeEmbed
-                      videoid={videoId}
-                      playlabel={title}
-                      params="fs=0;controls=0&mute=1"
-                      className="aspect-video"
-                    />
-                    {title && <div className="py-2 text-center text-xs font-light text-gray-500">{title}</div>}
-                  </ShowInView>
-                )
-              }
-              case 'SoundCloud': {
-                return <DynamicIframe embedUrl={embedUrl} title={title} scrolling="no" className="h-[166px]" />
-              }
-              default:
-                return null
-            }
-          }
-          case 'CodeBlock': {
-            return <CodeBlock {...entry} />
-          }
-          case 'Tweet': {
-            const { id } = entry
-            return <TweetCard id={id} />
-          }
-          case 'Carousel': {
-            const Carousel = await import('@/components/contentful/carousel').then((mod) => mod.Carousel)
-            return <Carousel images={entry.imagesCollection?.items} />
-          }
-          default:
-            return null
-        }
+        const entry = findEntry(node.data.target.sys.id)
+        if (!entry) return null
+        // 包裹 <span> 防止 block 元素出现在 <p> 内部
+        return <span className="inline-block">{await renderEmbeddedEntry(entry)}</span>
       }
     }
   }

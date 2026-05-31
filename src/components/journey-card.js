@@ -21,7 +21,6 @@ export const JourneyCard = memo(({ title, description, image, index }) => {
             loading={index < 1 ? 'eager' : 'lazy'}
             decoding="async"
             className="animate-reveal"
-            // eslint-disable-next-line react/no-unknown-property
             nopin="nopin"
           />
         </div>

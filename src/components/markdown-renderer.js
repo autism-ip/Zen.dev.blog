@@ -23,7 +23,6 @@ export const MarkdownRenderer = ({ options, ...rest }) => {
                 loading="lazy"
                 decoding="async"
                 className="animate-reveal aspect-auto w-full object-cover"
-                // eslint-disable-next-line react/no-unknown-property
                 nopin="nopin"
               />
             </span>

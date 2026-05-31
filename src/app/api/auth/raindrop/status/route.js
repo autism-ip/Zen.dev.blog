@@ -18,7 +18,7 @@ export async function GET() {
   try {
     console.info('=== Token Status Check ===')
     const tokenManager = getTokenManager()
-    
+
     // 检查是否有存储的token信息
     let tokenInfo = null
     try {

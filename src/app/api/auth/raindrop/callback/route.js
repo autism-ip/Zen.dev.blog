@@ -19,11 +19,11 @@ const RAINDROP_API_URL = 'https://api.raindrop.io/rest/v1'
 export async function GET(request) {
   console.info('=== OAuth Callback Started ===')
   console.info('Request URL:', request.url)
-  
+
   const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
   const error = searchParams.get('error')
-  
+
   console.info('URL Parameters:', {
     hasCode: !!code,
     hasError: !!error,
@@ -43,7 +43,7 @@ export async function GET(request) {
 
   try {
     console.info('=== Starting token exchange process ===')
-    
+
     const clientId = process.env.RAINDROP_CLIENT_ID
     const clientSecret = process.env.RAINDROP_CLIENT_SECRET
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
@@ -51,7 +51,7 @@ export async function GET(request) {
     console.info('Raw environment variables:', {
       NODE_ENV: process.env.NODE_ENV,
       hasVercelEnv: !!process.env.VERCEL,
-      allEnvKeys: Object.keys(process.env).filter(key => key.includes('RAINDROP')),
+      allEnvKeys: Object.keys(process.env).filter((key) => key.includes('RAINDROP')),
       clientIdValue: clientId || 'MISSING',
       clientSecretValue: clientSecret ? `${clientSecret.substring(0, 4)}...` : 'MISSING',
       baseUrlValue: baseUrl
@@ -83,14 +83,14 @@ export async function GET(request) {
       code: code,
       redirect_uri: `${baseUrl}/api/auth/raindrop/callback`
     }
-    
+
     console.info('Token exchange request:', {
       url: 'https://raindrop.io/oauth/access_token',
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: { ...tokenRequest, client_secret: '***' } // 隐藏敏感信息
     })
-    
+
     const tokenResponse = await fetch('https://raindrop.io/oauth/access_token', {
       method: 'POST',
       headers: {
@@ -118,11 +118,13 @@ export async function GET(request) {
       console.error('OAuth error in token response:', tokenData)
       throw new Error(`OAuth error: ${tokenData.error} - ${tokenData.error_description || 'Unknown error'}`)
     }
-    
+
     // Check for Raindrop.io specific error format
     if (tokenData.result === false) {
       console.error('Raindrop.io API error:', tokenData)
-      throw new Error(`Raindrop.io API error: ${tokenData.errorMessage || 'Unknown error'} (status: ${tokenData.status})`)
+      throw new Error(
+        `Raindrop.io API error: ${tokenData.errorMessage || 'Unknown error'} (status: ${tokenData.status})`
+      )
     }
 
     // Validate required tokens
@@ -153,7 +155,7 @@ export async function GET(request) {
       tokenData.refresh_token,
       tokenData.expires_in || 1209600 // 默认14天
     )
-    
+
     console.info('Token storage result:', storeResult)
 
     // 验证令牌是否工作

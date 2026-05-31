@@ -7,8 +7,8 @@
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
-import { useState } from 'react'
 import { PlusIcon } from 'lucide-react'
+import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -51,7 +51,7 @@ export function SubmitFriendDialog() {
           </DialogHeader>
           <div className="grid gap-2 py-4">
             {[
-              { id: 'name', label: 'Name', placeholder: 'Your friend\'s name', required: true },
+              { id: 'name', label: 'Name', placeholder: "Your friend's name", required: true },
               { id: 'url', label: 'Website', placeholder: 'https://example.com', required: true },
               { id: 'avatar', label: 'Avatar URL', placeholder: 'https://example.com/avatar.jpg' },
               { id: 'github', label: 'GitHub Username', placeholder: 'username' },
@@ -68,13 +68,15 @@ export function SubmitFriendDialog() {
                   required={required}
                   value={form[id]}
                   onChange={(e) => setForm((f) => ({ ...f, [id]: e.target.value }))}
-                  className="flex h-9 w-full rounded-md border border-gray-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950"
+                  className="flex h-9 w-full rounded-md border border-gray-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-gray-950 focus-visible:outline-none"
                 />
               </div>
             ))}
           </div>
           <DialogFooter>
-            <Button type="submit" size="sm">Submit</Button>
+            <Button type="submit" size="sm">
+              Submit
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

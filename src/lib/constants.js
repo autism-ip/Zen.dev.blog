@@ -3,13 +3,12 @@ import {
   BookmarkIcon,
   GithubIcon,
   ImageIcon,
-  LinkedinIcon,
   MessageCircleIcon,
   NavigationIcon,
   PencilLineIcon,
   SparklesIcon,
-  Wand2Icon,
-  UsersIcon
+  UsersIcon,
+  Wand2Icon
 } from 'lucide-react'
 
 export const PROFILES = {
@@ -74,7 +73,7 @@ export const PROFILES = {
 }
 
 // 支持多个 Twitter 收藏夹
-export const TWEETS_COLLECTION_IDS = [65591006,65591012,65590917]
+export const TWEETS_COLLECTION_IDS = [65591006, 65591012, 65590917]
 
 export const COLLECTION_IDS = [
   0,

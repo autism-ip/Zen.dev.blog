@@ -1,24 +1,34 @@
 /**
- * @jest-environment jsdom
+ * [INPUT]: 依赖 useSunnyMode hook、Vitest mock、Testing Library renderHook
+ * [OUTPUT]: 验证阳光模式的初始状态、切换持久化、同页事件广播
+ * [POS]: hooks/ 的状态契约测试，锁定 localStorage 与 CustomEvent 行为
+ * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
-import { renderHook, act } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 import { useSunnyMode } from './use-sunny-mode'
 
-// Mock localStorage
+// Mock localStorage with real-like behavior
+const store = {}
 const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn()
+  getItem: vi.fn((key) => store[key] ?? null),
+  setItem: vi.fn((key, value) => {
+    store[key] = value
+  }),
+  removeItem: vi.fn((key) => {
+    delete store[key]
+  })
 }
-
-// Mock CustomEvent
-global.CustomEvent = jest.fn()
 
 describe('useSunnyMode', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    localStorageMock.getItem.mockReturnValue(null)
-    global.localStorage = localStorageMock
+    vi.clearAllMocks()
+    Object.keys(store).forEach((key) => delete store[key])
+    Object.defineProperty(window, 'localStorage', {
+      value: localStorageMock,
+      configurable: true
+    })
   })
 
   describe('initial state', () => {
@@ -28,13 +38,13 @@ describe('useSunnyMode', () => {
     })
 
     it('should return active as true when localStorage has "true"', () => {
-      localStorageMock.getItem.mockReturnValue('true')
+      store['sunny-mode'] = 'true'
       const { result } = renderHook(() => useSunnyMode())
       expect(result.current.active).toBe(true)
     })
 
     it('should return active as false when localStorage has "false"', () => {
-      localStorageMock.getItem.mockReturnValue('false')
+      store['sunny-mode'] = 'false'
       const { result } = renderHook(() => useSunnyMode())
       expect(result.current.active).toBe(false)
     })
@@ -42,7 +52,7 @@ describe('useSunnyMode', () => {
 
   describe('toggle', () => {
     it('should toggle from false to true', () => {
-      localStorageMock.getItem.mockReturnValue('false')
+      store['sunny-mode'] = 'false'
       const { result } = renderHook(() => useSunnyMode())
 
       expect(result.current.active).toBe(false)
@@ -52,11 +62,11 @@ describe('useSunnyMode', () => {
       })
 
       expect(result.current.active).toBe(true)
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('sunny-mode', 'true')
+      expect(store['sunny-mode']).toBe('true')
     })
 
     it('should toggle from true to false', () => {
-      localStorageMock.getItem.mockReturnValue('true')
+      store['sunny-mode'] = 'true'
       const { result } = renderHook(() => useSunnyMode())
 
       expect(result.current.active).toBe(true)
@@ -66,27 +76,28 @@ describe('useSunnyMode', () => {
       })
 
       expect(result.current.active).toBe(false)
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('sunny-mode', 'false')
+      expect(store['sunny-mode']).toBe('false')
     })
   })
 
   describe('persistence', () => {
     it('should save state to localStorage on toggle', () => {
-      localStorageMock.getItem.mockReturnValue('false')
+      store['sunny-mode'] = 'false'
       const { result } = renderHook(() => useSunnyMode())
 
       act(() => {
         result.current.toggle()
       })
 
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('sunny-mode', 'true')
+      expect(store['sunny-mode']).toBe('true')
     })
   })
 
   describe('cross-tab sync via CustomEvent', () => {
     it('should dispatch CustomEvent when toggling', () => {
-      const addEventListenerSpy = jest.spyOn(window, 'addEventListener')
-      const removeEventListenerSpy = jest.spyOn(window, 'removeEventListener')
+      const addEventListenerSpy = vi.spyOn(window, 'addEventListener')
+      const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener')
+      const dispatchEventSpy = vi.spyOn(window, 'dispatchEvent')
 
       const { result, unmount } = renderHook(() => useSunnyMode())
 
@@ -98,7 +109,7 @@ describe('useSunnyMode', () => {
       })
 
       // CustomEvent should be dispatched
-      expect(CustomEvent).toHaveBeenCalledWith('sunny-mode-storage', expect.any(Object))
+      expect(dispatchEventSpy).toHaveBeenCalledWith(expect.objectContaining({ type: 'sunny-mode-storage' }))
 
       unmount()
 
@@ -107,6 +118,7 @@ describe('useSunnyMode', () => {
 
       addEventListenerSpy.mockRestore()
       removeEventListenerSpy.mockRestore()
+      dispatchEventSpy.mockRestore()
     })
   })
 })

@@ -1,39 +1,17 @@
-import { fixupConfigRules, fixupPluginRules } from '@eslint/compat'
-import { FlatCompat } from '@eslint/eslintrc'
+import { fixupPluginRules } from '@eslint/compat'
 import eslint from '@eslint/js'
-import _import from 'eslint-plugin-import'
 import prettier from 'eslint-plugin-prettier'
-import react from 'eslint-plugin-react'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import globals from 'globals'
-import path from 'path'
-import { fileURLToPath } from 'url'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: eslint.configs.recommended,
-  allConfig: eslint.configs.all
-})
+import nextConfigs from 'eslint-config-next'
 
 const patchedConfig = [
-  ...fixupConfigRules(
-    compat.extends(
-      'next',
-      'next/core-web-vitals',
-      'eslint:recommended',
-      'plugin:react/recommended',
-      'plugin:prettier/recommended',
-      'plugin:import/recommended'
-    )
-  ),
+  eslint.configs.recommended,
+  ...nextConfigs,
   {
     files: ['**/*.js?(x)'],
     plugins: {
-      react: fixupPluginRules(react),
       'simple-import-sort': simpleImportSort,
-      import: fixupPluginRules(_import),
       prettier: fixupPluginRules(prettier)
     },
     languageOptions: {
@@ -66,7 +44,7 @@ const patchedConfig = [
       }
     },
     rules: {
-      'no-console': ['error', { allow: ['error', 'info'] }],
+      'no-console': ['error', { allow: ['error', 'info', 'warn'] }],
       'react/no-unescaped-entities': 0,
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 0,
@@ -76,13 +54,22 @@ const patchedConfig = [
       'import/no-duplicates': 'error',
       '@next/next/no-img-element': 0,
       '@next/next/no-page-custom-font': 0,
-      'import/no-named-as-default': 0
+      'react-hooks/static-components': 'off',
+      'react-hooks/set-state-in-effect': 'off',
+      'import/no-named-as-default': 0,
+      'prettier/prettier': 'error'
     }
   },
   {
     files: ['*.mjs'],
     rules: {
       'import/no-anonymous-default-export': 'off'
+    }
+  },
+  {
+    files: ['**/*.{test,spec}.{js,jsx}'],
+    languageOptions: {
+      globals: { ...globals.vitest, globalThis: true }
     }
   }
 ]

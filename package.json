@@ -17,7 +17,8 @@
     "outdated": "bun outdated",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "ci:gate": "npm run lint && npm run test:run && npm run build"
   },
   "engines": {
     "node": "20.x"
@@ -92,6 +93,7 @@
     "react-dom": "^19.2.3",
     "tailwindcss": "^4.1.7",
     "tailwindcss-animate": "^1.0.7",
+    "typescript": "^5.8.3",
     "vitest": "^1.4.0"
   },
   "overrides": {

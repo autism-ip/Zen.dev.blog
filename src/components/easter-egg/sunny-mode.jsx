@@ -7,6 +7,7 @@
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 import { useEffect, useRef } from 'react'
+
 import { useSunnyMode } from '@/hooks/use-sunny-mode'
 
 const SHUTTER_COUNT = 23

@@ -32,11 +32,11 @@ export class EnvTokenManager {
   async storeTokenInfo(tokenInfo) {
     try {
       const encryptedToken = encrypt(JSON.stringify(tokenInfo))
-      
+
       console.info('✅ Token encrypted successfully!')
       console.info('🔐 Encrypted token (add this to RAINDROP_ENCRYPTED_REFRESH_TOKEN env var):')
       console.info(encryptedToken)
-      
+
       return encryptedToken
     } catch (error) {
       console.error('Failed to encrypt token for storage:', error)
@@ -123,10 +123,10 @@ export class EnvTokenManager {
       updatedAt: Date.now()
     }
 
-    console.info('Storing initial tokens:', { 
+    console.info('Storing initial tokens:', {
       hasAccessToken: !!accessToken,
       hasRefreshToken: !!refreshToken,
-      expiresIn 
+      expiresIn
     })
 
     return await this.storeTokenInfo(tokenInfo)

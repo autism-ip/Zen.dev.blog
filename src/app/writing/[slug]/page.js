@@ -44,7 +44,7 @@ async function fetchData(slug) {
 
 export default async function WritingSlug(props) {
   const params = await props.params
-  const { slug } = params
+  const slug = decodeURIComponent(params.slug)
   const { data } = await fetchData(slug)
 
   const { title, date, seo = {}, content, sys = {} } = data
@@ -101,7 +101,7 @@ export default async function WritingSlug(props) {
 
 export async function generateMetadata(props) {
   const params = await props.params
-  const { slug } = params
+  const slug = decodeURIComponent(params.slug)
   const seoData = await getWritingSeo(slug)
   if (!seoData) {
     return {

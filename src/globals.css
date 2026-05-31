@@ -155,6 +155,7 @@
     }
   }
 
+  li p,
   li div {
     @apply inline;
   }

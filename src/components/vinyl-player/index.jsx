@@ -12,7 +12,7 @@ import { memo, useCallback, useState } from 'react'
 import { useKeyPress } from '@/hooks/use-key-press'
 import { cn } from '@/lib/utils'
 
-import { useMeting, PLAYLIST_ID } from './use-meting'
+import { PLAYLIST_ID, useMeting } from './use-meting'
 import { VinylRecord } from './vinyl-record.jsx'
 
 export const VinylPlayer = memo(() => {
