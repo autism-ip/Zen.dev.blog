@@ -182,7 +182,6 @@ function options(links) {
               loading={isEagerLoading ? 'eager' : 'lazy'}
               decoding="async"
               className="animate-reveal"
-              // eslint-disable-next-line react/no-unknown-property
               nopin="nopin"
             />
             {asset.description && (

@@ -1,9 +1,8 @@
 import Link from 'next/link'
 
-import { VinylPlayer } from '@/components/vinyl-player'
 import { NavigationLink } from '@/components/navigation-link'
+import { VinylPlayer } from '@/components/vinyl-player'
 import { LINKS, PROFILES } from '@/lib/constants'
-import { UsersIcon } from 'lucide-react'
 
 export const MenuContent = () => (
   <div className="flex w-full flex-col text-sm">
@@ -16,7 +15,6 @@ export const MenuContent = () => (
           height={40}
           loading="eager"
           className="rounded-full border shadow-xs"
-          // eslint-disable-next-line react/no-unknown-property
           nopin="nopin"
         />
         <div className="flex flex-col">

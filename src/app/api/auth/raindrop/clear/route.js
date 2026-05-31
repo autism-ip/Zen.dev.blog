@@ -17,7 +17,7 @@ function getTokenManager() {
 export async function POST() {
   try {
     const tokenManager = getTokenManager()
-    
+
     // 不同的token manager可能有不同的清除方法
     if (tokenManager.clearTokens) {
       await tokenManager.clearTokens()

@@ -6,7 +6,7 @@
  * [POS]: hooks/ 的阳光模式状态管理，支持跨组件同步和 localStorage 持久化
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
-import { useCallback, useEffect, useSyncExternalStore } from 'react'
+import { useCallback, useSyncExternalStore } from 'react'
 
 const STORAGE_KEY = 'sunny-mode'
 

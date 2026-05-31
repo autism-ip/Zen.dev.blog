@@ -7,8 +7,10 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { createElement } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 import { useSunnyMode } from '@/hooks/use-sunny-mode'
-import { SunnyToggle, SunnyOverlay } from './sunny-mode'
+
+import { SunnyOverlay, SunnyToggle } from './sunny-mode'
 
 vi.mock('@/hooks/use-sunny-mode', () => ({
   useSunnyMode: vi.fn()
@@ -35,8 +37,8 @@ describe('SunnyToggle', () => {
   describe('rendering', () => {
     it('should render toggle switch with role="switch"', () => {
       render(createElement(SunnyToggle))
-      const toggle = screen.getByRole('switch')
-      expect(toggle).toBeInTheDocument()
+      const switchEl = screen.getByRole('switch')
+      expect(switchEl).toBeInTheDocument()
     })
 
     it('should render hint text when off', () => {
@@ -54,9 +56,9 @@ describe('SunnyToggle', () => {
   describe('OFF state styling', () => {
     it('should have gray background when off', () => {
       render(createElement(SunnyToggle))
-      const toggle = screen.getByRole('switch')
-      expect(toggle).toHaveClass('bg-gray-200')
-      expect(toggle).not.toHaveClass('bg-amber-500')
+      const switchEl = screen.getByRole('switch')
+      expect(switchEl).toHaveClass('bg-gray-200')
+      expect(switchEl).not.toHaveClass('bg-amber-500')
     })
   })
 
@@ -64,9 +66,9 @@ describe('SunnyToggle', () => {
     it('should have amber background when on', () => {
       useSunnyMode.mockReturnValue({ active: true, toggle })
       render(createElement(SunnyToggle))
-      const toggle = screen.getByRole('switch')
-      expect(toggle).toHaveClass('bg-amber-500')
-      expect(toggle).not.toHaveClass('bg-gray-200')
+      const switchEl = screen.getByRole('switch')
+      expect(switchEl).toHaveClass('bg-amber-500')
+      expect(switchEl).not.toHaveClass('bg-gray-200')
     })
   })
 
@@ -80,14 +82,14 @@ describe('SunnyToggle', () => {
     it('should be accessible with proper role', () => {
       useSunnyMode.mockReturnValue({ active: true, toggle })
       render(createElement(SunnyToggle))
-      const toggle = screen.getByRole('switch')
-      expect(toggle).toHaveAttribute('aria-checked', 'true')
+      const switchEl = screen.getByRole('switch')
+      expect(switchEl).toHaveAttribute('aria-checked', 'true')
     })
 
     it('should have aria-checked false when off', () => {
       render(createElement(SunnyToggle))
-      const toggle = screen.getByRole('switch')
-      expect(toggle).toHaveAttribute('aria-checked', 'false')
+      const switchEl = screen.getByRole('switch')
+      expect(switchEl).toHaveAttribute('aria-checked', 'false')
     })
   })
 })

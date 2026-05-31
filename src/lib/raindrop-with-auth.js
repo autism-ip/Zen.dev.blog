@@ -26,7 +26,7 @@ const RAINDROP_API_URL = 'https://api.raindrop.io/rest/v1'
 async function makeAuthenticatedRequest(url, options = {}) {
   try {
     const tokenManager = getTokenManager()
-    
+
     let accessToken
     try {
       accessToken = await tokenManager.getValidAccessToken()
