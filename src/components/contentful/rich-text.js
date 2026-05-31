@@ -101,12 +101,27 @@ function options(links) {
     links?.entries.block.find((item) => item.sys.id === id) ?? links?.entries.inline.find((item) => item.sys.id === id)
 
   return {
+    preserveWhitespace: true,
     renderMark: {
       [MARKS.BOLD]: (text) => <span className="font-semibold text-black">{text}</span>,
       [MARKS.ITALIC]: (text) => <span className="italic">{text}</span>,
       [MARKS.CODE]: (text) => <code className="inline-code">{text}</code>
     },
     renderNode: {
+      [BLOCKS.HEADING_1]: (_, children) => {
+        const id = dasherize(children)
+        const url = `h1-${id}`
+        return (
+          <h1
+            id={url}
+            className="group relative mt-8 mb-3 w-fit cursor-pointer before:absolute before:-left-4 hover:before:content-['#']"
+          >
+            <a href={`#${url}`} className="group-hover:underline group-hover:underline-offset-4">
+              {children}
+            </a>
+          </h1>
+        )
+      },
       [BLOCKS.HEADING_2]: (_, children) => {
         const id = dasherize(children)
         const url = `h2-${id}`
@@ -135,9 +150,12 @@ function options(links) {
           </h3>
         )
       },
-      // Must be a <div> instead of <p> to avoid descendant issue, hence to avoid mismatching UI between server and client on hydration.
       [BLOCKS.PARAGRAPH]: (_, children) => (
-        <div className="mb-4 leading-[1.75] last:mb-0 [&:has(+ul)]:mb-1">{children}</div>
+        <p className="mb-6 leading-[1.75] last:mb-0 [&:has(+ul)]:mb-1">{children}</p>
+      ),
+      // Contentful 中部分段落使用 heading-6 节点类型存储，按段落样式渲染
+      [BLOCKS.HEADING_6]: (_, children) => (
+        <p className="mb-6 leading-[1.75] last:mb-0 [&:has(+ul)]:mb-1">{children}</p>
       ),
       [BLOCKS.UL_LIST]: (_, children) => <ul className="mb-4 flex list-disc flex-col gap-0.5 pl-6">{children}</ul>,
       [BLOCKS.OL_LIST]: (_, children) => (
@@ -176,6 +194,20 @@ function options(links) {
         )
       },
       [BLOCKS.HR]: () => <hr className="my-12" />,
+      [BLOCKS.TABLE]: (_, children) => (
+        <div className="mb-6 overflow-x-auto">
+          <table className="w-full border-collapse rounded-lg border border-gray-200">{children}</table>
+        </div>
+      ),
+      [BLOCKS.TABLE_ROW]: (_, children) => <tr className="border-b border-gray-100 last:border-b-0">{children}</tr>,
+      [BLOCKS.TABLE_CELL]: (_, children) => (
+        <td className="border-r border-gray-100 px-3 py-2 last:border-r-0">{children}</td>
+      ),
+      [BLOCKS.TABLE_HEADER_CELL]: (_, children) => (
+        <th className="border-r border-b border-gray-200 bg-gray-50 px-3 py-2 text-left font-semibold last:border-r-0">
+          {children}
+        </th>
+      ),
       [BLOCKS.EMBEDDED_ENTRY]: async (node) => {
         const entry = findEntry(node.data.target.sys.id)
         if (!entry) return null
@@ -185,7 +217,8 @@ function options(links) {
       [INLINES.EMBEDDED_ENTRY]: async (node) => {
         const entry = findEntry(node.data.target.sys.id)
         if (!entry) return null
-        return renderEmbeddedEntry(entry)
+        // 包裹 <span> 防止 block 元素出现在 <p> 内部
+        return <span className="inline-block">{await renderEmbeddedEntry(entry)}</span>
       }
     }
   }
