@@ -63,7 +63,7 @@ export const FloatingHeader = memo(({ scrollTitle, title, goBackLink, bookmarks,
 
   const memoizedBalancer = useMemo(
     () => (
-      <Balancer ratio={0.35}>
+      <Balancer ratio={1}>
         <span className="line-clamp-2 font-semibold tracking-tight">{title}</span>
       </Balancer>
     ),
