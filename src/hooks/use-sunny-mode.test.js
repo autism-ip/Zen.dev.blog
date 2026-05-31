@@ -1,24 +1,28 @@
 /**
- * @jest-environment jsdom
+ * [INPUT]: 依赖 useSunnyMode hook、Vitest mock、Testing Library renderHook
+ * [OUTPUT]: 验证阳光模式的初始状态、切换持久化、同页事件广播
+ * [POS]: hooks/ 的状态契约测试，锁定 localStorage 与 CustomEvent 行为
+ * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
-import { renderHook, act } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useSunnyMode } from './use-sunny-mode'
 
 // Mock localStorage
 const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn()
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn()
 }
-
-// Mock CustomEvent
-global.CustomEvent = jest.fn()
 
 describe('useSunnyMode', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     localStorageMock.getItem.mockReturnValue(null)
-    global.localStorage = localStorageMock
+    Object.defineProperty(window, 'localStorage', {
+      value: localStorageMock,
+      configurable: true
+    })
   })
 
   describe('initial state', () => {
@@ -85,8 +89,9 @@ describe('useSunnyMode', () => {
 
   describe('cross-tab sync via CustomEvent', () => {
     it('should dispatch CustomEvent when toggling', () => {
-      const addEventListenerSpy = jest.spyOn(window, 'addEventListener')
-      const removeEventListenerSpy = jest.spyOn(window, 'removeEventListener')
+      const addEventListenerSpy = vi.spyOn(window, 'addEventListener')
+      const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener')
+      const dispatchEventSpy = vi.spyOn(window, 'dispatchEvent')
 
       const { result, unmount } = renderHook(() => useSunnyMode())
 
@@ -98,7 +103,7 @@ describe('useSunnyMode', () => {
       })
 
       // CustomEvent should be dispatched
-      expect(CustomEvent).toHaveBeenCalledWith('sunny-mode-storage', expect.any(Object))
+      expect(dispatchEventSpy).toHaveBeenCalledWith(expect.objectContaining({ type: 'sunny-mode-storage' }))
 
       unmount()
 
@@ -107,6 +112,7 @@ describe('useSunnyMode', () => {
 
       addEventListenerSpy.mockRestore()
       removeEventListenerSpy.mockRestore()
+      dispatchEventSpy.mockRestore()
     })
   })
 })

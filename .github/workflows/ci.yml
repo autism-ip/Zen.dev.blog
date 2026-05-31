@@ -1,20 +1,43 @@
-name: CI
+# [INPUT]: 依赖 npm lockfile、Next.js build、Vitest、ESLint
+# [OUTPUT]: 对 push 与 PR 提供统一 ci:gate 门禁
+# [POS]: .github/workflows 的主质量闸，阻止未通过 lint/test/build 的变更合入
+# [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+name: CI Gate
 
 on:
+  push:
+    branches:
+      - master
   pull_request:
     types:
       - opened
-      - edited
+      - reopened
       - synchronize
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-gate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  eslint:
-    name: Lint Code
+  gate:
+    name: Lint, Test, Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-      - name: Install modules
-        run: bun install
-      - name: Run ESLint
-        run: bun lint
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run CI gate
+        run: npm run ci:gate

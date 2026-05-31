@@ -84,6 +84,12 @@ const patchedConfig = [
     rules: {
       'import/no-anonymous-default-export': 'off'
     }
+  },
+  {
+    files: ['**/*.{test,spec}.{js,jsx}'],
+    languageOptions: {
+      globals: globals.vitest
+    }
   }
 ]
 
