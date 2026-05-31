@@ -34,7 +34,7 @@ async function fetchData(slug) {
 
 export default async function PageSlug(props) {
   const params = await props.params
-  const { slug } = params
+  const slug = decodeURIComponent(params.slug)
   const {
     page: { title, content }
   } = await fetchData(slug)
@@ -57,7 +57,7 @@ export default async function PageSlug(props) {
 
 export async function generateMetadata(props) {
   const params = await props.params
-  const { slug } = params
+  const slug = decodeURIComponent(params.slug)
   const seoData = await getPageSeo(slug)
   if (!seoData) return null
 

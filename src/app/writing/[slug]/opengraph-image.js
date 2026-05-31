@@ -19,7 +19,7 @@ export async function generateStaticParams() {
 
 export default async function OpenGraphImagePage({ params }) {
   const { isEnabled } = await draftMode()
-  const { slug } = await params
+  const slug = decodeURIComponent((await params).slug)
   const [seoData, regularFontData, boldFontData] = await Promise.all([
     getWritingSeo(slug, isDevelopment ? true : isEnabled),
     getRegularFont(),
