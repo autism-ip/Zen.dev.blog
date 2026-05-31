@@ -10,9 +10,95 @@ const CodeBlock = dynamic(() => import('@/components/contentful/code-block').the
 const DynamicIframe = dynamic(() => import('@/components/contentful/iframe').then((mod) => mod.Iframe))
 import { dasherize } from '@/lib/utils'
 
+async function renderEmbeddedEntry(entry) {
+  switch (entry.__typename) {
+    case 'ContentEmbed': {
+      const { embedUrl, title, type } = entry
+
+      switch (type) {
+        case 'Video': {
+          const YouTubeEmbed = await import('@next/third-parties/google').then((mod) => mod.YouTubeEmbed)
+          const videoId = embedUrl.split('/embed/')[1]
+
+          return (
+            <ShowInView>
+              <YouTubeEmbed
+                videoid={videoId}
+                playlabel={title}
+                params="fs=0;controls=0&mute=1"
+                className="aspect-video"
+              />
+              {title && <div className="py-2 text-center text-xs font-light text-gray-500">{title}</div>}
+            </ShowInView>
+          )
+        }
+        case 'SoundCloud': {
+          return <DynamicIframe embedUrl={embedUrl} title={title} scrolling="no" className="h-[166px]" />
+        }
+        case 'link': {
+          return (
+            <Link
+              href={embedUrl}
+              className="my-2 block rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50"
+            >
+              <span className="font-medium text-gray-900">{title}</span>
+              <span className="mt-1 block text-xs text-gray-500">{new URL(embedUrl).hostname}</span>
+            </Link>
+          )
+        }
+        default:
+          return null
+      }
+    }
+    case 'CodeBlock': {
+      return <CodeBlock {...entry} />
+    }
+    case 'Tweet': {
+      const { id } = entry
+      return <TweetCard id={id} />
+    }
+    case 'Carousel': {
+      const Carousel = await import('@/components/contentful/carousel').then((mod) => mod.Carousel)
+      return <Carousel images={entry.imagesCollection?.items} />
+    }
+    case 'Seo': {
+      const img = parseMarkdownImage(entry.description)
+      if (!img) return null
+      return (
+        <figure className="mb-6 flex flex-col gap-2 overflow-hidden rounded-xl">
+          <img
+            src={img.src}
+            alt={img.alt || entry.title || ''}
+            loading="lazy"
+            decoding="async"
+            className="animate-reveal"
+          />
+          {img.alt && (
+            <figcaption className="text-center text-xs font-light break-all text-gray-500">{img.alt}</figcaption>
+          )}
+        </figure>
+      )
+    }
+    default:
+      return null
+  }
+}
+
+// 解析 Seo entry 中 markdown 图片语法: ![alt](url)
+function parseMarkdownImage(description) {
+  if (!description) return null
+  const match = description.match(/!\[(?<alt>[^\]]*)\]\((?<url>[^)]+)\)/)
+  if (!match) return null
+  const { alt, url } = match.groups
+  // 补全协议
+  const src = url.startsWith('//') ? `https:${url}` : url
+  return { src, alt }
+}
+
 function options(links) {
   const findAsset = (id) => links?.assets.block.find((item) => item.sys.id === id)
-  const findInlineEntry = (id) => links?.entries.inline.find((item) => item.sys.id === id)
+  const findEntry = (id) =>
+    links?.entries.block.find((item) => item.sys.id === id) ?? links?.entries.inline.find((item) => item.sys.id === id)
 
   return {
     renderMark: {
@@ -90,52 +176,16 @@ function options(links) {
         )
       },
       [BLOCKS.HR]: () => <hr className="my-12" />,
+      [BLOCKS.EMBEDDED_ENTRY]: async (node) => {
+        const entry = findEntry(node.data.target.sys.id)
+        if (!entry) return null
+        return renderEmbeddedEntry(entry)
+      },
       [INLINES.HYPERLINK]: (node, children) => <Link href={node.data.uri}>{children}</Link>,
       [INLINES.EMBEDDED_ENTRY]: async (node) => {
-        const entry = findInlineEntry(node.data.target.sys.id)
-
-        switch (entry.__typename) {
-          case 'ContentEmbed': {
-            const { embedUrl, title, type } = entry
-
-            switch (type) {
-              case 'Video': {
-                const YouTubeEmbed = await import('@next/third-parties/google').then((mod) => mod.YouTubeEmbed)
-                const videoId = embedUrl.split('/embed/')[1]
-
-                return (
-                  <ShowInView>
-                    <YouTubeEmbed
-                      videoid={videoId}
-                      playlabel={title}
-                      params="fs=0;controls=0&mute=1"
-                      className="aspect-video"
-                    />
-                    {title && <div className="py-2 text-center text-xs font-light text-gray-500">{title}</div>}
-                  </ShowInView>
-                )
-              }
-              case 'SoundCloud': {
-                return <DynamicIframe embedUrl={embedUrl} title={title} scrolling="no" className="h-[166px]" />
-              }
-              default:
-                return null
-            }
-          }
-          case 'CodeBlock': {
-            return <CodeBlock {...entry} />
-          }
-          case 'Tweet': {
-            const { id } = entry
-            return <TweetCard id={id} />
-          }
-          case 'Carousel': {
-            const Carousel = await import('@/components/contentful/carousel').then((mod) => mod.Carousel)
-            return <Carousel images={entry.imagesCollection?.items} />
-          }
-          default:
-            return null
-        }
+        const entry = findEntry(node.data.target.sys.id)
+        if (!entry) return null
+        return renderEmbeddedEntry(entry)
       }
     }
   }

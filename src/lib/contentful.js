@@ -94,6 +94,40 @@ export const getPost = cache(async (slug, preview = isDevelopment) => {
                   }
                 }
                 entries {
+                  block {
+                    sys {
+                      id
+                    }
+                    __typename
+                    ... on ContentEmbed {
+                      title
+                      embedUrl
+                      type
+                    }
+                    ... on CodeBlock {
+                      title
+                      code
+                    }
+                    ... on Tweet {
+                      id
+                    }
+                    ... on Carousel {
+                      imagesCollection {
+                        items {
+                          title
+                          description
+                          url(transform: {
+                            format: AVIF,
+                            quality: 50
+                          })
+                        }
+                      }
+                    }
+                    ... on Seo {
+                      title
+                      description
+                    }
+                  }
                   inline {
                     sys {
                       id
@@ -122,6 +156,10 @@ export const getPost = cache(async (slug, preview = isDevelopment) => {
                           })
                         }
                       }
+                    }
+                    ... on Seo {
+                      title
+                      description
                     }
                   }
                 }
@@ -289,6 +327,76 @@ export const getPage = cache(async (slug, preview = isDevelopment) => {
                     width
                     height
                     description
+                  }
+                }
+                entries {
+                  block {
+                    sys {
+                      id
+                    }
+                    __typename
+                    ... on ContentEmbed {
+                      title
+                      embedUrl
+                      type
+                    }
+                    ... on CodeBlock {
+                      title
+                      code
+                    }
+                    ... on Tweet {
+                      id
+                    }
+                    ... on Carousel {
+                      imagesCollection {
+                        items {
+                          title
+                          description
+                          url(transform: {
+                            format: AVIF,
+                            quality: 50
+                          })
+                        }
+                      }
+                    }
+                    ... on Seo {
+                      title
+                      description
+                    }
+                  }
+                  inline {
+                    sys {
+                      id
+                    }
+                    __typename
+                    ... on ContentEmbed {
+                      title
+                      embedUrl
+                      type
+                    }
+                    ... on CodeBlock {
+                      title
+                      code
+                    }
+                    ... on Tweet {
+                      id
+                    }
+                    ... on Carousel {
+                      imagesCollection {
+                        items {
+                          title
+                          description
+                          url(transform: {
+                            format: AVIF,
+                            quality: 50
+                          })
+                        }
+                      }
+                    }
+                    ... on Seo {
+                      title
+                      description
+                    }
                   }
                 }
               }
