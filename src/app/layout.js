@@ -6,6 +6,7 @@ import classix from 'classix'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
 import { EyeIcon } from 'lucide-react'
+import { Noto_Serif_SC as NotoSerifSC } from 'next/font/google'
 import { draftMode } from 'next/headers'
 import Script from 'next/script'
 
@@ -19,6 +20,13 @@ import { Toaster } from '@/components/ui/sonner'
 import { PROFILES } from '@/lib/constants'
 import { preloadGetAllPosts } from '@/lib/contentful'
 
+const notoSerifSC = NotoSerifSC({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-noto-serif-sc'
+})
+
 export const fetchCache = 'default-cache'
 
 export default async function RootLayout({ children }) {
@@ -29,19 +37,10 @@ export default async function RootLayout({ children }) {
     <html
       lang="en"
       data-theme="light"
-      className={classix(GeistSans.variable, GeistMono.variable)}
+      className={classix(GeistSans.variable, GeistMono.variable, notoSerifSC.variable)}
       suppressHydrationWarning
     >
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-          media="print"
-          onLoad="this.media='all'"
-        />
-      </head>
+      <head />
       <body suppressHydrationWarning>
         <ErrorBoundary>
           <DialogStateProvider>
@@ -129,5 +128,6 @@ export const viewport = {
   themeColor: 'white',
   colorScheme: 'only light',
   width: 'device-width',
-  initialScale: 1
+  initialScale: 1,
+  viewportFit: 'cover'
 }

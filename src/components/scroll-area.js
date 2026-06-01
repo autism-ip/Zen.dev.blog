@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 export const ScrollArea = ({ useScrollAreaId = false, className, ...rest }) => (
   <div
     {...(useScrollAreaId && { id: SCROLL_AREA_ID })}
-    className={cn('scrollable-area relative flex w-full flex-col', className)}
+    className={cn('pt-safe scrollable-area relative flex w-full flex-col', className)}
     {...rest}
   />
 )

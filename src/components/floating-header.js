@@ -4,7 +4,7 @@ import { ArrowLeftIcon, RadioIcon } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { memo, useEffect, useMemo, useState } from 'react'
+import { memo, useEffect, useMemo, useRef } from 'react'
 import Balancer from 'react-wrap-balancer'
 
 import { LoadingSpinner } from '@/components/loading-spinner'
@@ -20,40 +20,58 @@ const SubmitBookmarkDrawer = dynamic(
 )
 import { MOBILE_SCROLL_THRESHOLD, SCROLL_AREA_ID } from '@/lib/constants'
 
+// CSS scroll-driven animation 检测：Chrome 144+ 原生接管，无需 JS 计算
+const supportsScrollTimeline = typeof CSS !== 'undefined' && CSS.supports?.('animation-timeline', 'scroll()')
+
 export const FloatingHeader = memo(({ scrollTitle, title, goBackLink, bookmarks, currentBookmark, children }) => {
-  const [transformValues, setTransformValues] = useState({ translateY: 0, opacity: scrollTitle ? 0 : 1 })
   const pathname = usePathname()
   const isWritingIndexPage = pathname === '/writing'
   const isWritingPath = pathname.startsWith('/writing')
   const isBookmarksIndexPage = pathname === '/bookmarks'
   const isBookmarkPath = pathname.startsWith('/bookmarks')
 
+  // rAF throttle: 每帧最多执行一次，防止布局抖动
+  const rafRef = useRef(null)
+  const translateYRef = useRef(0)
+  const opacityRef = useRef(scrollTitle ? 0 : 1)
+  const spanRef = useRef(null)
+
   const memoizedMobileDrawer = useMemo(() => <MobileDrawer />, [])
 
   useEffect(() => {
+    // CSS scroll-driven animation 已接管，跳过 JS fallback
+    if (supportsScrollTimeline || !scrollTitle) return
+
     const scrollAreaElem = document.querySelector(`#${SCROLL_AREA_ID}`)
 
-    const onScroll = (e) => {
-      const scrollY = e.target.scrollTop
+    const onScroll = () => {
+      if (rafRef.current) return
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = null
+        const scrollY = scrollAreaElem?.scrollTop ?? 0
 
-      const translateY = Math.max(100 - scrollY, 0)
-      const opacity = Math.min(
-        Math.max(
-          ((scrollY - MOBILE_SCROLL_THRESHOLD * (MOBILE_SCROLL_THRESHOLD / (scrollY ** 2 / 100))) / 100).toFixed(2),
-          0
-        ),
-        1
-      )
+        translateYRef.current = Math.max(100 - scrollY, 0)
+        opacityRef.current = Math.min(
+          Math.max((scrollY - MOBILE_SCROLL_THRESHOLD * (MOBILE_SCROLL_THRESHOLD / (scrollY ** 2 / 100))) / 100, 0),
+          1
+        )
 
-      setTransformValues({ translateY, opacity })
-    }
-
-    if (scrollTitle) {
-      scrollAreaElem?.addEventListener('scroll', onScroll, {
-        passive: true
+        const el = spanRef.current
+        if (el) {
+          el.style.transform = `translateY(${translateYRef.current}%)`
+          el.style.opacity = opacityRef.current
+        }
       })
     }
-    return () => scrollAreaElem?.removeEventListener('scroll', onScroll)
+
+    scrollAreaElem?.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      scrollAreaElem?.removeEventListener('scroll', onScroll)
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
+        rafRef.current = null
+      }
+    }
   }, [scrollTitle])
 
   const memoizedSubmitBookmarkDrawer = useMemo(
@@ -71,7 +89,7 @@ export const FloatingHeader = memo(({ scrollTitle, title, goBackLink, bookmarks,
   )
 
   return (
-    <header className="sticky inset-x-0 top-0 z-10 mx-auto flex h-12 w-full shrink-0 items-center border-b bg-white text-sm font-medium lg:hidden">
+    <header className="floating-header sticky inset-x-0 top-0 z-10 mx-auto flex h-12 w-full shrink-0 items-center border-b bg-white text-sm font-medium lg:hidden">
       <div className="flex size-full items-center px-3">
         {/* Left: hamburger or back button (fixed width) */}
         <div className="shrink-0">
@@ -90,11 +108,9 @@ export const FloatingHeader = memo(({ scrollTitle, title, goBackLink, bookmarks,
         <div className="flex min-w-0 flex-1 items-center justify-center truncate px-2">
           {scrollTitle && (
             <span
-              className="line-clamp-2 font-semibold tracking-tight"
-              style={{
-                transform: `translateY(${transformValues.translateY}%)`,
-                opacity: transformValues.opacity
-              }}
+              ref={spanRef}
+              className="scroll-title line-clamp-2 font-semibold tracking-tight"
+              style={{ opacity: 0, transform: 'translateY(100%)' }}
             >
               {scrollTitle}
             </span>

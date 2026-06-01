@@ -1,6 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { domAnimation, LazyMotion, m } from 'framer-motion'
 import { ArrowUpRightIcon } from 'lucide-react'
 import Image from 'next/image'
 
@@ -45,99 +45,102 @@ export const ToolCard = ({ tool, index }) => {
   }
 
   return (
-    <motion.a
-      href={tool.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group block"
-      variants={cardVariants}
-      initial="hidden"
-      animate="visible"
-      whileHover={{
-        scale: 1.05,
-        boxShadow: '0 8px 24px rgba(0,0,0,.12)',
-        height: 'auto'
-      }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.2 }}
-    >
-      <motion.div className="thumbnail-shadow relative flex h-full min-h-[180px] flex-col overflow-hidden rounded-xl border border-gray-200/60 bg-white/80 p-6 backdrop-blur-sm transition-all duration-300 hover:bg-white/90">
-        <div className="mb-3 flex items-start justify-between">
-          <div className="flex min-w-0 flex-1 items-center gap-2">
-            <motion.div
-              className="relative size-10 flex-shrink-0"
-              whileHover={{ rotate: 5 }}
-              transition={{ duration: 0.2 }}
-            >
-              <Image
-                src={getToolIcon(tool.slug)}
-                alt={`${tool.name} icon`}
-                width={40}
-                height={40}
-                className="rounded-lg"
-                onError={(e) => {
-                  e.target.style.display = 'none'
-                  e.target.nextSibling.style.display = 'flex'
-                }}
+    <LazyMotion features={domAnimation}>
+      <m.a
+        href={tool.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group block"
+        variants={cardVariants}
+        initial="hidden"
+        animate="visible"
+        whileHover={{
+          scale: 1.05,
+          boxShadow: '0 8px 24px rgba(0,0,0,.12)',
+          height: 'auto'
+        }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ duration: 0.2 }}
+      >
+        <m.div className="thumbnail-shadow relative flex h-full min-h-[180px] flex-col overflow-hidden rounded-xl border border-gray-200/60 bg-white/80 p-6 backdrop-blur-sm transition-all duration-300 hover:bg-white/90">
+          <div className="mb-3 flex items-start justify-between">
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              <m.div
+                className="relative size-10 flex-shrink-0"
+                whileHover={{ rotate: 5 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Image
+                  src={getToolIcon(tool.slug)}
+                  alt={`${tool.name} icon`}
+                  width={40}
+                  height={40}
+                  sizes="40px"
+                  className="rounded-lg"
+                  onError={(e) => {
+                    e.target.style.display = 'none'
+                    e.target.nextSibling.style.display = 'flex'
+                  }}
+                />
+                <div className="absolute inset-0 hidden items-center justify-center rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 text-lg">
+                  🛠️
+                </div>
+              </m.div>
+              <h3 className="text-sm leading-tight font-semibold text-gray-900">{tool.name}</h3>
+            </div>
+            <m.div whileHover={{ x: 2, y: -2 }} transition={{ duration: 0.2 }} className="flex-shrink-0">
+              <ArrowUpRightIcon
+                size={16}
+                className="text-gray-400 transition-colors duration-200 group-hover:text-gray-600"
               />
-              <div className="absolute inset-0 hidden items-center justify-center rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 text-lg">
-                🛠️
-              </div>
-            </motion.div>
-            <h3 className="text-sm leading-tight font-semibold text-gray-900">{tool.name}</h3>
+            </m.div>
           </div>
-          <motion.div whileHover={{ x: 2, y: -2 }} transition={{ duration: 0.2 }} className="flex-shrink-0">
-            <ArrowUpRightIcon
-              size={16}
-              className="text-gray-400 transition-colors duration-200 group-hover:text-gray-600"
-            />
-          </motion.div>
-        </div>
 
-        <p className="mb-4 flex-1 text-sm leading-relaxed text-gray-600">{tool.desc}</p>
+          <p className="mb-4 flex-1 text-sm leading-relaxed text-gray-600">{tool.desc}</p>
 
-        <motion.div
-          className="mb-2 flex flex-wrap gap-2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: index * 0.1 + 0.3, duration: 0.3 }}
-        >
-          {tool.tags.map((tag, tagIndex) => (
-            <motion.span
-              key={tagIndex}
-              className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${getTagColor(tag)}`}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{
-                delay: index * 0.1 + 0.4 + tagIndex * 0.05,
-                duration: 0.2,
-                type: 'spring',
-                stiffness: 300
-              }}
-              whileHover={{ scale: 1.05 }}
-            >
-              {tag}
-            </motion.span>
-          ))}
-        </motion.div>
-
-        {/* Peel-Up Tip */}
-        {tool.tip && (
-          <motion.div
-            className="absolute inset-x-0 bottom-0 border-t border-gray-100/50 bg-gradient-to-t from-white/95 to-transparent px-4 py-3 text-xs text-gray-500 opacity-0 backdrop-blur-sm"
-            whileHover={{
-              opacity: 1
-            }}
-            transition={{
-              type: 'spring',
-              stiffness: 260,
-              damping: 20
-            }}
+          <m.div
+            className="mb-2 flex flex-wrap gap-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: index * 0.1 + 0.3, duration: 0.3 }}
           >
-            {tool.tip}
-          </motion.div>
-        )}
-      </motion.div>
-    </motion.a>
+            {tool.tags.map((tag, tagIndex) => (
+              <m.span
+                key={tagIndex}
+                className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${getTagColor(tag)}`}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{
+                  delay: index * 0.1 + 0.4 + tagIndex * 0.05,
+                  duration: 0.2,
+                  type: 'spring',
+                  stiffness: 300
+                }}
+                whileHover={{ scale: 1.05 }}
+              >
+                {tag}
+              </m.span>
+            ))}
+          </m.div>
+
+          {/* Peel-Up Tip */}
+          {tool.tip && (
+            <m.div
+              className="absolute inset-x-0 bottom-0 border-t border-gray-100/50 bg-gradient-to-t from-white/95 to-transparent px-4 py-3 text-xs text-gray-500 opacity-0 backdrop-blur-sm"
+              whileHover={{
+                opacity: 1
+              }}
+              transition={{
+                type: 'spring',
+                stiffness: 260,
+                damping: 20
+              }}
+            >
+              {tool.tip}
+            </m.div>
+          )}
+        </m.div>
+      </m.a>
+    </LazyMotion>
   )
 }
