@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 import { NavigationLink } from '@/components/navigation-link'
 import { VinylPlayer } from '@/components/vinyl-player'
+import { WeChatLink } from '@/components/wechat-link'
 import { LINKS, PROFILES } from '@/lib/constants'
 
 export const MenuContent = () => (
@@ -39,6 +40,7 @@ export const MenuContent = () => (
     <div className="flex flex-col gap-2 text-sm">
       <span className="px-2 text-xs leading-relaxed font-medium text-gray-600">Online</span>
       <div className="flex flex-col gap-2">
+        <WeChatLink />
         {Object.values(PROFILES).map((profile) => (
           <NavigationLink key={profile.url} href={profile.url} label={profile.title} icon={profile.icon} />
         ))}
