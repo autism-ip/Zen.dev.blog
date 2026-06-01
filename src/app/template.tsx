@@ -20,7 +20,7 @@ export default function Template({ children }: { children: ReactNode }) {
       <AnimatePresence mode="wait">
         <m.div
           key={pathname}
-          className="flex-1 w-full"
+          className="w-full flex-1"
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
