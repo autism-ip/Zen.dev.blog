@@ -107,7 +107,11 @@ export const FloatingHeader = memo(({ scrollTitle, title, goBackLink, bookmarks,
         {/* Center: title (flex-1, truncated) */}
         <div className="flex min-w-0 flex-1 items-center justify-center truncate px-2">
           {scrollTitle && (
-            <span ref={spanRef} className="line-clamp-2 font-semibold tracking-tight">
+            <span
+              ref={spanRef}
+              className="line-clamp-2 font-semibold tracking-tight"
+              style={{ opacity: 0, transform: 'translateY(100%)' }}
+            >
               {scrollTitle}
             </span>
           )}

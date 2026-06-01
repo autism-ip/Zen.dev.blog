@@ -82,7 +82,7 @@ export function MediaCard({ item, isHovered, onClick }) {
               alt={`${item.sourceType} ${item.mediaType}`}
               width={baseWidth}
               height={calculatedHeight}
-              sizes="(max-width: 390px) 100vw, (max-width: 768px) 50vw, 33vw"
+              sizes="(max-width: 435px) 100vw, (max-width: 768px) 50vw, 33vw"
               crop="fill"
               quality="auto"
               format="auto"

@@ -1,6 +1,6 @@
 'use client'
 
-import { domAnimation, LazyMotion, m } from 'framer-motion'
+import { domMax, LazyMotion, m } from 'framer-motion'
 import { CameraIcon, GridIcon, ImageIcon, SparklesIcon, VideoIcon } from 'lucide-react'
 
 export function TabSelector({ mediaType, sourceType, showAll, onFilterChange }) {
@@ -63,7 +63,7 @@ export function TabSelector({ mediaType, sourceType, showAll, onFilterChange }) 
   }
 
   return (
-    <LazyMotion features={domAnimation}>
+    <LazyMotion features={domMax}>
       <div className="mb-6">
         <div className="flex flex-wrap items-center gap-2 rounded-xl bg-gray-50 p-2">
           {filterOptions.map((option) => {

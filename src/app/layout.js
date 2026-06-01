@@ -6,7 +6,7 @@ import classix from 'classix'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
 import { EyeIcon } from 'lucide-react'
-import { Noto_Serif_SC as NotoSerifSC } from 'next/font/google'
+import localFont from 'next/font/local'
 import { draftMode } from 'next/headers'
 import Script from 'next/script'
 
@@ -20,9 +20,11 @@ import { Toaster } from '@/components/ui/sonner'
 import { PROFILES } from '@/lib/constants'
 import { preloadGetAllPosts } from '@/lib/contentful'
 
-const notoSerifSC = NotoSerifSC({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+const notoSerifSC = localFont({
+  src: [
+    { path: '../../public/fonts/noto-serif-sc-400.woff2', weight: '400' },
+    { path: '../../public/fonts/noto-serif-sc-700.woff2', weight: '700' }
+  ],
   display: 'swap',
   variable: '--font-noto-serif-sc'
 })
@@ -45,7 +47,7 @@ export default async function RootLayout({ children }) {
         <ErrorBoundary>
           <DialogStateProvider>
             {}
-            <main vaul-drawer-wrapper="" className="pt-safe min-h-screen bg-white">
+            <main vaul-drawer-wrapper="" className="min-h-screen bg-white">
               {isEnabled && (
                 <div className="absolute inset-x-0 bottom-0 z-50 flex h-12 w-full items-center justify-center bg-green-500 text-center text-sm font-medium text-white">
                   <div className="flex items-center gap-2">

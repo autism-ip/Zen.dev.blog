@@ -341,7 +341,7 @@
   }
 
   .floating-header {
-    animation: floating-header-reveal linear both;
+    animation: floating-header-reveal linear forwards;
     animation-timeline: scroll();
     animation-range: 0px 100px;
   }

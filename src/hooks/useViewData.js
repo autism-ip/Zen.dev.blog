@@ -3,13 +3,70 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { SUPABASE_TABLE_NAME } from '@/lib/constants'
 import supabase from '@/lib/supabase/public'
 
+// ---------------------------------------------------------------------------
+// Module-level channel registry — reference-counted shared channel lifecycle
+// ---------------------------------------------------------------------------
+// Problem: useRef per hook instance means each component owns its channel ref.
+// When component A unmounts, it removes the channel, killing the subscription
+// for still-mounted component B that shares the same channel name.
+//
+// Solution: Module-level Map tracks channel instances by name. Each hook mount
+// increments refCount; each unmount decrements. Channel is removed from
+// Supabase only when the last subscriber detaches (refCount hits 0).
+// ---------------------------------------------------------------------------
+
+const CHANNEL_NAME = 'supabase_realtime'
+
+/** @type {Map<string, { channel: object, refCount: number }>} */
+const channelRegistry = new Map()
+
+/**
+ * Acquire a shared Supabase channel. Creates it if absent, increments refCount.
+ * Returns the channel instance.
+ */
+function acquireChannel(channelName) {
+  const entry = channelRegistry.get(channelName)
+
+  if (entry) {
+    entry.refCount += 1
+    return entry.channel
+  }
+
+  const channel = supabase.channel(channelName)
+  channelRegistry.set(channelName, { channel, refCount: 1 })
+  return channel
+}
+
+/**
+ * Release a shared Supabase channel. Decrements refCount; removes from
+ * Supabase and deletes from registry when refCount reaches 0.
+ */
+function releaseChannel(channelName) {
+  const entry = channelRegistry.get(channelName)
+  if (!entry) return
+
+  entry.refCount -= 1
+
+  if (entry.refCount <= 0) {
+    supabase.removeChannel(entry.channel)
+    channelRegistry.delete(channelName)
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Hook
+// ---------------------------------------------------------------------------
+
 export const useViewData = (slug) => {
-  const channelRef = useRef(null)
   const [viewData, setViewData] = useState(null)
   const [error, setError] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  const setViewDataRef = useRef(setViewData)
 
-  // 获取初始数据
+  // Keep ref in sync so the realtime callback always uses the latest setter
+  setViewDataRef.current = setViewData
+
+  // ---- Initial data fetch ------------------------------------------------
   const fetchViewData = useCallback(async () => {
     try {
       setIsLoading(true)
@@ -32,62 +89,56 @@ export const useViewData = (slug) => {
     fetchViewData()
   }, [fetchViewData])
 
-  // 设置实时订阅
+  // ---- Realtime subscription (reference-counted) -------------------------
   useEffect(() => {
-    // 避免重复创建 channel
-    if (channelRef.current) return
+    let active = true
 
-    try {
-      channelRef.current = supabase
-        .channel('supabase_realtime')
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: SUPABASE_TABLE_NAME
-          },
-          (payload) => {
-            if (!payload?.new?.slug) return
+    const channel = acquireChannel(CHANNEL_NAME)
 
-            setViewData((prev) => {
-              if (!prev) return null
+    channel.on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: SUPABASE_TABLE_NAME
+      },
+      (payload) => {
+        if (!active) return
+        if (!payload?.new?.slug) return
 
-              const index = prev.findIndex((item) => item.slug === payload.new.slug)
-              if (index === -1) return [...prev, payload.new]
+        setViewDataRef.current((prev) => {
+          if (!prev) return null
 
-              // 检查数据是否真的变化
-              if (prev[index].view_count === payload.new.view_count) {
-                return prev
-              }
+          const index = prev.findIndex((item) => item.slug === payload.new.slug)
+          if (index === -1) return [...prev, payload.new]
 
-              const newData = [...prev]
-              newData[index] = payload.new
-              return newData
-            })
+          // Skip if data unchanged
+          if (prev[index].view_count === payload.new.view_count) {
+            return prev
           }
-        )
-        .subscribe((status) => {
-          if (status === 'SUBSCRIBED') {
-            console.info('Successfully subscribed to realtime updates')
-          } else if (status === 'CHANNEL_ERROR') {
-            console.error('Failed to subscribe to realtime updates')
-            setError('Failed to subscribe to realtime updates')
-          }
+
+          const newData = [...prev]
+          newData[index] = payload.new
+          return newData
         })
-    } catch (error) {
-      console.error('Error setting up realtime subscription:', error)
-      setError(error.message)
-    }
-
-    // 清理函数
-    return () => {
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current)
-        channelRef.current = null
       }
+    )
+
+    channel.subscribe((status) => {
+      if (!active) return
+      if (status === 'SUBSCRIBED') {
+        console.info('Successfully subscribed to realtime updates')
+      } else if (status === 'CHANNEL_ERROR') {
+        console.error('Failed to subscribe to realtime updates')
+        setError('Failed to subscribe to realtime updates')
+      }
+    })
+
+    return () => {
+      active = false
+      releaseChannel(CHANNEL_NAME)
     }
-  }, []) // 只在组件挂载时执行一次
+  }, []) // Mount / unmount only
 
   return { viewData, error, isLoading, refetch: fetchViewData }
 }
