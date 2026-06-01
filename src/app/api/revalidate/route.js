@@ -13,13 +13,14 @@ const TOPIC_DELETE = 'ContentManagement.Entry.delete'
 
 /**
  * 重新验证文章相关的所有路径
- * 包括详情页、列表页、首页、RSS、Sitemap
+ * 使用 'layout' 模式级联失效：layout + 所有子路由（含 /writing/[slug] 详情页）
+ * 解决：1) slug 缺失时详情页缓存未清除  2) 其他文章页侧边栏显示旧数据
  */
 function revalidatePostPaths(slug) {
   if (slug) {
     revalidatePath(`/writing/${slug}`)
   }
-  revalidatePath('/writing')
+  revalidatePath('/writing', 'layout')
   revalidatePath('/')
   revalidatePath('/writing.xml')
   revalidatePath('/sitemap.xml')
