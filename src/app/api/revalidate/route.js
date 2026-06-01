@@ -7,6 +7,24 @@ export const dynamic = 'auto' // https://www.reddit.com/r/nextjs/comments/14iu6t
 
 const secret = `${process.env.NEXT_REVALIDATE_SECRET}`
 
+// Contentful webhook topics
+const TOPIC_UNPUBLISH = 'ContentManagement.Entry.unpublish'
+const TOPIC_DELETE = 'ContentManagement.Entry.delete'
+
+/**
+ * 重新验证文章相关的所有路径
+ * 包括详情页、列表页、首页、RSS、Sitemap
+ */
+function revalidatePostPaths(slug) {
+  if (slug) {
+    revalidatePath(`/writing/${slug}`)
+  }
+  revalidatePath('/writing')
+  revalidatePath('/')
+  revalidatePath('/writing.xml')
+  revalidatePath('/sitemap.xml')
+}
+
 export async function POST(request) {
   try {
     const { searchParams } = new URL(request.url)
@@ -29,10 +47,11 @@ export async function POST(request) {
       })
     }
 
-    // 原有的 Contentful webhook 处理逻辑
+    // Contentful webhook 处理
     const payload = await request.json()
     const requestHeaders = new Headers(request.headers)
     const revalidateSecret = requestHeaders.get('x-revalidate-secret')
+    const topic = requestHeaders.get('x-contentful-topic')
 
     if (revalidateSecret !== secret) {
       return Response.json(
@@ -45,15 +64,13 @@ export async function POST(request) {
       )
     }
 
-    // Handle both manual API calls and Contentful webhook payload
+    // 解析 contentTypeId 和 slug
     let contentTypeId, slug
 
     if (payload.contentTypeId) {
-      // Manual API call format
       contentTypeId = payload.contentTypeId
       slug = payload.slug
     } else if (payload.sys && payload.sys.contentType) {
-      // Contentful webhook format
       contentTypeId = payload.sys.contentType.sys.id
       slug = payload.fields?.slug?.['en-US'] || payload.fields?.slug
     } else {
@@ -67,6 +84,38 @@ export async function POST(request) {
       )
     }
 
+    const isUnpublish = topic === TOPIC_UNPUBLISH || topic === TOPIC_DELETE
+
+    // unpublish/delete 事件：无论 slug 是否存在，都执行全量 revalidation
+    // 因为 unpublish payload 可能不携带完整 fields
+    if (isUnpublish) {
+      switch (contentTypeId) {
+        case CONTENT_TYPES.POST:
+          revalidatePostPaths(slug)
+          break
+        case CONTENT_TYPES.PAGE:
+          if (slug) revalidatePath(`/${slug}`)
+          revalidatePath('/sitemap.xml')
+          break
+        case CONTENT_TYPES.LOGBOOK:
+          revalidatePath('/journey')
+          revalidatePath('/sitemap.xml')
+          break
+        default:
+          revalidatePath('/')
+          revalidatePath('/sitemap.xml')
+      }
+
+      return Response.json({
+        revalidated: true,
+        now: Date.now(),
+        event: 'unpublish',
+        contentTypeId,
+        slug: slug || null
+      })
+    }
+
+    // publish 事件：正常处理
     switch (contentTypeId) {
       case CONTENT_TYPES.PAGE:
         if (slug) {
@@ -84,9 +133,7 @@ export async function POST(request) {
         break
       case CONTENT_TYPES.POST:
         if (slug) {
-          revalidatePath(`/writing/${slug}`)
-          revalidatePath('/writing')
-          revalidatePath('/') // Also revalidate homepage when blog posts change
+          revalidatePostPaths(slug)
         } else {
           return Response.json(
             {

@@ -1,6 +1,9 @@
 import Link from 'next/link'
 import { Suspense } from 'react'
 
+// ISR 兜底：即使 webhook 失效，最多 1 小时自动刷新
+export const revalidate = 3600
+
 import { FloatingHeader } from '@/components/floating-header'
 import { PageTitle } from '@/components/page-title'
 import { PenflowSignature } from '@/components/penflow-signature'

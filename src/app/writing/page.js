@@ -1,6 +1,9 @@
 import { Suspense } from 'react'
 
 import { FloatingHeader } from '@/components/floating-header'
+
+// ISR 兜底：即使 webhook 失效，最多 1 小时自动刷新
+export const revalidate = 3600
 import { ScreenLoadingSpinner } from '@/components/screen-loading-spinner'
 import { ScrollArea } from '@/components/scroll-area'
 import { WritingListLayout } from '@/components/writing/writing-list-layout'
