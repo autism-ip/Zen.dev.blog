@@ -6,7 +6,7 @@ import classix from 'classix'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
 import { EyeIcon } from 'lucide-react'
-import localFont from 'next/font/local'
+import { Noto_Serif_SC as NotoSerifSC } from 'next/font/google'
 import { draftMode } from 'next/headers'
 import Script from 'next/script'
 
@@ -20,11 +20,9 @@ import { Toaster } from '@/components/ui/sonner'
 import { PROFILES } from '@/lib/constants'
 import { preloadGetAllPosts } from '@/lib/contentful'
 
-const notoSerifSC = localFont({
-  src: [
-    { path: '../../public/fonts/noto-serif-sc-400.woff2', weight: '400' },
-    { path: '../../public/fonts/noto-serif-sc-700.woff2', weight: '700' }
-  ],
+const notoSerifSC = NotoSerifSC({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
   variable: '--font-noto-serif-sc'
 })

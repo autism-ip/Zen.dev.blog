@@ -17,7 +17,7 @@ import supabase from '@/lib/supabase/public'
 
 const CHANNEL_NAME = 'supabase_realtime'
 
-/** @type {Map<string, { channel: object, refCount: number, subscribed: boolean, pending: Array }>} */
+/** @type {Map<string, { channel: object, refCount: number, subscribeCalled: boolean, pending: Array }>} */
 const channelRegistry = new Map()
 
 /**
@@ -33,26 +33,29 @@ function acquireChannel(channelName) {
   }
 
   const channel = supabase.channel(channelName)
-  channelRegistry.set(channelName, { channel, refCount: 1, subscribed: false, pending: [] })
+  channelRegistry.set(channelName, { channel, refCount: 1, subscribeCalled: false, pending: [] })
   return channel
 }
 
 /**
- * Register a handler on a shared channel. If the channel is still joining
- * (not yet SUBSCRIBED), the handler is queued and flushed once ready to
- * avoid mutating the binding list during the join handshake — which would
- * cause CHANNEL_ERROR when Supabase validates the expanded binding set.
+ * Register a handler on a shared channel.
+ *
+ * - Before subscribe() is called: attach directly via channel.on() so the
+ *   handler is included in the initial join payload.
+ * - After subscribe() but before SUBSCRIBED: queue in pending to avoid
+ *   mutating bindings during the join handshake (causes CHANNEL_ERROR).
+ * - After SUBSCRIBED: attach and re-subscribe to send an UPDATE message.
  */
 function registerHandler(channelName, event, filter, callback) {
   const entry = channelRegistry.get(channelName)
   if (!entry) return
 
-  if (entry.subscribed) {
-    // Channel already subscribed — safe to add binding and re-subscribe
-    entry.channel.on(event, filter, callback).subscribe()
-  } else {
-    // Channel still joining — queue for flush after SUBSCRIBED
+  if (entry.subscribeCalled) {
+    // subscribe() already invoked — queue for flush after SUBSCRIBED
     entry.pending.push({ event, filter, callback })
+  } else {
+    // subscribe() not yet called — attach directly for initial join payload
+    entry.channel.on(event, filter, callback)
   }
 }
 
@@ -66,6 +69,15 @@ function removePendingHandler(channelName, callback) {
 }
 
 /**
+ * Mark that subscribe() has been called on this channel. Handlers registered
+ * after this point will be queued in pending instead of attached directly.
+ */
+function markSubscribeCalled(channelName) {
+  const entry = channelRegistry.get(channelName)
+  if (entry) entry.subscribeCalled = true
+}
+
+/**
  * Flush pending handlers after channel reaches SUBSCRIBED state.
  * Each handler is added via on().subscribe() which sends an UPDATE
  * subscription message to the server with the new binding.
@@ -74,7 +86,6 @@ function flushPendingHandlers(channelName) {
   const entry = channelRegistry.get(channelName)
   if (!entry) return
 
-  entry.subscribed = true
   const handlers = entry.pending
   entry.pending = []
 
@@ -181,6 +192,9 @@ export const useViewData = (slug) => {
         setError('Failed to subscribe to realtime updates')
       }
     })
+    // Mark subscribe() as called — handlers registered from now on go to
+    // pending to avoid mutating bindings during the join handshake.
+    markSubscribeCalled(CHANNEL_NAME)
 
     return () => {
       active = false
