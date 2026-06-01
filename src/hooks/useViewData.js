@@ -17,7 +17,7 @@ import supabase from '@/lib/supabase/public'
 
 const CHANNEL_NAME = 'supabase_realtime'
 
-/** @type {Map<string, { channel: object, refCount: number }>} */
+/** @type {Map<string, { channel: object, refCount: number, subscribed: boolean, pending: Array }>} */
 const channelRegistry = new Map()
 
 /**
@@ -33,8 +33,54 @@ function acquireChannel(channelName) {
   }
 
   const channel = supabase.channel(channelName)
-  channelRegistry.set(channelName, { channel, refCount: 1 })
+  channelRegistry.set(channelName, { channel, refCount: 1, subscribed: false, pending: [] })
   return channel
+}
+
+/**
+ * Register a handler on a shared channel. If the channel is still joining
+ * (not yet SUBSCRIBED), the handler is queued and flushed once ready to
+ * avoid mutating the binding list during the join handshake — which would
+ * cause CHANNEL_ERROR when Supabase validates the expanded binding set.
+ */
+function registerHandler(channelName, event, filter, callback) {
+  const entry = channelRegistry.get(channelName)
+  if (!entry) return
+
+  if (entry.subscribed) {
+    // Channel already subscribed — safe to add binding and re-subscribe
+    entry.channel.on(event, filter, callback).subscribe()
+  } else {
+    // Channel still joining — queue for flush after SUBSCRIBED
+    entry.pending.push({ event, filter, callback })
+  }
+}
+
+/**
+ * Remove a pending handler before it was flushed (component unmounted early).
+ */
+function removePendingHandler(channelName, callback) {
+  const entry = channelRegistry.get(channelName)
+  if (!entry) return
+  entry.pending = entry.pending.filter((h) => h.callback !== callback)
+}
+
+/**
+ * Flush pending handlers after channel reaches SUBSCRIBED state.
+ * Each handler is added via on().subscribe() which sends an UPDATE
+ * subscription message to the server with the new binding.
+ */
+function flushPendingHandlers(channelName) {
+  const entry = channelRegistry.get(channelName)
+  if (!entry) return
+
+  entry.subscribed = true
+  const handlers = entry.pending
+  entry.pending = []
+
+  for (const { event, filter, callback } of handlers) {
+    entry.channel.on(event, filter, callback).subscribe()
+  }
 }
 
 /**
@@ -95,39 +141,41 @@ export const useViewData = (slug) => {
 
     const channel = acquireChannel(CHANNEL_NAME)
 
-    channel.on(
+    const realtimeCallback = (payload) => {
+      if (!active) return
+      if (!payload?.new?.slug) return
+
+      setViewDataRef.current((prev) => {
+        if (!prev) return null
+
+        const index = prev.findIndex((item) => item.slug === payload.new.slug)
+        if (index === -1) return [...prev, payload.new]
+
+        // Skip if data unchanged
+        if (prev[index].view_count === payload.new.view_count) {
+          return prev
+        }
+
+        const newData = [...prev]
+        newData[index] = payload.new
+        return newData
+      })
+    }
+
+    // Register handler — deferred if channel is still joining to avoid
+    // mutating bindings during the join handshake (prevents CHANNEL_ERROR).
+    registerHandler(
+      CHANNEL_NAME,
       'postgres_changes',
-      {
-        event: 'UPDATE',
-        schema: 'public',
-        table: SUPABASE_TABLE_NAME
-      },
-      (payload) => {
-        if (!active) return
-        if (!payload?.new?.slug) return
-
-        setViewDataRef.current((prev) => {
-          if (!prev) return null
-
-          const index = prev.findIndex((item) => item.slug === payload.new.slug)
-          if (index === -1) return [...prev, payload.new]
-
-          // Skip if data unchanged
-          if (prev[index].view_count === payload.new.view_count) {
-            return prev
-          }
-
-          const newData = [...prev]
-          newData[index] = payload.new
-          return newData
-        })
-      }
+      { event: 'UPDATE', schema: 'public', table: SUPABASE_TABLE_NAME },
+      realtimeCallback
     )
 
     channel.subscribe((status) => {
       if (!active) return
       if (status === 'SUBSCRIBED') {
         console.info('Successfully subscribed to realtime updates')
+        flushPendingHandlers(CHANNEL_NAME)
       } else if (status === 'CHANNEL_ERROR') {
         console.error('Failed to subscribe to realtime updates')
         setError('Failed to subscribe to realtime updates')
@@ -136,6 +184,7 @@ export const useViewData = (slug) => {
 
     return () => {
       active = false
+      removePendingHandler(CHANNEL_NAME, realtimeCallback)
       releaseChannel(CHANNEL_NAME)
     }
   }, []) // Mount / unmount only
