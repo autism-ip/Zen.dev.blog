@@ -7,10 +7,12 @@
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
+import type { ReactNode } from 'react'
+
 import { AnimatePresence, motion } from 'framer-motion'
 import { usePathname } from 'next/navigation'
 
-export default function Template({ children }: { children: React.ReactNode }) {
+export default function Template({ children }: { children: ReactNode }) {
   const pathname = usePathname()
 
   return (
