@@ -101,9 +101,18 @@ And below-fold images should lazy load
 And above-fold images should preload
 ```
 
+### Scenario: framer-motion LazyMotion migration
+```
+Given the site uses framer-motion for animations
+When the bundle is analyzed
+Then all files should use `m` component instead of `motion`
+And AnimatePresence should remain as direct import
+And the bundle should be ~28KB smaller
+```
+
 ## Edge Cases
 
-### Scenario: Very small screen (320px)
+### Scenario: Very small screen (320px) — DEFERRED
 ```
 Given a user on a 320px wide device
 When they view the site
@@ -111,8 +120,9 @@ Then all content should be readable
 And no horizontal scroll should occur
 And touch targets should remain 44x44px minimum
 ```
+> Status: Partially covered by task-001 (safe-area) and task-002 (touch targets). Full 320px testing deferred to Phase 2.
 
-### Scenario: Slow 3G connection
+### Scenario: Slow 3G connection — DEFERRED
 ```
 Given a user on a slow 3G connection
 When they load the site
@@ -120,8 +130,9 @@ Then critical CSS should be inlined
 And fonts should load asynchronously
 And the page should be interactive within 5 seconds
 ```
+> Status: Font async loading covered by task-005. Critical CSS inlining and 5s TTI target deferred.
 
-### Scenario: Landscape orientation on mobile
+### Scenario: Landscape orientation on mobile — DEFERRED
 ```
 Given a user rotates their phone to landscape
 When the viewport changes
@@ -129,3 +140,4 @@ Then the layout should adapt appropriately
 And the FloatingHeader should remain functional
 And content should use the wider viewport effectively
 ```
+> Status: FloatingHeader functional (task-004). Layout adaptation and viewport utilization deferred.
