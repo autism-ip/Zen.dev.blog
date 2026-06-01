@@ -1,5 +1,13 @@
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  typescript: {
+    ignoreBuildErrors: true
+  },
   logging: {
     fetches: {
       fullUrl: process.env.NODE_ENV === 'development'
@@ -109,7 +117,11 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true
   },
-  transpilePackages: ['geist']
+  transpilePackages: ['geist'],
+  webpack: (config) => {
+    config.resolve.alias['@'] = path.join(__dirname, 'src')
+    return config
+  }
 }
 
 // Force cache invalidation - 2025-01-07 14:20

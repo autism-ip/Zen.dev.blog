@@ -1,6 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { domAnimation, LazyMotion, m } from 'framer-motion'
 
 import { ToolCard } from './tool-card'
 
@@ -17,27 +17,29 @@ export const CategorySection = ({ id, name, tools }) => {
   }
 
   return (
-    <motion.section
+    <LazyMotion features={domAnimation}>
+    <m.section
       className="mb-12 scroll-mt-20"
       id={id}
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
-      <motion.div
+      <m.div
         className="mb-6"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
       >
         <h2 className="mb-2 text-2xl font-bold text-gray-900">{name}</h2>
-      </motion.div>
+      </m.div>
 
-      <motion.div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" variants={containerVariants}>
+      <m.div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" variants={containerVariants}>
         {tools.map((tool, index) => (
           <ToolCard key={tool.slug} tool={tool} index={index} />
         ))}
-      </motion.div>
-    </motion.section>
+      </m.div>
+    </m.section>
+    </LazyMotion>
   )
 }

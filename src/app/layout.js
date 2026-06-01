@@ -6,6 +6,7 @@ import classix from 'classix'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
 import { EyeIcon } from 'lucide-react'
+import { Noto_Serif_SC as NotoSerifSC } from 'next/font/google'
 import { draftMode } from 'next/headers'
 import Script from 'next/script'
 
@@ -19,6 +20,13 @@ import { Toaster } from '@/components/ui/sonner'
 import { PROFILES } from '@/lib/constants'
 import { preloadGetAllPosts } from '@/lib/contentful'
 
+const notoSerifSC = NotoSerifSC({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-noto-serif-sc'
+})
+
 export const fetchCache = 'default-cache'
 
 export default async function RootLayout({ children }) {
@@ -29,24 +37,15 @@ export default async function RootLayout({ children }) {
     <html
       lang="en"
       data-theme="light"
-      className={classix(GeistSans.variable, GeistMono.variable)}
+      className={classix(GeistSans.variable, GeistMono.variable, notoSerifSC.variable)}
       suppressHydrationWarning
     >
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-          media="print"
-          onLoad="this.media='all'"
-        />
-      </head>
+      <head />
       <body suppressHydrationWarning>
         <ErrorBoundary>
           <DialogStateProvider>
             {}
-            <main vaul-drawer-wrapper="" className="min-h-screen bg-white">
+            <main vaul-drawer-wrapper="" className="pt-safe min-h-screen bg-white">
               {isEnabled && (
                 <div className="absolute inset-x-0 bottom-0 z-50 flex h-12 w-full items-center justify-center bg-green-500 text-center text-sm font-medium text-white">
                   <div className="flex items-center gap-2">
@@ -129,5 +128,6 @@ export const viewport = {
   themeColor: 'white',
   colorScheme: 'only light',
   width: 'device-width',
-  initialScale: 1
+  initialScale: 1,
+  viewportFit: 'cover'
 }

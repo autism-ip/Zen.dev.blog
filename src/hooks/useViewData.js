@@ -1,12 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { SUPABASE_TABLE_NAME } from '@/lib/constants'
 import supabase from '@/lib/supabase/public'
 
-// 创建一个单例的 channel
-let globalChannel = null
-
 export const useViewData = (slug) => {
+  const channelRef = useRef(null)
   const [viewData, setViewData] = useState(null)
   const [error, setError] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -36,14 +34,11 @@ export const useViewData = (slug) => {
 
   // 设置实时订阅
   useEffect(() => {
-    // 如果已经有全局 channel，直接使用
-    if (globalChannel) {
-      return
-    }
+    // 避免重复创建 channel
+    if (channelRef.current) return
 
     try {
-      // 创建新的 channel
-      globalChannel = supabase
+      channelRef.current = supabase
         .channel('supabase_realtime')
         .on(
           'postgres_changes',
@@ -87,9 +82,9 @@ export const useViewData = (slug) => {
 
     // 清理函数
     return () => {
-      if (globalChannel) {
-        supabase.removeChannel(globalChannel)
-        globalChannel = null
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current)
+        channelRef.current = null
       }
     }
   }, []) // 只在组件挂载时执行一次

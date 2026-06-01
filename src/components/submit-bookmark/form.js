@@ -1,7 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, domAnimation, LazyMotion, m } from 'framer-motion'
 import { memo, useCallback, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -118,30 +118,32 @@ export const SubmitBookmarkForm = memo(({ className, setFormOpen, bookmarks, cur
   )
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className={cn('flex flex-col gap-6', className)}>
-        <FormField control={form.control} name="url" render={renderUrlField} />
-        <FormField control={form.control} name="email" render={renderEmailField} />
-        <FormField control={form.control} name="type" render={renderTypeField} />
-        <Button type="submit" className="w-full" disabled={isSubmitting || errors?.api?.limitError || !isValid}>
-          {hasErrors ? (
-            'Submit'
-          ) : (
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.span
-                key={isSubmitting ? 'submitting' : 'submit'}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.15 }}
-              >
-                {isSubmitting ? 'Submitting...' : 'Submit'}
-              </motion.span>
-            </AnimatePresence>
-          )}
-        </Button>
-      </form>
-    </Form>
+    <LazyMotion features={domAnimation}>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className={cn('flex flex-col gap-6', className)}>
+          <FormField control={form.control} name="url" render={renderUrlField} />
+          <FormField control={form.control} name="email" render={renderEmailField} />
+          <FormField control={form.control} name="type" render={renderTypeField} />
+          <Button type="submit" className="w-full" disabled={isSubmitting || errors?.api?.limitError || !isValid}>
+            {hasErrors ? (
+              'Submit'
+            ) : (
+              <AnimatePresence mode="wait" initial={false}>
+                <m.span
+                  key={isSubmitting ? 'submitting' : 'submit'}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  {isSubmitting ? 'Submitting...' : 'Submit'}
+                </m.span>
+              </AnimatePresence>
+            )}
+          </Button>
+        </form>
+      </Form>
+    </LazyMotion>
   )
 })
 SubmitBookmarkForm.displayName = 'SubmitBookmarkForm'
