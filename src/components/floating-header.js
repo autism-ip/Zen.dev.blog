@@ -109,7 +109,7 @@ export const FloatingHeader = memo(({ scrollTitle, title, goBackLink, bookmarks,
           {scrollTitle && (
             <span
               ref={spanRef}
-              className="line-clamp-2 font-semibold tracking-tight"
+              className="scroll-title line-clamp-2 font-semibold tracking-tight"
               style={{ opacity: 0, transform: 'translateY(100%)' }}
             >
               {scrollTitle}

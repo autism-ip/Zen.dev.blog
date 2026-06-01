@@ -6,23 +6,32 @@ import supabase from '@/lib/supabase/public'
 // ---------------------------------------------------------------------------
 // Module-level channel registry — reference-counted shared channel lifecycle
 // ---------------------------------------------------------------------------
-// Problem: useRef per hook instance means each component owns its channel ref.
-// When component A unmounts, it removes the channel, killing the subscription
-// for still-mounted component B that shares the same channel name.
+// Supabase postgres_changes bindings are negotiated ONLY in the initial join.
+// Adding handlers after subscribe() via channel.on().subscribe() does NOT
+// trigger a new join — the server never learns about the new binding.
 //
-// Solution: Module-level Map tracks channel instances by name. Each hook mount
-// increments refCount; each unmount decrements. Channel is removed from
-// Supabase only when the last subscriber detaches (refCount hits 0).
+// Strategy:
+//   1. Always defer subscribe() with a microtask so all synchronous mounts
+//      in the same React render batch register their handlers first.
+//   2. If a new consumer mounts after the channel is already SUBSCRIBED,
+//      tear down and rebuild the channel with all accumulated handlers.
 // ---------------------------------------------------------------------------
 
 const CHANNEL_NAME = 'supabase_realtime'
 
-/** @type {Map<string, { channel: object, refCount: number, subscribeCalled: boolean, pending: Array }>} */
+/**
+ * @type {Map<string, {
+ *   channel: object,
+ *   refCount: number,
+ *   subscribed: boolean,
+ *   pending: Array<{ event: string, filter: object, callback: Function }>,
+ *   deferredSubscribeId: number | null
+ * }>}
+ */
 const channelRegistry = new Map()
 
 /**
  * Acquire a shared Supabase channel. Creates it if absent, increments refCount.
- * Returns the channel instance.
  */
 function acquireChannel(channelName) {
   const entry = channelRegistry.get(channelName)
@@ -33,64 +42,122 @@ function acquireChannel(channelName) {
   }
 
   const channel = supabase.channel(channelName)
-  channelRegistry.set(channelName, { channel, refCount: 1, subscribeCalled: false, pending: [] })
+  channelRegistry.set(channelName, {
+    channel,
+    refCount: 1,
+    subscribed: false,
+    pending: [],
+    deferredSubscribeId: null
+  })
   return channel
 }
 
 /**
- * Register a handler on a shared channel.
- *
- * - Before subscribe() is called: attach directly via channel.on() so the
- *   handler is included in the initial join payload.
- * - After subscribe() but before SUBSCRIBED: queue in pending to avoid
- *   mutating bindings during the join handshake (causes CHANNEL_ERROR).
- * - After SUBSCRIBED: attach and re-subscribe to send an UPDATE message.
+ * Register a handler and schedule subscribe. If the channel is already
+ * subscribed (late-joining consumer), rebuild the channel to negotiate
+ * all bindings in a fresh join.
  */
-function registerHandler(channelName, event, filter, callback) {
+function registerAndSubscribe(channelName, event, filter, callback) {
   const entry = channelRegistry.get(channelName)
   if (!entry) return
 
-  if (entry.subscribeCalled) {
-    // subscribe() already invoked — queue for flush after SUBSCRIBED
-    entry.pending.push({ event, filter, callback })
-  } else {
-    // subscribe() not yet called — attach directly for initial join payload
-    entry.channel.on(event, filter, callback)
+  if (entry.subscribed) {
+    // Channel already subscribed — rebuild with all handlers
+    rebuildChannel(channelName, { event, filter, callback })
+    return
   }
+
+  // Channel not yet subscribed — add handler and (re-)schedule subscribe
+  entry.pending.push({ event, filter, callback })
+  scheduleSubscribe(channelName)
 }
 
 /**
- * Remove a pending handler before it was flushed (component unmounted early).
+ * Schedule subscribe() as a microtask. All synchronous mounts register
+ * their handlers before the microtask fires, so the initial join includes
+ * every binding.
  */
-function removePendingHandler(channelName, callback) {
-  const entry = channelRegistry.get(channelName)
-  if (!entry) return
-  entry.pending = entry.pending.filter((h) => h.callback !== callback)
-}
-
-/**
- * Mark that subscribe() has been called on this channel. Handlers registered
- * after this point will be queued in pending instead of attached directly.
- */
-function markSubscribeCalled(channelName) {
-  const entry = channelRegistry.get(channelName)
-  if (entry) entry.subscribeCalled = true
-}
-
-/**
- * Flush pending handlers after channel reaches SUBSCRIBED state.
- * Each handler is added via on().subscribe() which sends an UPDATE
- * subscription message to the server with the new binding.
- */
-function flushPendingHandlers(channelName) {
+function scheduleSubscribe(channelName) {
   const entry = channelRegistry.get(channelName)
   if (!entry) return
 
-  const handlers = entry.pending
-  entry.pending = []
+  if (entry.deferredSubscribeId != null) {
+    clearTimeout(entry.deferredSubscribeId)
+  }
 
-  for (const { event, filter, callback } of handlers) {
-    entry.channel.on(event, filter, callback).subscribe()
+  entry.deferredSubscribeId = setTimeout(() => {
+    entry.deferredSubscribeId = null
+
+    if (entry.pending.length === 0) return
+    if (entry.subscribed) return
+
+    // Attach all pending handlers to channel
+    for (const { event, filter, callback } of entry.pending) {
+      entry.channel.on(event, filter, callback)
+    }
+    entry.pending = []
+    entry.subscribed = true
+    entry.channel.subscribe()
+  }, 0)
+}
+
+/**
+ * Tear down and rebuild the channel with all existing handlers plus a new one.
+ * Called when a new consumer mounts after the channel was already subscribed,
+ * because Supabase only negotiates bindings in the initial join.
+ */
+function rebuildChannel(channelName, newHandler) {
+  const oldEntry = channelRegistry.get(channelName)
+  if (!oldEntry) return
+
+  // Collect all registered postgres_changes handlers from the old channel
+  const oldBindings = oldEntry.channel.bindings?.postgres_changes ?? []
+  const oldHandlers = oldBindings.map((b) => ({
+    event: 'postgres_changes',
+    filter: b.filter,
+    callback: b.callback
+  }))
+
+  // Tear down old channel
+  if (oldEntry.deferredSubscribeId != null) {
+    clearTimeout(oldEntry.deferredSubscribeId)
+  }
+  supabase.removeChannel(oldEntry.channel)
+
+  // Create fresh channel with all handlers
+  const newChannel = supabase.channel(channelName)
+  for (const { filter, callback } of oldHandlers) {
+    newChannel.on('postgres_changes', filter, callback)
+  }
+  newChannel.on(newHandler.event, newHandler.filter, newHandler.callback)
+
+  channelRegistry.set(channelName, {
+    channel: newChannel,
+    refCount: oldEntry.refCount,
+    subscribed: true,
+    pending: [],
+    deferredSubscribeId: null
+  })
+
+  newChannel.subscribe()
+}
+
+/**
+ * Unregister a handler. If the channel is not yet subscribed, remove from
+ * pending queue. If pending becomes empty, cancel the deferred subscribe.
+ */
+function unregisterHandler(channelName, callback) {
+  const entry = channelRegistry.get(channelName)
+  if (!entry) return
+
+  if (!entry.subscribed) {
+    entry.pending = entry.pending.filter((h) => h.callback !== callback)
+
+    // Cancel deferred subscribe if no handlers remain
+    if (entry.pending.length === 0 && entry.deferredSubscribeId != null) {
+      clearTimeout(entry.deferredSubscribeId)
+      entry.deferredSubscribeId = null
+    }
   }
 }
 
@@ -105,6 +172,9 @@ function releaseChannel(channelName) {
   entry.refCount -= 1
 
   if (entry.refCount <= 0) {
+    if (entry.deferredSubscribeId != null) {
+      clearTimeout(entry.deferredSubscribeId)
+    }
     supabase.removeChannel(entry.channel)
     channelRegistry.delete(channelName)
   }
@@ -150,7 +220,7 @@ export const useViewData = (slug) => {
   useEffect(() => {
     let active = true
 
-    const channel = acquireChannel(CHANNEL_NAME)
+    acquireChannel(CHANNEL_NAME)
 
     const realtimeCallback = (payload) => {
       if (!active) return
@@ -173,32 +243,19 @@ export const useViewData = (slug) => {
       })
     }
 
-    // Register handler — deferred if channel is still joining to avoid
-    // mutating bindings during the join handshake (prevents CHANNEL_ERROR).
-    registerHandler(
+    // Register handler and schedule subscribe. All synchronous mounts in
+    // the same render batch accumulate handlers before the microtask fires.
+    // Late-joining consumers trigger a channel rebuild.
+    registerAndSubscribe(
       CHANNEL_NAME,
       'postgres_changes',
       { event: 'UPDATE', schema: 'public', table: SUPABASE_TABLE_NAME },
       realtimeCallback
     )
 
-    channel.subscribe((status) => {
-      if (!active) return
-      if (status === 'SUBSCRIBED') {
-        console.info('Successfully subscribed to realtime updates')
-        flushPendingHandlers(CHANNEL_NAME)
-      } else if (status === 'CHANNEL_ERROR') {
-        console.error('Failed to subscribe to realtime updates')
-        setError('Failed to subscribe to realtime updates')
-      }
-    })
-    // Mark subscribe() as called — handlers registered from now on go to
-    // pending to avoid mutating bindings during the join handshake.
-    markSubscribeCalled(CHANNEL_NAME)
-
     return () => {
       active = false
-      removePendingHandler(CHANNEL_NAME, realtimeCallback)
+      unregisterHandler(CHANNEL_NAME, realtimeCallback)
       releaseChannel(CHANNEL_NAME)
     }
   }, []) // Mount / unmount only

@@ -9,11 +9,12 @@
 
 import type { ReactNode } from 'react'
 
-import { AnimatePresence, domAnimation, LazyMotion, m } from 'framer-motion'
+import { AnimatePresence, domAnimation, LazyMotion, m, useReducedMotion } from 'framer-motion'
 import { usePathname } from 'next/navigation'
 
 export default function Template({ children }: { children: ReactNode }) {
   const pathname = usePathname()
+  const shouldReduceMotion = useReducedMotion()
 
   return (
     <LazyMotion features={domAnimation}>
@@ -21,10 +22,10 @@ export default function Template({ children }: { children: ReactNode }) {
         <m.div
           key={pathname}
           className="flex w-full flex-1"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+          animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+          exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.2, ease: [0.25, 0.1, 0.25, 1] }}
         >
           {children}
         </m.div>

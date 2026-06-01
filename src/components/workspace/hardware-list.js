@@ -38,7 +38,7 @@ export function HardwareList({ items }) {
               height={450}
               quality="auto"
               format="auto"
-              sizes="(max-width: 435px) 100vw, (max-width: 768px) 50vw, 33vw"
+              sizes="(max-width: 768px) 100vw, 33vw"
               className="h-full w-full object-cover"
               crop="fill"
               gravity="center"
