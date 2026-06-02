@@ -1,25 +1,15 @@
 import { NextResponse } from 'next/server'
 
+import { getTokenManager } from '@/lib/auth/get-token-manager'
 import { COLLECTION_IDS } from '@/lib/constants'
 
-// 动态获取存储方案
-function getStorageAndTokenManager() {
-  // 优先尝试使用 Vercel KV (如果可用)
+// 动态获取存储方案 (仅 KV 有存储层)
+function getStorage() {
   if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
     const { kv } = require('@vercel/kv')
-    const { getTokenManager } = require('@/lib/auth/token-manager')
-    return { storage: kv, tokenManager: getTokenManager() }
+    return kv
   }
-
-  // 其次尝试使用 Supabase
-  if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_ANON_KEY) {
-    const { getTokenManager } = require('@/lib/auth/supabase-token-manager')
-    return { storage: null, tokenManager: getTokenManager() }
-  }
-
-  // 最后使用环境变量存储方案
-  const { getTokenManager } = require('@/lib/auth/env-token-manager')
-  return { storage: null, tokenManager: getTokenManager() }
+  return null
 }
 
 const RAINDROP_API_URL = 'https://api.raindrop.io/rest/v1'
@@ -38,7 +28,8 @@ export async function GET(request) {
     }
 
     // 否则返回所有书签 (保持兼容性)
-    const { storage, tokenManager } = getStorageAndTokenManager()
+    const storage = getStorage()
+    const tokenManager = getTokenManager()
 
     // 如果有存储可用，使用缓存
     if (storage) {
@@ -69,7 +60,7 @@ export async function GET(request) {
     console.error('Bookmarks API error:', error)
 
     // 尝试返回缓存的数据作为降级方案
-    const { storage } = getStorageAndTokenManager()
+    const storage = getStorage()
     if (storage) {
       const cachedData = await storage.get(CACHE_KEY)
       if (cachedData) {
@@ -84,7 +75,8 @@ export async function GET(request) {
 
 async function getCollectionBookmarks(collectionId, page = 0) {
   const cacheKey = `raindrop:collection:${collectionId}:page:${page}`
-  const { storage, tokenManager } = getStorageAndTokenManager()
+  const storage = getStorage()
+  const tokenManager = getTokenManager()
 
   try {
     // 如果有存储可用，检查分页缓存

@@ -1,18 +1,6 @@
 import { NextResponse } from 'next/server'
 
-// 动态选择 token manager
-function getTokenManager() {
-  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
-    const { tokenManager } = require('@/lib/auth/token-manager')
-    return tokenManager
-  }
-  if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_ANON_KEY) {
-    const { getTokenManager } = require('@/lib/auth/supabase-token-manager')
-    return getTokenManager()
-  }
-  const { getTokenManager } = require('@/lib/auth/env-token-manager')
-  return getTokenManager()
-}
+import { getTokenManager } from '@/lib/auth/get-token-manager'
 
 const RAINDROP_API_URL = 'https://api.raindrop.io/rest/v1'
 
