@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server'
 
-export async function GET() {
+import { requireAdminAuth } from '@/lib/auth/require-admin-auth'
+
+export async function GET(request) {
+  const denied = requireAdminAuth(request)
+  if (denied) return denied
+
   const clientId = process.env.RAINDROP_CLIENT_ID
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
 
