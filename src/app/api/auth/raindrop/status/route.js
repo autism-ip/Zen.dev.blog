@@ -1,12 +1,8 @@
 import { NextResponse } from 'next/server'
 
 import { getTokenManager } from '@/lib/auth/get-token-manager'
-import { requireAdminAuth } from '@/lib/auth/require-admin-auth'
 
-export async function GET(request) {
-  const denied = requireAdminAuth(request)
-  if (denied) return denied
-
+export async function GET() {
   try {
     console.info('=== Token Status Check ===')
     const tokenManager = getTokenManager()

@@ -75,6 +75,7 @@ export const config = {
         { type: 'header', key: 'purpose', value: 'prefetch' }
       ]
     },
-    '/admin/:path*'
+    '/admin/:path*',
+    '/api/auth/raindrop/:path((?!callback$).*)'
   ]
 }

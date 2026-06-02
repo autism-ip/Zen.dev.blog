@@ -40,26 +40,12 @@ export function decrypt(encryptedData) {
   const tag = Buffer.from(encryptedData.slice(IV_LENGTH * 2, (IV_LENGTH + TAG_LENGTH) * 2), 'hex')
   const encrypted = encryptedData.slice((IV_LENGTH + TAG_LENGTH) * 2)
 
-  // --- 新格式: createCipheriv (显式 IV + GCM auth tag) ---
-  try {
-    const decipher = crypto.createDecipheriv(ALGORITHM, key, iv)
-    decipher.setAuthTag(tag)
+  // --- 解密: createCipheriv (显式 IV + GCM auth tag) ---
+  const decipher = crypto.createDecipheriv(ALGORITHM, key, iv)
+  decipher.setAuthTag(tag)
 
-    let decrypted = decipher.update(encrypted, 'hex', 'utf8')
-    decrypted += decipher.final('utf8')
-    return decrypted
-  } catch {
-    // --- 旧格式 fallback: createCipher (EVP_BytesToKey 派生 key) ---
-    // 旧 API 忽略传入的 IV，自行派生 key+IV；存储的 IV/tag 无效
-    // 只取 encrypted 部分（跳过前 64 hex 字符 = 32字节 IV + 32字节 tag）
-    try {
-      const legacyCiphertext = encryptedData.slice((IV_LENGTH + TAG_LENGTH) * 2)
-      const decipher = crypto.createDecipher(ALGORITHM, key)
-      let decrypted = decipher.update(legacyCiphertext, 'hex', 'utf8')
-      decrypted += decipher.final('utf8')
-      return decrypted
-    } catch {
-      return null
-    }
-  }
+  let decrypted = decipher.update(encrypted, 'hex', 'utf8')
+  decrypted += decipher.final('utf8')
+
+  return decrypted
 }
