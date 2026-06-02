@@ -33,19 +33,25 @@ export function encrypt(text) {
 export function decrypt(encryptedData) {
   if (!encryptedData) return null
 
-  const key = getEncryptionKey()
+  try {
+    const key = getEncryptionKey()
 
-  // 解析: iv + tag + encrypted
-  const iv = Buffer.from(encryptedData.slice(0, IV_LENGTH * 2), 'hex')
-  const tag = Buffer.from(encryptedData.slice(IV_LENGTH * 2, (IV_LENGTH + TAG_LENGTH) * 2), 'hex')
-  const encrypted = encryptedData.slice((IV_LENGTH + TAG_LENGTH) * 2)
+    // 解析: iv + tag + encrypted
+    const iv = Buffer.from(encryptedData.slice(0, IV_LENGTH * 2), 'hex')
+    const tag = Buffer.from(encryptedData.slice(IV_LENGTH * 2, (IV_LENGTH + TAG_LENGTH) * 2), 'hex')
+    const encrypted = encryptedData.slice((IV_LENGTH + TAG_LENGTH) * 2)
 
-  // --- 解密: createCipheriv (显式 IV + GCM auth tag) ---
-  const decipher = crypto.createDecipheriv(ALGORITHM, key, iv)
-  decipher.setAuthTag(tag)
+    // 解密: createCipheriv (显式 IV + GCM auth tag)
+    const decipher = crypto.createDecipheriv(ALGORITHM, key, iv)
+    decipher.setAuthTag(tag)
 
-  let decrypted = decipher.update(encrypted, 'hex', 'utf8')
-  decrypted += decipher.final('utf8')
+    let decrypted = decipher.update(encrypted, 'hex', 'utf8')
+    decrypted += decipher.final('utf8')
 
-  return decrypted
+    return decrypted
+  } catch {
+    // 旧格式 token（createCipher 加密）无法用 createCipheriv 解密
+    // 返回 null 让调用方知道 token 无效，触发重新授权
+    return null
+  }
 }
