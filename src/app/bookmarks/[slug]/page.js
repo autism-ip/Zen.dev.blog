@@ -6,7 +6,7 @@ import { FloatingHeader } from '@/components/floating-header'
 import { PageTitle } from '@/components/page-title'
 import { ScreenLoadingSpinner } from '@/components/screen-loading-spinner'
 import { ScrollArea } from '@/components/scroll-area'
-import { getBookmarkItems, getBookmarks } from '@/lib/raindrop'
+import { getBookmarkItems, getBookmarks } from '@/lib/raindrop-with-auth'
 import { sortByProperty } from '@/lib/utils'
 
 export async function generateStaticParams() {
@@ -17,6 +17,8 @@ export async function generateStaticParams() {
 
 async function fetchData(slug) {
   const bookmarks = await getBookmarks()
+  if (!bookmarks || bookmarks.length === 0) notFound()
+
   const currentBookmark = bookmarks.find((bookmark) => bookmark.slug === slug)
   if (!currentBookmark) notFound()
 
@@ -79,6 +81,8 @@ export async function generateMetadata(props) {
   const params = await props.params
   const { slug } = params
   const bookmarks = await getBookmarks()
+  if (!bookmarks || bookmarks.length === 0) return null
+
   const currentBookmark = bookmarks.find((bookmark) => bookmark.slug === slug)
   if (!currentBookmark) return null
 

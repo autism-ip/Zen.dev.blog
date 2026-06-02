@@ -1,7 +1,36 @@
 import { NextResponse } from 'next/server'
 
+function checkBasicAuth(request) {
+  const secret = process.env.ADMIN_SECRET
+  if (!secret) return null
+
+  const auth = request.headers.get('authorization')
+  if (auth && auth.startsWith('Basic ')) {
+    try {
+      const decoded = atob(auth.slice(6))
+      const password = decoded.slice(decoded.indexOf(':') + 1)
+      if (password === secret) return null
+    } catch {
+      /* malformed auth header */
+    }
+  }
+
+  return new NextResponse('Unauthorized', {
+    status: 401,
+    headers: { 'WWW-Authenticate': 'Basic realm="Admin Area", charset="UTF-8"' }
+  })
+}
+
 export function middleware(request, event) {
   const { pathname } = request.nextUrl
+
+  // --- Admin 路由守卫 ---
+  if (pathname.startsWith('/admin')) {
+    const denied = checkBasicAuth(request)
+    if (denied) return denied
+  }
+
+  // --- Writing 分析 ---
   const writingSlug = pathname.match(/\/writing\/(.*)/)?.[1]
 
   async function sendAnalytics() {
@@ -45,6 +74,8 @@ export const config = {
         { type: 'header', key: 'next-router-prefetch' },
         { type: 'header', key: 'purpose', value: 'prefetch' }
       ]
-    }
+    },
+    '/admin/:path*',
+    '/api/auth/raindrop/:path((?!callback$).*)'
   ]
 }

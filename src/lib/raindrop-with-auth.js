@@ -1,25 +1,7 @@
 import 'server-only'
 
+import { getTokenManager } from '@/lib/auth/get-token-manager'
 import { COLLECTION_IDS } from '@/lib/constants'
-
-// 动态选择 token manager 基于可用的存储方案
-function getTokenManager() {
-  // 优先尝试使用 Vercel KV (如果可用)
-  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
-    const { getTokenManager } = require('./auth/token-manager')
-    return getTokenManager()
-  }
-
-  // 其次尝试使用 Supabase
-  if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_ANON_KEY) {
-    const { getTokenManager } = require('./auth/supabase-token-manager')
-    return getTokenManager()
-  }
-
-  // 最后使用环境变量存储方案
-  const { getTokenManager } = require('./auth/env-token-manager')
-  return getTokenManager()
-}
 
 const RAINDROP_API_URL = 'https://api.raindrop.io/rest/v1'
 

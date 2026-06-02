@@ -1,24 +1,7 @@
 import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
 
-// 动态选择 token manager
-function getTokenManager() {
-  // 优先尝试使用 Vercel KV (如果可用)
-  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
-    const { getTokenManager } = require('@/lib/auth/token-manager')
-    return getTokenManager()
-  }
-
-  // 其次尝试使用 Supabase
-  if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_ANON_KEY) {
-    const { getTokenManager } = require('@/lib/auth/supabase-token-manager')
-    return getTokenManager()
-  }
-
-  // 最后使用环境变量存储方案
-  const { getTokenManager } = require('@/lib/auth/env-token-manager')
-  return getTokenManager()
-}
+import { getTokenManager } from '@/lib/auth/get-token-manager'
 
 export async function GET() {
   // 验证请求来源 (Vercel Cron 或开发环境)
@@ -63,15 +46,22 @@ export async function GET() {
       })
     }
   } catch (error) {
-    console.error('Scheduled token refresh failed:', error)
+    // ── 错误分类 ──────────────────────────────────────────────
+    // needs_reauth: refresh_token 本身失效，需用户重新授权
+    // refresh_failed: 临时性故障（网络、限流等），下次 cron 可自动恢复
+    const msg = error.message || ''
+    const needsReauth = msg.includes('401') || msg.includes('invalid_grant')
 
-    // 发送错误通知 (可选: 集成邮件或Slack通知)
+    const errorType = needsReauth ? 'needs_reauth' : 'refresh_failed'
+    console.error(`[cron] Token refresh error [${errorType}]:`, msg)
+
     return NextResponse.json(
       {
-        error: 'Token refresh failed',
-        details: error.message
+        success: false,
+        needs_reauth: needsReauth,
+        error: msg
       },
-      { status: 500 }
+      { status: needsReauth ? 401 : 500 }
     )
   }
 }
