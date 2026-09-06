@@ -6,7 +6,8 @@ get-token-manager.js: 路由器，按 KV > Supabase > Env 优先级选择存储�
 token-manager.js: Vercel KV 后端实现，读写 KV_REST_API_URL/KV_REST_API_TOKEN
 supabase-token-manager.js: Supabase 后端实现，读写 SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY
 env-token-manager.js: 环境变量兜底方案，仅读取 process.env 无需外部依赖
-crypto.js: 加解密工具，token 安全存储的基础设施
+crypto.js: 加解密工具，token/admin secret 安全存储的基础设施
+admin-secret.js: admin 密钥读取端，从 admin_secrets 表读加密值（service client + 60s 缓存），被 /admin/layout.js 守卫调用
 
 法则: 成员完整·一行一文件·父级链接·技术词前置
 
