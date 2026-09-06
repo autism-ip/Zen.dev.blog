@@ -16,6 +16,11 @@ const RAINDROP_API_URL = 'https://api.raindrop.io/rest/v1'
 const CACHE_KEY = 'raindrop:bookmarks:cache'
 const CACHE_TTL = 2 * 24 * 60 * 60 * 1000 // 2天缓存
 
+// collectionId 必须是数字字符串, 且属于公开收藏夹白名单 (防止越权读取私有收藏夹)
+function isWhitelistedCollectionId(value) {
+  return typeof value === 'string' && /^\d+$/.test(value) && COLLECTION_IDS.includes(Number(value))
+}
+
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url)
@@ -24,6 +29,14 @@ export async function GET(request) {
 
     // 如果指定了收藏夹ID，返回该收藏夹的分页数据
     if (collectionId) {
+      // 白名单校验: 拒绝白名单外的 id, 防止越权读取私有收藏夹
+      if (!isWhitelistedCollectionId(collectionId)) {
+        return NextResponse.json({ error: 'Invalid collection' }, { status: 400 })
+      }
+      // 分页参数校验: 防止恶意大页码拖垮回源
+      if (!Number.isInteger(page) || page < 0 || page > 200) {
+        return NextResponse.json({ error: 'Invalid page' }, { status: 400 })
+      }
       return await getCollectionBookmarks(collectionId, page)
     }
 
@@ -69,7 +82,7 @@ export async function GET(request) {
       }
     }
 
-    return NextResponse.json({ error: 'Failed to fetch bookmarks', details: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch bookmarks' }, { status: 500 })
   }
 }
 
