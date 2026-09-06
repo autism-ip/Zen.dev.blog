@@ -25,7 +25,7 @@ CI 只认一个入口: `npm run ci:gate`。本地与 GitHub Actions 走同一条
 业务文件维护 L3 头部契约；目录级结构变更同步最近的 CLAUDE.md；新增门禁必须可在本地复现。
 
 变更日志:
-2026-09-06: 修复 bookmark 显示（tweet 误判 + embed 崩溃 + OAuth token 死档）；middleware writing 浏览量 matcher 尾斜杠修复（'/writing/:path/'→'/writing/:path'）；raindrop token 后端切 Supabase（raindrop_tokens 表），新增 SUPABASE_ANON_KEY env。
+2026-09-06: 安全加固 PR #9-#14（revalidate secret 轮换删泄露脚本 / OAuth state+日志脱敏 / raindrop_tokens RLS 收紧 service_role / bookmarks 白名单 / admin fail-closed / 安全头+限流+错误脱敏 / 关闭公开 revalidate）；另修复 bookmark 显示、浏览量 matcher、raindrop token 切 Supabase。
 2026-06-01: 新增 src/app/template.tsx 路由切换动画；修复 icon route Next.js 15 兼容性；next.config.mjs 增加 typescript.ignoreBuildErrors + webpack @/ alias；创建 src/app/ L2 文档。
 2026-05-31: 建立 L1 项目宪法，记录 CI Gate 与核心目录职责。
 
