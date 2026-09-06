@@ -1,3 +1,4 @@
+import { revalidatePath } from 'next/cache'
 import { NextResponse } from 'next/server'
 
 // 生成智能标题
@@ -92,6 +93,10 @@ export async function POST(request) {
     }
 
     const issue = await response.json()
+
+    // 发布成功 → 服务端直接失效 /musings 页面缓存
+    // 替代原先前端免密调用 /api/revalidate?path=/musings 的开放端点方案
+    revalidatePath('/musings')
 
     return NextResponse.json({
       success: true,

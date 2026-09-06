@@ -1,32 +1,61 @@
 import { NextResponse } from 'next/server'
 
-function checkBasicAuth(request) {
-  const secret = process.env.ADMIN_SECRET
-  if (!secret) return null
-
-  const auth = request.headers.get('authorization')
-  if (auth && auth.startsWith('Basic ')) {
-    try {
-      const decoded = atob(auth.slice(6))
-      const password = decoded.slice(decoded.indexOf(':') + 1)
-      if (password === secret) return null
-    } catch {
-      /* malformed auth header */
-    }
+// Edge runtime 无 timingSafeEqual：
+// 对两侧字符串做 SHA-256 摘要（摘要恒为 32 字节，天然规避长度差异），
+// 再逐字节 XOR 累计后判定，比较耗时与内容无关
+async function constantTimeEqual(a, b) {
+  const digest = async (value) => {
+    const data = new TextEncoder().encode(value)
+    const hash = await crypto.subtle.digest('SHA-256', data)
+    return new Uint8Array(hash)
   }
 
+  const hashA = await digest(a)
+  const hashB = await digest(b)
+
+  let diff = 0
+  for (let i = 0; i < hashA.length; i++) {
+    diff |= hashA[i] ^ hashB[i]
+  }
+  return diff === 0
+}
+
+function unauthorized() {
   return new NextResponse('Unauthorized', {
     status: 401,
     headers: { 'WWW-Authenticate': 'Basic realm="Admin Area", charset="UTF-8"' }
   })
 }
 
-export function middleware(request, event) {
+async function checkBasicAuth(request) {
+  const secret = process.env.ADMIN_SECRET
+
+  // ADMIN_SECRET 缺失时 fail-closed：
+  // 生产环境直接拒绝；非生产环境放行，方便本地调试
+  if (!secret) {
+    return process.env.NODE_ENV === 'production' ? unauthorized() : null
+  }
+
+  const auth = request.headers.get('authorization')
+  if (auth && auth.startsWith('Basic ')) {
+    try {
+      const decoded = atob(auth.slice(6))
+      const password = decoded.slice(decoded.indexOf(':') + 1)
+      if (await constantTimeEqual(password, secret)) return null
+    } catch {
+      /* malformed auth header */
+    }
+  }
+
+  return unauthorized()
+}
+
+export async function middleware(request, event) {
   const { pathname } = request.nextUrl
 
   // --- Admin 路由守卫 ---
   if (pathname.startsWith('/admin')) {
-    const denied = checkBasicAuth(request)
+    const denied = await checkBasicAuth(request)
     if (denied) return denied
   }
 

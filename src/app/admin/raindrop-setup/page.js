@@ -1,3 +1,5 @@
+import { timingSafeEqual } from 'node:crypto'
+
 import { Suspense } from 'react'
 
 import RaindropSetupContent from './RaindropSetupContent'
@@ -27,11 +29,24 @@ function UnauthorizedPage() {
   )
 }
 
+// --- 恒定时间字符串比较 ---
+// 长度不等直接返回 false（timingSafeEqual 遇长度不等会抛错，必须先判长）
+function safeEqual(a, b) {
+  const bufA = Buffer.from(a, 'utf8')
+  const bufB = Buffer.from(b, 'utf8')
+  return bufA.length === bufB.length && timingSafeEqual(bufA, bufB)
+}
+
 // --- 页面守卫 ---
 export default async function RaindropSetupPage() {
   const adminSecret = process.env.ADMIN_SECRET
 
-  // ADMIN_SECRET 未设置 → 开发环境向后兼容，直接放行
+  // ADMIN_SECRET 缺失时 fail-closed：
+  // 生产环境直接拒绝；非生产环境放行，方便本地调试
+  if (!adminSecret && process.env.NODE_ENV === 'production') {
+    return <UnauthorizedPage />
+  }
+
   if (adminSecret) {
     const { headers } = await import('next/headers')
     const hdrs = await headers()
@@ -44,7 +59,7 @@ export default async function RaindropSetupPage() {
     try {
       const decoded = atob(authorization.slice(6))
       const password = decoded.slice(decoded.indexOf(':') + 1)
-      if (password !== adminSecret) {
+      if (!safeEqual(password, adminSecret)) {
         return <UnauthorizedPage />
       }
     } catch {

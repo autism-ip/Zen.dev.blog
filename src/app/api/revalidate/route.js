@@ -28,26 +28,6 @@ function revalidatePostPaths(slug) {
 
 export async function POST(request) {
   try {
-    const { searchParams } = new URL(request.url)
-    const manualSecret = searchParams.get('secret')
-    const path = searchParams.get('path')
-
-    // 如果是手动重新验证特定路径（如 /musings）
-    if (manualSecret || path) {
-      // 验证密钥（可选，增加安全性）
-      if (process.env.REVALIDATE_SECRET && manualSecret !== process.env.REVALIDATE_SECRET) {
-        return NextResponse.json({ message: 'Invalid secret' }, { status: 401 })
-      }
-
-      const pathToRevalidate = path || '/musings'
-      revalidatePath(pathToRevalidate)
-
-      return NextResponse.json({
-        message: `Path ${pathToRevalidate} revalidated successfully`,
-        timestamp: new Date().toISOString()
-      })
-    }
-
     // Contentful webhook 处理
     const payload = await request.json()
     const requestHeaders = new Headers(request.headers)
@@ -170,6 +150,6 @@ export async function POST(request) {
 export async function GET() {
   return NextResponse.json({
     message: 'Use POST method to revalidate',
-    examples: ['POST /api/revalidate?path=/musings', 'POST /api/revalidate (with Contentful webhook payload)']
+    examples: ['POST /api/revalidate (with Contentful webhook payload)']
   })
 }
