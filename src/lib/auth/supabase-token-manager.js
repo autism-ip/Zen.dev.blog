@@ -1,3 +1,9 @@
+/**
+ * [INPUT]: 依赖 process.env 的 SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY，依赖 ./crypto 的 encrypt/decrypt
+ * [OUTPUT]: 对外提供 SupabaseTokenManager 类与 getTokenManager() 单例工厂
+ * [POS]: auth 模块的 Supabase 存储后端，以 service_role 客户端读写 raindrop_tokens 表，被 get-token-manager.js 按需懒加载
+ * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+ */
 import { decrypt, encrypt } from './crypto'
 
 // 延迟创建 Supabase 客户端，避免构建时错误
@@ -8,14 +14,15 @@ function getSupabaseClient() {
 
   const { createClient } = require('@supabase/supabase-js')
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.SUPABASE_ANON_KEY
+  // 服务端专用: service_role 拥有 BYPASSRLS，可绕过 RLS 正常读写 raindrop_tokens
+  const supabaseUrl = process.env.SUPABASE_URL
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_ANON_KEY')
+  if (!supabaseUrl || !supabaseServiceRoleKey) {
+    throw new Error('Missing env vars SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY')
   }
 
-  supabase = createClient(supabaseUrl, supabaseAnonKey)
+  supabase = createClient(supabaseUrl, supabaseServiceRoleKey)
   return supabase
 }
 

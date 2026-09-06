@@ -1,5 +1,5 @@
 /**
- * [INPUT]: 依赖 process.env 的 KV_REST_API_URL / KV_REST_API_TOKEN / NEXT_PUBLIC_SUPABASE_URL / SUPABASE_ANON_KEY
+ * [INPUT]: 依赖 process.env 的 KV_REST_API_URL / KV_REST_API_TOKEN / SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY
  * [OUTPUT]: 对外提供 getTokenManager() 函数，返回选定的 token manager 实例
  * [POS]: auth 模块的路由层，根据环境变量选择 KV / Supabase / Env 三种存储后端之一
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
@@ -20,8 +20,8 @@ const STORAGE_PRIORITY = [
     load: () => require('./token-manager').getTokenManager()
   },
   {
-    // Supabase — 第二方案，有连接池开销但功能完整
-    check: () => process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_ANON_KEY,
+    // Supabase — 第二方案，service client 直连 raindrop_tokens（service_role 绕过 RLS）
+    check: () => process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY,
     load: () => require('./supabase-token-manager').getTokenManager()
   },
   {
