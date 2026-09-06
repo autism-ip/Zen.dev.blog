@@ -72,18 +72,16 @@ export const PROFILES = {
   } */
 }
 
-// 支持多个 Twitter 收藏夹
-export const TWEETS_COLLECTION_IDS = [65591006, 65591012, 65590917]
+// 仅真正的 Twitter 收藏夹 (当前: Tweets)
+export const TWEETS_COLLECTION_IDS = [65591006]
 
 export const COLLECTION_IDS = [
-  0,
   ...TWEETS_COLLECTION_IDS, // 展开所有 Twitter 收藏夹 ID
-  65582294,
-  65591019,
-  65591239,
-  55858636,
-  55858640,
-  56212510
+  65582294, // AI
+  65590917, // Tools
+  65591012, // Books
+  65591019, // Templates
+  65591239 // Music
 ]
 
 export const LINKS = [
