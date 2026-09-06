@@ -64,12 +64,13 @@ export function middleware(request, event) {
 }
 
 export const config = {
-  // matcher: '/writing/:path/'
+  // matcher: '/writing/:path' — 无尾斜杠（trailingSlash: false，真实 URL 形态）
+  // 带尾斜杠请求由 Next 308 重定向到无斜杠后才计数，天然避免双计数
   // The below solution also filters out the user navigations which is not desired:
   // See: https://github.com/vercel/next.js/discussions/37736#discussioncomment-7886601
   matcher: [
     {
-      source: '/writing/:path/',
+      source: '/writing/:path',
       missing: [
         { type: 'header', key: 'next-router-prefetch' },
         { type: 'header', key: 'purpose', value: 'prefetch' }
