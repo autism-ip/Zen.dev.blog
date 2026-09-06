@@ -181,7 +181,7 @@ export async function GET() {
     })
   } catch (e) {
     console.error('❌ API Error:', e)
-    return new Response(JSON.stringify({ ok: false, error: e.message, stack: e.stack }), {
+    return new Response(JSON.stringify({ ok: false, error: 'Failed to fetch visual media' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     })
