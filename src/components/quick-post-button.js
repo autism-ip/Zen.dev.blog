@@ -4,6 +4,7 @@ import { Plus, Send, X } from 'lucide-react'
 import { createContext, useContext, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
+import { revalidateMusingsCache } from '@/app/actions'
 import { ClientOnly } from '@/components/client-only'
 
 // 创建全局对话框状态 Context
@@ -74,40 +75,17 @@ export function QuickPostButton() {
         setCategoryTags(['Daily'])
         setIsOpen(false)
 
-        // 先触发 git-thoughts 仓库的 GitHub Action 来更新 issues.json
-        try {
-          toast.info('Updating content...', { duration: 2000 })
-
-          // 等待几秒让 GitHub Action 完成
-          setTimeout(async () => {
-            try {
-              const revalidateResponse = await fetch('/api/revalidate?path=/musings', {
-                method: 'POST'
-              })
-
-              if (revalidateResponse.ok) {
-                console.info('Page cache revalidated successfully')
-                toast.success('Content updated! Refreshing page...')
-                // 延迟 1 秒后刷新页面
-                setTimeout(() => {
-                  window.location.reload()
-                }, 1000)
-              } else {
-                console.error('Failed to revalidate cache, falling back to normal reload')
-                window.location.reload()
-              }
-            } catch (revalidateError) {
-              console.error('Revalidate request failed:', revalidateError)
-              window.location.reload()
-            }
-          }, 10000) // 等待 10 秒让 GitHub Action 完成
-        } catch (err) {
-          console.error('Error in post-publish process:', err)
-          // 即使出错也刷新页面
-          setTimeout(() => {
-            window.location.reload()
-          }, 2000)
-        }
+        // 等待 git-thoughts 仓库的 GitHub Action 更新 issues.json 后，
+        // 经 server action 失效 /musings 缓存（服务端自动 revalidate 时机过早，须等数据就绪）
+        toast.info('Updating content...', { duration: 2000 })
+        setTimeout(async () => {
+          try {
+            await revalidateMusingsCache()
+          } catch (error) {
+            console.error('Revalidate musings cache failed:', error)
+          }
+          window.location.reload()
+        }, 10000) // 等待 10 秒让 GitHub Action 完成
       } else {
         const errorText = await response.text()
         toast.error(`Failed to publish: ${errorText}`)

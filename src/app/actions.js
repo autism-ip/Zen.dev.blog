@@ -1,5 +1,7 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
+
 import { COLLECTION_IDS } from '@/lib/constants'
 
 // id 必须是数字或数字字符串, 且属于公开收藏夹白名单 (防止客户端篡改越权读取)
@@ -45,4 +47,10 @@ export async function getBookmarkItemsByPageIndex(id, pageIndex) {
     console.error('Error fetching bookmarks:', error)
     return { result: false, items: [] }
   }
+}
+
+// musings 发布后由前端延迟调用（等待 git-thoughts GitHub Action 更新 issues.json），
+// 再失效 /musings 缓存——server action 自带 origin/CSRF 防护，替代已关闭的公开 revalidate 端点
+export async function revalidateMusingsCache() {
+  revalidatePath('/musings')
 }

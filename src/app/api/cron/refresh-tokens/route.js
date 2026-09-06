@@ -1,12 +1,23 @@
+import { timingSafeEqual } from 'node:crypto'
+
 import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
 
 import { getTokenManager } from '@/lib/auth/get-token-manager'
 
+// --- 恒定时间字符串比较 ---
+// 长度不等直接返回 false（timingSafeEqual 遇长度不等会抛错，必须先判长）
+function safeEqual(a, b) {
+  const bufA = Buffer.from(a, 'utf8')
+  const bufB = Buffer.from(b, 'utf8')
+  return bufA.length === bufB.length && timingSafeEqual(bufA, bufB)
+}
+
 export async function GET() {
   // 验证请求来源 (Vercel Cron 或开发环境)
-  const authHeader = headers().get('authorization')
-  if (process.env.NODE_ENV === 'production' && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const authHeader = (await headers()).get('authorization')
+  const expectedAuth = `Bearer ${process.env.CRON_SECRET}`
+  if (process.env.NODE_ENV === 'production' && !safeEqual(authHeader ?? '', expectedAuth)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
