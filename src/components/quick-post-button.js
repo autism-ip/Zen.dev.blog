@@ -4,6 +4,7 @@ import { Plus, Send, X } from 'lucide-react'
 import { createContext, useContext, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
+import { revalidateMusingsCache } from '@/app/actions'
 import { ClientOnly } from '@/components/client-only'
 
 // 创建全局对话框状态 Context
@@ -74,10 +75,15 @@ export function QuickPostButton() {
         setCategoryTags(['Daily'])
         setIsOpen(false)
 
-        // /musings 页面缓存由 /api/musings 服务端 revalidatePath('/musings') 失效
-        // 此处只需等待 git-thoughts 仓库的 GitHub Action 更新 issues.json，然后刷新页面
+        // 等待 git-thoughts 仓库的 GitHub Action 更新 issues.json 后，
+        // 经 server action 失效 /musings 缓存（服务端自动 revalidate 时机过早，须等数据就绪）
         toast.info('Updating content...', { duration: 2000 })
-        setTimeout(() => {
+        setTimeout(async () => {
+          try {
+            await revalidateMusingsCache()
+          } catch (error) {
+            console.error('Revalidate musings cache failed:', error)
+          }
           window.location.reload()
         }, 10000) // 等待 10 秒让 GitHub Action 完成
       } else {
