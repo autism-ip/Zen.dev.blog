@@ -21,16 +21,22 @@ export default function ContactPage() {
           <PageTitle title="Contact" />
           <div className="flex flex-col gap-4 leading-relaxed text-gray-600">
             <p>
-              The only public contact channel for this site is{' '}
+              The public contact channels for this site are email at{' '}
+              <strong>
+                <a href={`mailto:${CONTACT.email}`} className="link">
+                  {CONTACT.email}
+                </a>
+              </strong>{' '}
+              and{' '}
               <strong>
                 <a href={CONTACT.url} className="link" target="_blank" rel="noopener noreferrer">
                   {CONTACT.label}
                 </a>
               </strong>{' '}
-              on the site’s repository. There is no public contact email, no contact form, and no newsletter. Messages
-              sent through any other channel may not be read.
+              on the site’s repository. There is no contact form and no newsletter. Messages sent through any other
+              channel may not be read.
             </p>
-            <p>Use it for:</p>
+            <p>Use them for:</p>
             <ul className="flex list-disc flex-col gap-1 pl-5">
               <li>Corrections or factual errors in a published article.</li>
               <li>Broken links, missing images, or rendering problems on any page.</li>

@@ -187,6 +187,8 @@ describe('buildJsonLd', () => {
     expect(organization.name).toBe('Zen')
     expect(organization.contactPoint.contactType).toBeTruthy()
     expect(organization.contactPoint.url).toContain('github.com')
+    expect(organization.contactPoint.email).toBe('y1327514070@gmail.com')
+    expect(organization.email).toBe('y1327514070@gmail.com')
     expect(organization.address.addressLocality).toBe('Paris')
     expect(organization.address.addressCountry).toBe('FR')
   })

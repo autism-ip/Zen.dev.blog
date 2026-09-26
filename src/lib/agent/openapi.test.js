@@ -21,6 +21,7 @@ describe('buildOpenApi', () => {
     expect(spec.info.title).toContain('Zen')
     expect(spec.info.description.length).toBeGreaterThan(50)
     expect(spec.info.contact.url).toContain('github.com')
+    expect(spec.info.contact.email).toBe('y1327514070@gmail.com')
   })
 
   it('documents at least the public read surface', () => {

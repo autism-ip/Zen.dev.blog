@@ -365,6 +365,7 @@ export function buildOpenApi() {
       ].join(' '),
       contact: {
         name: CONTACT.label,
+        email: CONTACT.email,
         url: CONTACT.url
       }
     },

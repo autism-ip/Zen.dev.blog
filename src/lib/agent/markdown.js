@@ -45,7 +45,7 @@ function footer() {
     '---',
     '',
     `Source: ${SITE.url}`,
-    `Contact: ${CONTACT.url}`,
+    `Contact: ${CONTACT.email} · ${CONTACT.url}`,
     `Agent guide: ${absolute('/llms.txt')} · Sitemap: ${absolute('/sitemap.xml')}`
   ].join('\n')
 }
@@ -207,7 +207,7 @@ export function llmsTxt({ posts = [] } = {}) {
     '- Send `Accept: text/markdown` to any HTML page to receive Markdown instead of HTML.',
     '- Machine-readable files: `/openapi.json`, `/sitemap.xml`, `/writing.xml`, `/bookmarks.xml`.',
     '- Unknown paths return HTTP 404 with a Markdown explanation when Markdown is requested.',
-    `- The site accepts no form submissions through the API on behalf of third parties; contact goes through ${CONTACT.label}: ${CONTACT.url}`,
+    `- The site accepts no form submissions through the API on behalf of third parties; contact goes to ${CONTACT.email} or via ${CONTACT.label}: ${CONTACT.url}`,
     '',
     '## Writing',
     '',
@@ -230,7 +230,7 @@ export function llmsTxt({ posts = [] } = {}) {
     '',
     '## Optional',
     '',
-    `- [Contact](${CONTACT.url}): corrections, questions, and collaboration.`,
+    `- [Contact](mailto:${CONTACT.email}): corrections, questions, and collaboration (email, or open an issue on GitHub).`,
     `- [Privacy](${absolute('/privacy')}) · [About](${absolute('/about')}) · [Contact page](${absolute('/contact')})`,
     ''
   ].join('\n')

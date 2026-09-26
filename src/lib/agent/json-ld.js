@@ -21,10 +21,12 @@ export function buildJsonLd() {
       '@type': 'ImageObject',
       url: `${SITE.url}/icon`
     },
-    // 公开联系渠道：GitHub Issues（不公开邮箱）
+    // 公开联系渠道：邮箱 + GitHub Issues（邮箱由站点所有者确认公开）
+    email: CONTACT.email,
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: CONTACT.contactType,
+      email: CONTACT.email,
       url: CONTACT.url,
       availableLanguage: ['en', 'zh']
     },

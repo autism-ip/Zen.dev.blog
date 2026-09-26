@@ -39,8 +39,9 @@ export const HOME_BIO = [
   "Exploring Open Source × Deep Learning; Passionate about building open source projects—let's chat!"
 ]
 
-// 公开联系渠道：不公开邮箱，统一走 GitHub Issues
+// 公开联系渠道：邮箱 + GitHub Issues（联系邮箱由站点所有者确认公开）
 export const CONTACT = {
+  email: 'y1327514070@gmail.com',
   url: `${SOCIAL.github}/Zen.dev.blog/issues`,
   contactType: 'technical support',
   label: 'GitHub Issues'
