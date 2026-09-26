@@ -8,7 +8,9 @@ import { ScrollArea } from '@/components/scroll-area'
 async function getMusings() {
   try {
     const response = await fetch('https://raw.githubusercontent.com/autism-ip/git-thoughts/main/public/issues.json', {
-      next: { revalidate: 86400 }
+      next: { revalidate: 86400 },
+      // 显式超时：慢网络下让预渲染快速落到降级分支，而不是耗尽 Next 的 60s 预算
+      signal: AbortSignal.timeout(8000)
     })
 
     if (!response.ok) {
