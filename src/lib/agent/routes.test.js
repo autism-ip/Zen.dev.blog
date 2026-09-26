@@ -7,9 +7,14 @@ import { POST as createMusing } from '@/app/api/musings/route'
 import { GET as listPosts } from '@/app/api/posts/route'
 import { POST as submitBookmark } from '@/app/api/submit-bookmark/route'
 import { getAllPosts } from '@/lib/contentful'
+import { incrementViewCount } from '@/lib/view-count'
 
+vi.mock('server-only', () => ({}))
 vi.mock('@/lib/contentful', () => ({ getAllPosts: vi.fn() }))
-vi.mock('@/lib/supabase/private', () => ({ default: { client: { rpc: vi.fn().mockResolvedValue({}) } } }))
+vi.mock('@/lib/view-count', async (original) => ({
+  ...(await original()),
+  incrementViewCount: vi.fn().mockResolvedValue(undefined)
+}))
 vi.mock('@/lib/utils', () => ({ isDevelopment: false }))
 vi.mock('isbot', () => ({ isbot: () => false }))
 const request = (body) =>
@@ -95,6 +100,16 @@ describe('public route regression cases', () => {
     const response = await incrementViews(req)
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({ messsage: 'View count incremented successfully for slug: test' })
+  })
+  it('returns a structured failure when the counter RPC reports an error', async () => {
+    incrementViewCount.mockRejectedValueOnce(new Error('Counter store request failed'))
+    const response = await incrementViews(
+      new NextRequest('https://example.com/api/increment-views?slug=test', { method: 'POST' })
+    )
+    expect(response.status).toBe(500)
+    const body = await response.json()
+    expect(body.code).toBe('upstream_unavailable')
+    expect(JSON.stringify(body)).not.toContain('private database details')
   })
   it('preserves view validation and the legacy successful response field', async () => {
     const req = (slug) => new NextRequest(`https://example.com/api/increment-views${slug}`, { method: 'POST' })

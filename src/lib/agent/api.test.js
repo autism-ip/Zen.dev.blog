@@ -5,6 +5,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { apiHandler } from '@/lib/agent/http'
 import { middleware } from '@/middleware'
 
+vi.mock('@/lib/view-count', () => ({ decodeViewSlug: vi.fn(), incrementViewCount: vi.fn() }))
+
 let clientNumber = 1
 const newClient = () => `8.8.4.${clientNumber++}`
 const request = (path, method = 'GET', token = newClient()) =>
