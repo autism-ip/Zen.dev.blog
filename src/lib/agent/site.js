@@ -9,7 +9,9 @@
 // 站点身份
 // ---------------------------------------------------------------------------
 
-const RAW_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.zenhungyep.com'
+// 规范主机为 apex：Vercel 生产域名、robots.js 的 Host 与 NEXT_PUBLIC_BASE_URL 均指向它。
+// www 变体由 next.config.mjs 的 host 条件 308 重定向到此处，避免双主机同内容。
+const RAW_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://zenhungyep.com'
 
 export const SITE = {
   name: 'Zen',

@@ -6,7 +6,7 @@
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
-const DEFAULT_BASE = 'https://www.zenhungyep.com'
+const DEFAULT_BASE = 'https://zenhungyep.com'
 
 // CLI 的产物就是 stdout：用 process.stdout.write 而非 console.log（仓库 no-console 规则）
 const print = (text) => process.stdout.write(`${text}\n`)

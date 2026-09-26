@@ -30,10 +30,10 @@ describe('homeMarkdown', () => {
   it('lists posts as absolute links and points to the machine-readable files', () => {
     const markdown = homeMarkdown({ posts: POSTS, bio: HOME_BIO })
 
-    expect(markdown).toContain(`https://www.zenhungyep.com/writing/${encodeURIComponent('agent-新变革')}`)
-    expect(markdown).toContain('https://www.zenhungyep.com/llms.txt')
-    expect(markdown).toContain('https://www.zenhungyep.com/openapi.json')
-    expect(markdown).toContain('https://www.zenhungyep.com/sitemap.xml')
+    expect(markdown).toContain(`https://zenhungyep.com/writing/${encodeURIComponent('agent-新变革')}`)
+    expect(markdown).toContain('https://zenhungyep.com/llms.txt')
+    expect(markdown).toContain('https://zenhungyep.com/openapi.json')
+    expect(markdown).toContain('https://zenhungyep.com/sitemap.xml')
   })
 
   it('stays useful when the post index is unavailable', () => {
@@ -51,8 +51,8 @@ describe('notFoundMarkdown', () => {
     expect(markdown).toContain('404')
     expect(markdown).toContain('/no-such-page')
     expect(markdown.length).toBeGreaterThan(200)
-    expect(markdown).toContain('https://www.zenhungyep.com/sitemap.xml')
-    expect(markdown).toContain('https://www.zenhungyep.com/llms.txt')
+    expect(markdown).toContain('https://zenhungyep.com/sitemap.xml')
+    expect(markdown).toContain('https://zenhungyep.com/llms.txt')
   })
 })
 
@@ -71,7 +71,7 @@ describe('llmsTxt', () => {
     const text = llmsTxt({ posts: POSTS })
 
     for (const section of SECTIONS) {
-      expect(text).toContain(`https://www.zenhungyep.com${section.path}`)
+      expect(text).toContain(`https://zenhungyep.com${section.path}`)
     }
   })
 })
@@ -90,7 +90,7 @@ describe('postMarkdown', () => {
 
     expect(markdown).toContain('# Hello')
     expect(markdown).toContain('Body text')
-    expect(markdown).toContain('https://www.zenhungyep.com/writing/hello')
+    expect(markdown).toContain('https://zenhungyep.com/writing/hello')
   })
 })
 
@@ -166,7 +166,7 @@ describe('toIndexPosts', () => {
 
     expect(indexed.map((post) => post.slug)).toEqual(['newer', 'older'])
     expect(input).toEqual(snapshot)
-    expect(indexed[0].url).toBe('https://www.zenhungyep.com/writing/newer')
+    expect(indexed[0].url).toBe('https://zenhungyep.com/writing/newer')
   })
 
   it('falls back to sys.firstPublishedAt and tolerates missing dates', () => {

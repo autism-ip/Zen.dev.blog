@@ -28,6 +28,14 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      // www 与 apex 此前同时直接返回 200（重复主机、信号分散）。
+      // 统一 308 到 apex：规范主机与 Vercel 生产域名、robots.js 的 Host、NEXT_PUBLIC_BASE_URL 一致。
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.zenhungyep.com' }],
+        destination: 'https://zenhungyep.com/:path*',
+        permanent: true
+      },
       {
         source: '/turkiyeden-gitmek-berline-uzanan-bir-goc-hikayesi-bolum-1-nedenler',
         destination: '/writing/bir-yazilimci-olarak-turkiyeden-gitmek',

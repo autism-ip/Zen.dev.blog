@@ -9,7 +9,7 @@ index.js: 唯一入口（可执行）。子命令 posts / post / markdown / book
 
 行为约定
 输出走 process.stdout.write（仓库 no-console 规则只允许 error/info/warn）；错误写 stderr 并以退出码 1 结束，便于脚本判断。
-默认目标 https://www.zenhungyep.com；端点契约见 src/lib/agent/openapi.js，二者必须同步演进。
+默认目标 https://zenhungyep.com（apex 为规范主机，www 由 next.config.mjs 308 重定向至此）；端点契约见 src/lib/agent/openapi.js，二者必须同步演进。
 
 使用
 node cli/index.js --help
