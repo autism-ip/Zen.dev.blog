@@ -73,7 +73,10 @@ export function apiHandler(handler, { jsonObject = false } = {}) {
   return async (request, context) => {
     if (['POST', 'PUT', 'PATCH'].includes(request.method) && (request.body || jsonObject)) {
       try {
-        const body = await request.clone().json()
+        // A host may represent a bodyless POST as a present, zero-byte stream.
+        // Query-only endpoints permit that; JSON-object endpoints still require a body.
+        const text = await request.clone().text()
+        const body = text === '' && !jsonObject ? undefined : JSON.parse(text)
         if (jsonObject && (body === null || typeof body !== 'object' || Array.isArray(body))) {
           return apiError({
             code: 'invalid_payload',

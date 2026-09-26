@@ -105,6 +105,14 @@ await check('JSON 400 malformed body', async () => {
   assert.equal(response.status, 400)
   assert.equal((await response.json()).code, 'invalid_json')
 })
+await check('bodyless query-only POST preserves slug validation', async () => {
+  const response = await get('/api/v1/increment-views?slug=%25', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  })
+  assert.equal(response.status, 400)
+  assert.equal((await response.json()).code, 'invalid_slug')
+})
 await check('real 429 and Retry-After (invalid submissions only)', async () => {
   let response
   for (let i = 0; i < 6; i++) {

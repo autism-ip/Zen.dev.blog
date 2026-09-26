@@ -29,14 +29,15 @@ not a remeasured score.
 
 ## Verification
 
-- `npm run ci:gate`: passed lint, 124 tests across 14 files, and production build. Two pre-existing
+- `npm run ci:gate`: passed lint, 125 tests across 14 files, and production build. Two pre-existing
   anonymous-default-export lint warnings remain. The repository's existing build config skips TypeScript checking; no
   new type-check claim is made.
 - API boundary/HTTP error layer coverage: 100% statements, lines and functions; 90.76% branches (30 focused tests).
   Coverage tooling was temporary; project dependency files were not changed.
-- `AGENT_VERIFY_LOCAL_IP=8.8.8.8 node scripts/verify-agent-readiness.mjs http://127.0.0.1:3100`: **51 passed, 0 failed**. See `verification.json` for
-  every checked path. All 19 documented operations were probed; write endpoints received only invalid input. Successful
-  writes and upstream rejection were verified with mocked services, without publishing data.
+- `AGENT_VERIFY_LOCAL_IP=8.8.8.8 node scripts/verify-agent-readiness.mjs http://127.0.0.1:3100`: **51 passed, 0
+  failed**. See `verification.json` for every checked path. All 19 documented operations were probed; write endpoints
+  received only invalid input. Successful writes and upstream rejection were verified with mocked services, without
+  publishing data.
 - JSON success/error bodies were checked against the published response schemas; RSS/sitemap XML, llms.txt, robots.txt,
   JSON-LD, HTML/Markdown sitemap pages, raw HTML content and heading order, quota headers, 429, 404 and 405 were
   checked.
@@ -101,3 +102,8 @@ origin.
 
 Merge remains gated on a clean review of the latest revision and a fresh Is Agentic score of 100/100 for the actual
 site. A passing CI gate alone does not permit merge.
+
+Post-deployment logs exposed a host-specific empty-stream POST regression in the view counter. The previous production
+was restored immediately. A regression test now exercises a zero-byte ReadableStream, and the HTTP verifier checks a
+bodyless counter request with an invalid slug (no writes) reaches slug validation rather than JSON-body rejection.
+JSON-object publishing endpoints still reject absent, malformed and non-object bodies.

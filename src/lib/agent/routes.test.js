@@ -80,6 +80,22 @@ describe('public route regression cases', () => {
     expect(failed.status).toBe(500)
     expect((await failed.json()).code).toBe('upstream_error')
   })
+  it('accepts an empty streamed body for the query-only view counter', async () => {
+    const req = new NextRequest('https://example.com/api/increment-views?slug=test', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: new ReadableStream({
+        start(controller) {
+          controller.close()
+        }
+      }),
+      duplex: 'half'
+    })
+    expect(req.body).not.toBeNull()
+    const response = await incrementViews(req)
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ messsage: 'View count incremented successfully for slug: test' })
+  })
   it('preserves view validation and the legacy successful response field', async () => {
     const req = (slug) => new NextRequest(`https://example.com/api/increment-views${slug}`, { method: 'POST' })
     expect((await incrementViews(req(''))).status).toBe(400)
