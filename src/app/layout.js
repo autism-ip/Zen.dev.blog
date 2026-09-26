@@ -9,6 +9,7 @@ import { EyeIcon } from 'lucide-react'
 import { Noto_Serif_SC as NotoSerifSC } from 'next/font/google'
 import { draftMode } from 'next/headers'
 import Script from 'next/script'
+import { Suspense } from 'react'
 
 import { sharedMetadata } from '@/app/shared-metadata'
 import { MenuContent } from '@/components/menu-content'
@@ -17,6 +18,8 @@ import { SideMenu } from '@/components/side-menu'
 import { TailwindIndicator } from '@/components/tailwind-indicator'
 import { ErrorBoundary } from '@/components/ui/error-boundary'
 import { Toaster } from '@/components/ui/sonner'
+import { buildJsonLd } from '@/lib/agent/json-ld'
+import { SITE } from '@/lib/agent/site'
 import { PROFILES } from '@/lib/constants'
 import { preloadGetAllPosts } from '@/lib/contentful'
 
@@ -42,6 +45,8 @@ export default async function RootLayout({ children }) {
     >
       <head />
       <body suppressHydrationWarning>
+        {/* 站点级结构化数据：Organization + Person + WebSite，供 AI agent 解析身份与联系渠道 */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(buildJsonLd()) }} />
         <ErrorBoundary>
           <DialogStateProvider>
             {}
@@ -65,8 +70,13 @@ export default async function RootLayout({ children }) {
             <TailwindIndicator />
           </DialogStateProvider>
         </ErrorBoundary>
-        <Analytics />
-        <SpeedInsights />
+        {/* Vercel analytics 内部调用 useSearchParams()（无 Suspense 包裹）会触发静态预渲染
+            BAILOUT_TO_CLIENT_SIDE_RENDERING，把整棵应用树推到客户端。
+            显式 Suspense 边界把 bailout 限制在这两个埋点自身的子树内，保证页面内容 SSR 可爬取。 */}
+        <Suspense fallback={null}>
+          <Analytics />
+          <SpeedInsights />
+        </Suspense>
         <Script
           src="https://unpkg.com/@tinybirdco/flock.js"
           data-host={process.env.NEXT_PUBLIC_TINYBIRD_TRACKER_HOST}
@@ -79,7 +89,7 @@ export default async function RootLayout({ children }) {
 }
 
 export const metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://me.deeptoai.com'),
+  metadataBase: new URL(SITE.url),
   robots: {
     index: true,
     follow: true
@@ -98,7 +108,7 @@ export const metadata = {
     description: sharedMetadata.description,
     alt: sharedMetadata.title,
     type: 'website',
-    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://me.deeptoai.com',
+    url: SITE.url,
     siteName: sharedMetadata.title,
     locale: 'en_IE',
     images: [

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Suspense } from 'react'
+import { Fragment, Suspense } from 'react'
 
 // ISR 兜底：即使 webhook 失效，最多 1 小时自动刷新
 export const revalidate = 3600
@@ -12,6 +12,7 @@ import { ScrollArea } from '@/components/scroll-area'
 import { SunnyOverlay, SunnyToggle } from '@/components/sunny-mode'
 import { Button } from '@/components/ui/button'
 import { WritingList } from '@/components/writing-list'
+import { HOME_BIO } from '@/lib/agent/site'
 import { getAllPosts } from '@/lib/contentful'
 import { getItemsByYear, getSortedPosts } from '@/lib/utils'
 
@@ -33,17 +34,29 @@ export default async function Home() {
         <div className="content">
           <PageTitle title="Home" className="lg:hidden" />
           <p>
-            Hi, I am Zen(叶振幸).
-            <br />
-            Open Source Intern , Mathematics & Applied Math Student 👋
-            <br />
-            Bridging Mathematics & AI—Python & Deep Learning frameworks (MindSpore/PyTorch).
-            <br />
-            From Mathematical Modeling to AI-driven diagnostics.
-            <br />
-            Exploring Open Source × Deep Learning; Passionate about building open source projects—let's chat!
+            {HOME_BIO.map((line, index) => (
+              <Fragment key={line}>
+                {index > 0 && <br />}
+                {line}
+              </Fragment>
+            ))}
           </p>
           <SunnyToggle />
+          {/* 开发者资源入口：公开 API、OpenAPI 规格与 agent 指南 */}
+          <p className="mt-6 text-sm">
+            <span className="text-gray-500">Developers &amp; agents:</span>{' '}
+            <Link href="/developers" className="link">
+              /developers
+            </Link>
+            <span className="text-gray-400"> · </span>
+            <Link href="/llms.txt" className="link">
+              /llms.txt
+            </Link>
+            <span className="text-gray-400"> · </span>
+            <Link href="/openapi.json" className="link">
+              /openapi.json
+            </Link>
+          </p>
           <Button asChild variant="link" className="inline px-0">
             <Link href="/writing">
               <h2 className="mt-8 mb-4">Writing</h2>
