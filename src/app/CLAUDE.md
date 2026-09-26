@@ -8,7 +8,7 @@ template.tsx: 路由切换动画模板，LazyMotion + AnimatePresence + m 实现
 not-found.js: 404 页面
 opengraph-image.js: 根级 OG 图片生成
 shared-metadata.js: 共享 metadata 常量（ogImage 尺寸等）
-actions.js: Server Actions
+actions.js: Server Actions，书签分页经白名单校验后直接调用已认证 provider，避免共享出口 IP 的公共 HTTP 配额
 robots.js: robots.txt 生成
 sitemap.js: sitemap.xml 生成，CMS 不可用时仍包含所有静态分区与开发者页面
 llms.txt/: GET /llms.txt 路由，面向 agent 的指南（when-to-use + 如何调用），数据来自 lib/agent

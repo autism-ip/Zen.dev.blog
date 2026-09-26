@@ -1,7 +1,8 @@
 # Agent readiness follow-up — 2026-09-27
 
-Implemented locally; not deployed and not published to npm. The production score 86/100 is the user's starting audit,
-not a remeasured score.
+Implementation and verification record. Live deployment, review and audit results are tracked on
+[PR #18](https://github.com/autism-ip/Zen.dev.blog/pull/18). The starting audit was 86/100; local checks are not a new
+Is Agentic score. The CLI has not been published to npm.
 
 ## Changes
 
@@ -29,7 +30,7 @@ not a remeasured score.
 
 ## Verification
 
-- `npm run ci:gate`: passed lint, 125 tests across 14 files, and production build. Two pre-existing
+- `npm run ci:gate`: passed lint, 129 tests across 16 files, and production build. Two pre-existing
   anonymous-default-export lint warnings remain. The repository's existing build config skips TypeScript checking; no
   new type-check claim is made.
 - API boundary/HTTP error layer coverage: 100% statements, lines and functions; 90.76% branches (30 focused tests).
@@ -107,3 +108,8 @@ Post-deployment logs exposed a host-specific empty-stream POST regression in the
 was restored immediately. A regression test now exercises a zero-byte ReadableStream, and the HTTP verifier checks a
 bodyless counter request with an invalid slug (no writes) reaches slug validation rather than JSON-body rejection.
 JSON-object publishing endpoints still reject absent, malformed and non-object bodies.
+
+The next review also identified shared-egress throttling of internal bookmark pagination and loss of the post index's
+hourly data-cache expiry. Pagination now calls the existing authenticated provider directly after the same collection
+and page validation; the public API retains its quotas. The Contentful post index fetch now declares a 3,600-second
+revalidation period independently of the uncached outer API response. Regression tests cover both behaviors.
