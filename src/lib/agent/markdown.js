@@ -6,7 +6,7 @@
  */
 
 import { richTextToMarkdown } from '@/lib/agent/rich-text'
-import { AGENT_FILES, CONTACT, SECTIONS, SITE, SOCIAL } from '@/lib/agent/site'
+import { AGENT_FILES, CONTACT, HOME_GUIDE, SECTIONS, SITE, SOCIAL } from '@/lib/agent/site'
 
 // ---------------------------------------------------------------------------
 // 公共片段
@@ -56,7 +56,7 @@ function footer() {
 
 export function homeMarkdown({ posts = [], bio = [] } = {}) {
   return [
-    `# ${SITE.name}`,
+    `# ${SITE.title}`,
     '',
     `> ${SITE.description}`,
     '',
@@ -65,6 +65,7 @@ export function homeMarkdown({ posts = [], bio = [] } = {}) {
     '## About',
     '',
     ...bio,
+    ...HOME_GUIDE,
     '',
     '## Writing',
     '',
@@ -188,7 +189,7 @@ export function notFoundMarkdown(pathname) {
 
 export function llmsTxt({ posts = [] } = {}) {
   return [
-    `# ${SITE.name}`,
+    `# ${SITE.title}`,
     '',
     `> ${SITE.description}`,
     '',
@@ -221,8 +222,12 @@ export function llmsTxt({ posts = [] } = {}) {
     '',
     `- [OpenAPI 3.1 specification](${absolute('/openapi.json')}): every public HTTP endpoint, with parameters and response schemas.`,
     `- [Developer guide](${absolute('/developers')}): quickstart, endpoint list, and agent integration notes.`,
-    `- [Bookmarks JSON](${absolute('/api/bookmarks')}): public read-only JSON of curated bookmarks.`,
-    `- [Posts JSON](${absolute('/api/posts')}): public read-only JSON of writing posts.`,
+    `- [Bookmarks JSON](${absolute('/api/v1/bookmarks')}): public read-only JSON of curated bookmarks.`,
+    `- [Posts JSON](${absolute('/api/v1/posts')}): public read-only JSON of writing posts.`,
+    '',
+    `- [Versioning and deprecation](${absolute('/developers#versioning')}): v1 stability and retirement policy.`,
+    `- [Rate limits](${absolute('/developers#rate-limits')}): live quota headers and Retry-After conventions.`,
+    `- [CLI](${absolute('/developers#cli')}): official Node.js client, local installation and publishing status.`,
     '',
     '## Machine-readable resources',
     '',

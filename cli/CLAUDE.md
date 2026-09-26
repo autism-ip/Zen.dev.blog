@@ -1,10 +1,11 @@
 # cli/
 > L2 | 父级: /CLAUDE.md
 
-`zenhungyep` 命令行客户端：把站点公开 API 封装为可直接脚本化的命令，零依赖（仅用 Node 18+ 内置 fetch）。
+`zenhungyep` 命令行客户端：把站点公开 API 封装为可直接脚本化的命令，零依赖（仅用 Node 22+ 内置 fetch）。
 
 成员清单
-package.json: 包元数据与 bin 映射（private: true，尚未发布到 npm），engines 要求 Node >= 18
+package.json: 包元数据与 bin 映射（private: false，可打包发布，尚未发布到 npm），engines 要求 Node >= 22
+README.md: 本地安装、v1 配额、命令输出、发布前置条件
 index.js: 唯一入口（可执行）。子命令 posts / post / markdown / bookmarks / openapi / llms；--base 切换目标部署，--json 输出原始 JSON；toSlug 接受 slug、路径或完整 URL
 
 行为约定

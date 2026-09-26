@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server'
 
+import { apiBoundary } from '@/lib/agent/api'
 import { prefersMarkdown, VARIANT_HEADER } from '@/lib/agent/http'
 
 export async function middleware(request, event) {
   const { pathname } = request.nextUrl
+
+  if (pathname === '/api' || pathname.startsWith('/api/')) return apiBoundary(request)
 
   // --- Markdown 内容协商 ---
   // 仅当客户端显式要求 text/markdown 且非 RSC 导航请求时处理。
@@ -68,6 +71,6 @@ export async function middleware(request, event) {
 }
 
 export const config = {
-  // 页面路径全部进入中间件（用于 Markdown 协商）；排除 API、Next 内部资源与带扩展名的静态文件
-  matcher: ['/((?!api/|_next/|.*\\..*).*)']
+  // API（含带点路径）由统一边界处理；HTML 页面继续 Markdown 协商。
+  matcher: ['/api/:path*', '/((?!api/|_next/|.*\\..*).*)']
 }

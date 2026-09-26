@@ -14,7 +14,8 @@ export function buildJsonLd() {
   const organization = {
     '@type': 'Organization',
     '@id': organizationId,
-    name: SITE.name,
+    name: SITE.title,
+    alternateName: ['Zen', 'zenhungyep', '叶振幸'],
     url: SITE.url,
     description: SITE.description,
     logo: {
@@ -55,7 +56,8 @@ export function buildJsonLd() {
     '@type': 'WebSite',
     '@id': `${SITE.url}/#website`,
     url: SITE.url,
-    name: SITE.name,
+    name: SITE.title,
+    alternateName: ['Zen', 'zenhungyep', '叶振幸'],
     description: SITE.description,
     inLanguage: SITE.language,
     publisher: { '@id': organizationId },

@@ -1,16 +1,21 @@
+import { SECTIONS, SITE } from '@/lib/agent/site'
 import { getAllPageSlugs, getAllPosts } from '@/lib/contentful'
 import { getBookmarks } from '@/lib/raindrop-with-auth'
 import { getSortedPosts } from '@/lib/utils'
 
 export default async function sitemap() {
+  const staticPages = [
+    { url: SITE.url, changeFrequency: 'yearly', priority: 1 },
+    ...SECTIONS.map((section) => ({ url: `${SITE.url}${section.path}`, changeFrequency: 'monthly', priority: 0.8 }))
+  ]
   try {
     const [allPosts, bookmarks, allPages] = await Promise.all([
-      getAllPosts(),
+      getAllPosts().catch(() => []),
       getBookmarks().catch((error) => {
         console.info('Sitemap: Bookmarks unavailable during build:', error.message)
         return []
       }),
-      getAllPageSlugs()
+      getAllPageSlugs().catch(() => [])
     ])
 
     const sortedWritings = getSortedPosts(allPosts)
@@ -53,32 +58,13 @@ export default async function sitemap() {
     })
 
     return [
-      {
-        url: 'https://zenhungyep.com',
-        lastModified: new Date(),
-        changeFrequency: 'yearly',
-        priority: 1
-      },
-      {
-        url: 'https://zenhungyep.com/musings',
-        lastModified: new Date(),
-        changeFrequency: 'daily',
-        priority: 0.8
-      },
-      ...pages,
-      ...writings,
-      ...mappedBookmarks
+      ...new Map(
+        [...staticPages, ...pages, ...writings, ...mappedBookmarks].map((entry) => [entry.url, entry])
+      ).values()
     ]
   } catch (error) {
     console.error('Sitemap generation failed:', error)
     // 返回基本的 sitemap，不包含书签
-    return [
-      {
-        url: 'https://zenhungyep.com',
-        lastModified: new Date(),
-        changeFrequency: 'yearly',
-        priority: 1
-      }
-    ]
+    return staticPages
   }
 }

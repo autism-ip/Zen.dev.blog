@@ -43,7 +43,11 @@ export default async function RootLayout({ children }) {
       className={classix(GeistSans.variable, GeistMono.variable, notoSerifSC.variable)}
       suppressHydrationWarning
     >
-      <head />
+      <head>
+        <noscript>
+          <style>{'[data-page-transition] { opacity: 1 !important; transform: none !important; }'}</style>
+        </noscript>
+      </head>
       <body suppressHydrationWarning>
         {/* 站点级结构化数据：Organization + Person + WebSite，供 AI agent 解析身份与联系渠道 */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(buildJsonLd()) }} />

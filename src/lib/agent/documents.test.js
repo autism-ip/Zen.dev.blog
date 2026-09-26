@@ -184,7 +184,7 @@ describe('buildJsonLd', () => {
   const website = graph.find((node) => node['@type'] === 'WebSite')
 
   it('describes the organization with a contact point and a postal address', () => {
-    expect(organization.name).toBe('Zen')
+    expect(organization.name).toBe('Zen (zenhungyep)')
     expect(organization.contactPoint.contactType).toBeTruthy()
     expect(organization.contactPoint.url).toContain('github.com')
     expect(organization.contactPoint.email).toBe('y1327514070@gmail.com')

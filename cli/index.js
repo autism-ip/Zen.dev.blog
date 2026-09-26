@@ -45,11 +45,23 @@ function parseArgs(argv) {
 
     if (token === '--base') {
       options.base = String(argv[index + 1] ?? '').replace(/\/$/, '')
+      const url = new URL(options.base)
+      if (
+        !['http:', 'https:'].includes(url.protocol) ||
+        url.username ||
+        url.password ||
+        url.search ||
+        url.hash ||
+        url.pathname !== '/'
+      )
+        throw new Error('--base must be an HTTP(S) origin')
       index += 1
     } else if (token === '--json') {
       options.json = true
     } else if (token === '-h' || token === '--help') {
       options.command = 'help'
+    } else if (token.startsWith('-')) {
+      throw new Error(`Unknown option: ${token}`)
     } else if (!options.command) {
       options.command = token
     } else {
@@ -62,7 +74,8 @@ function parseArgs(argv) {
 
 async function request(options, path, { accept } = {}) {
   const response = await fetch(`${options.base}${path}`, {
-    headers: accept ? { Accept: accept } : {}
+    headers: accept ? { Accept: accept } : {},
+    signal: AbortSignal.timeout(30000)
   })
 
   const body = await response.text()
@@ -70,7 +83,10 @@ async function request(options, path, { accept } = {}) {
   if (!response.ok) {
     let message = body
     try {
-      message = JSON.parse(body)?.error ?? body
+      const data = JSON.parse(body)
+      message = [data.code, data.error, data.hint].filter(Boolean).join(': ') || body
+      if (response.status === 429 && response.headers.get('retry-after'))
+        message += ` (Retry-After: ${response.headers.get('retry-after')} seconds)`
     } catch {
       // 非 JSON 错误体（如网关页面）直接使用原文
     }
@@ -115,7 +131,7 @@ async function run(options) {
       return print(USAGE)
 
     case 'posts': {
-      const { posts } = await fetchJson(options, '/api/posts')
+      const { posts } = await fetchJson(options, '/api/v1/posts')
       return printPosts(posts ?? [], options.json)
     }
 
@@ -126,7 +142,7 @@ async function run(options) {
     }
 
     case 'bookmarks': {
-      const bookmarks = await fetchJson(options, '/api/bookmarks')
+      const bookmarks = await fetchJson(options, '/api/v1/bookmarks')
       if (options.json) return print(JSON.stringify(bookmarks, null, 2))
 
       for (const bookmark of bookmarks) {
@@ -152,9 +168,9 @@ async function run(options) {
   }
 }
 
-const options = parseArgs(process.argv.slice(2))
-
-run(options).catch((error) => {
-  console.error(error.message)
-  process.exit(1)
-})
+Promise.resolve()
+  .then(() => run(parseArgs(process.argv.slice(2))))
+  .catch((error) => {
+    console.error(error.message)
+    process.exit(1)
+  })

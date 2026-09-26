@@ -14,7 +14,7 @@ import { CONTACT, SITE } from '@/lib/agent/site'
 const errorSchema = {
   type: 'object',
   description: 'Structured error envelope. Branch on `code`, not on the message text.',
-  required: ['ok', 'error', 'code'],
+  required: ['ok', 'error', 'code', 'hint'],
   properties: {
     ok: { type: 'boolean', const: false },
     error: { type: 'string', description: 'Human-readable message, safe to display.' },
@@ -227,7 +227,29 @@ const paths = {
         }
       },
       responses: {
-        200: jsonResponse('Submission stored', { type: 'object', additionalProperties: true }),
+        200: jsonResponse('Submission stored', {
+          type: 'object',
+          required: ['res'],
+          properties: {
+            res: {
+              type: 'object',
+              required: ['id', 'createdTime', 'fields'],
+              properties: {
+                id: { type: 'string', description: 'Submission record identifier.' },
+                createdTime: { type: 'string', format: 'date-time', description: 'Record creation time.' },
+                fields: {
+                  type: 'object',
+                  properties: {
+                    URL: { type: 'string', format: 'uri' },
+                    Email: { type: 'string', format: 'email' },
+                    Date: { type: 'string', format: 'date-time' },
+                    Type: { type: 'string' }
+                  }
+                }
+              }
+            }
+          }
+        }),
         ...errorResponses([400, 403, 429, 500])
       }
     }
@@ -238,7 +260,7 @@ const paths = {
       operationId: 'createMusing',
       summary: 'Publish a musing (owner only)',
       description:
-        'Creates a short musing by opening a GitHub issue in the backing repository. Requires the shared verification code at the end of `body`; requests without it receive 401. Reserved for the site owner’s publishing tooling.',
+        'Creates a short musing by opening a GitHub issue in the backing repository. Requires the shared verification code within `body`; requests without it receive 401. Reserved for the site owner’s publishing tooling.',
       tags: ['owner'],
       requestBody: {
         required: true,
@@ -340,7 +362,10 @@ const paths = {
       description: 'Returns this OpenAPI document.',
       tags: ['discovery'],
       responses: {
-        200: { description: 'OpenAPI document', content: { 'application/json': { schema: { type: 'object' } } } }
+        200: {
+          description: 'OpenAPI document',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/OpenApiDocument' } } }
+        }
       }
     }
   }
@@ -350,18 +375,123 @@ const paths = {
 // 入口
 // ---------------------------------------------------------------------------
 
+const quotaHeaders = {
+  RateLimit: {
+    description:
+      'IETF draft-ietf-httpapi-ratelimit-headers-11: policy name with r (available requests) and t (seconds).',
+    schema: { type: 'string' },
+    example: '"posts";r=119;t=60'
+  },
+  'RateLimit-Policy': {
+    description: 'Policy name with q (quota) and w (window seconds). Limits are per IP, endpoint and server instance.',
+    schema: { type: 'string' },
+    example: '"posts";q=120;w=60'
+  },
+  'RateLimit-Limit': { description: 'Compatibility field: request quota.', schema: { type: 'integer', minimum: 1 } },
+  'RateLimit-Remaining': {
+    description: 'Compatibility field: remaining requests.',
+    schema: { type: 'integer', minimum: 0 }
+  },
+  'RateLimit-Reset': {
+    description: 'Compatibility field: delay in seconds, not Unix time.',
+    schema: { type: 'integer', minimum: 1 }
+  },
+  'API-Version': { description: 'API major version.', schema: { type: 'string', const: 'v1' } }
+}
+
+// Model the stable OpenAPI envelope; arbitrary extension values remain legal OpenAPI.
+const openApiDocumentSchema = {
+  type: 'object',
+  required: ['openapi', 'info', 'paths'],
+  properties: {
+    openapi: { type: 'string', const: '3.1.0' },
+    info: {
+      type: 'object',
+      required: ['title', 'version'],
+      properties: { title: { type: 'string' }, version: { type: 'string' }, description: { type: 'string' } },
+      additionalProperties: true
+    },
+    servers: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { url: { type: 'string', format: 'uri' }, description: { type: 'string' } },
+        required: ['url']
+      }
+    },
+    paths: { type: 'object', additionalProperties: { type: 'object', additionalProperties: true } },
+    components: { type: 'object', additionalProperties: { type: 'object', additionalProperties: true } },
+    tags: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { name: { type: 'string' }, description: { type: 'string' } },
+        required: ['name']
+      }
+    }
+  }
+}
+
 export function buildOpenApi() {
+  const publicPaths = structuredClone(paths)
+  publicPaths['/api'] = {
+    get: {
+      operationId: 'getApiIndex',
+      summary: 'Discover the Zen API',
+      description: 'Returns the supported version and canonical documentation links.',
+      tags: ['discovery'],
+      responses: {
+        200: jsonResponse('API index', {
+          type: 'object',
+          required: ['name', 'version', 'openapi', 'documentation'],
+          properties: {
+            name: { type: 'string' },
+            version: { type: 'string', const: 'v1' },
+            openapi: { type: 'string', format: 'uri' },
+            documentation: { type: 'string', format: 'uri' }
+          }
+        })
+      }
+    }
+  }
+  for (const [path, methods] of Object.entries(publicPaths)) {
+    if (!path.startsWith('/api')) continue
+    for (const operation of Object.values(methods)) {
+      Object.assign(operation.responses, errorResponses([404, 405, 429, 500]))
+      for (const [status, response] of Object.entries(operation.responses)) {
+        response.headers = {
+          ...quotaHeaders,
+          ...(status === '429'
+            ? {
+                'Retry-After': {
+                  description: 'Wait this many seconds before retrying (RFC 9110).',
+                  schema: { type: 'integer', minimum: 1 }
+                }
+              }
+            : {})
+        }
+      }
+    }
+    publicPaths[path.replace(/^\/api/, '/api/v1')] = Object.fromEntries(
+      Object.entries(methods).map(([method, operation]) => [
+        method,
+        { ...operation, operationId: `${operation.operationId}V1` }
+      ])
+    )
+  }
   return {
     openapi: '3.1.0',
     info: {
-      title: `${SITE.name} public API`,
+      title: `${SITE.title} public API`,
       version: '1.0.0',
       summary: 'Read-only content API and discovery endpoints for a personal writing site.',
       description: [
         'Public, unauthenticated API for reading posts, bookmarks, and visual media published on zenhungyep.com.',
         'Read endpoints are safe to call without credentials. Telemetry and submission endpoints are rate limited per IP.',
         'Every HTML page can additionally be requested as Markdown by sending `Accept: text/markdown`; unknown paths then return HTTP 404 with a Markdown explanation.',
-        'Structured errors always use the Error schema with a stable `code` field.'
+        'Structured errors always use the Error schema with a stable `code` field.',
+        'Versioning: use /api/v1/*; unversioned /api/* aliases retain v1 behavior. Breaking changes require a new major URL. No version is currently deprecated. Before retiring a version, publish a migration guide and at least 90 days notice at /developers#versioning, with Deprecation (RFC 9745 Structured Field Date), Sunset (RFC 8594 HTTP-date) and a Link with rel=deprecation on affected responses.',
+        'Quotas: public reads 120 requests/60 seconds, views 60/600 seconds, submissions and musings 5/600 seconds; per client IP, endpoint and server instance. Aliases share quotas. RateLimit and RateLimit-Policy follow IETF draft-ietf-httpapi-ratelimit-headers-11, not a finalized RFC. 429 includes Retry-After delay-seconds.'
       ].join(' '),
       contact: {
         name: CONTACT.label,
@@ -378,9 +508,10 @@ export function buildOpenApi() {
       { name: 'submissions', description: 'Human-facing submission endpoints. Rate limited; bots rejected.' },
       { name: 'owner', description: 'Endpoints reserved for the site owner. Require a shared secret.' }
     ],
-    paths,
+    paths: publicPaths,
     components: {
       schemas: {
+        OpenApiDocument: openApiDocumentSchema,
         Post: postSchema,
         Bookmark: bookmarkSchema,
         VisualMedia: visualMediaSchema,
