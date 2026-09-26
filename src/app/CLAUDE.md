@@ -11,11 +11,17 @@ shared-metadata.js: 共享 metadata 常量（ogImage 尺寸等）
 actions.js: Server Actions
 robots.js: robots.txt 生成
 sitemap.js: sitemap.xml 生成
+llms.txt/: GET /llms.txt 路由，面向 agent 的指南（when-to-use + 如何调用），数据来自 lib/agent
+openapi.json/: GET /openapi.json 路由，发布 lib/agent/openapi 的 OpenAPI 3.1 规格
 bookmarks.xml: bookmarks RSS feed
 writing.xml: writing RSS feed
 [slug]/: 动态页面路由 + OG 图片
+about/: 信任锚点页（Who/What/How，500+ 字符）
+contact/: 信任锚点页（唯一公开联系渠道为 GitHub Issues）
+privacy/: 信任锚点页（逐项声明采集与不采集的数据）
+developers/: 开发者门户，端点清单直接渲染自 OpenAPI 文档
 admin/: 管理后台
-api/: API 路由（auth、bookmarks、draft、revalidate 等）
+api/: API 路由（auth、bookmarks、draft、revalidate、posts、markdown 等）
 bookmarks/: 书签功能
 friends/: 友链页
 icon/: 网站图标生成

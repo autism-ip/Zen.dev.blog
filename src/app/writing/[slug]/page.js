@@ -1,7 +1,6 @@
 import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 
-import { ClientOnly } from '@/components/client-only'
 import { RichText } from '@/components/contentful/rich-text'
 import { FloatingHeader } from '@/components/floating-header'
 import { PageTitle } from '@/components/page-title'
@@ -92,9 +91,7 @@ export default async function WritingSlug(props) {
           </article>
         </div>
       </ScrollArea>
-      <ClientOnly>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd, null, 2) }} />
-      </ClientOnly>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd, null, 2) }} />
     </>
   )
 }

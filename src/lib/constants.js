@@ -14,8 +14,8 @@ import {
 export const PROFILES = {
   twitter: {
     title: 'X (Twitter)',
-    username: 'autism', // 请替换为您的 Twitter 用户名
-    url: 'https://x.com/autism539937', // 请替换为您的 Twitter 个人资料 URL
+    username: 'autism539937', // 与下方 url 保持一致，用于 twitter:site / twitter:creator
+    url: 'https://x.com/autism539937',
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"

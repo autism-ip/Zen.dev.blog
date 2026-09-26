@@ -1,5 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary'
 
+import { apiError } from '@/lib/agent/http'
+
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -181,9 +183,11 @@ export async function GET() {
     })
   } catch (e) {
     console.error('❌ API Error:', e)
-    return new Response(JSON.stringify({ ok: false, error: 'Failed to fetch visual media' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
+    return apiError({
+      code: 'upstream_unavailable',
+      message: 'Failed to fetch visual media',
+      hint: 'The media library is temporarily unreachable; retry later',
+      status: 500
     })
   }
 }

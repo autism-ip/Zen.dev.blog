@@ -1,3 +1,4 @@
+import { CodeIcon } from 'lucide-react'
 import Link from 'next/link'
 
 import { NavigationLink } from '@/components/navigation-link'
@@ -33,6 +34,8 @@ export const MenuContent = () => (
             shortcutNumber={linkIndex + 1}
           />
         ))}
+        {/* 公开 API 与 agent 文档入口：让每个页面都能发现 /developers */}
+        <NavigationLink href="/developers" label="Developers & API" icon={<CodeIcon size={16} />} />
       </div>
     </div>
     <VinylPlayer />

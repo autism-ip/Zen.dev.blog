@@ -1,8 +1,10 @@
+import { SITE } from '@/lib/agent/site'
+
 export const sharedMetadata = {
   title: 'Zen',
   description:
     "Paris-based AI Product Manager & vibecoder, shipping AI products and open-source projects with a maker's spirit.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://me.deeptoai.com',
+  url: SITE.url,
   ogImage: {
     width: 1200,
     height: 630,

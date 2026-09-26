@@ -5,7 +5,6 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { revalidateMusingsCache } from '@/app/actions'
-import { ClientOnly } from '@/components/client-only'
 
 // 创建全局对话框状态 Context
 const DialogStateContext = createContext({
@@ -13,15 +12,15 @@ const DialogStateContext = createContext({
   setIsQuickPostOpen: () => {}
 })
 
+// 初始值在服务端与客户端一致（false + noop），无需 ClientOnly 包裹。
+// 曾经的 ClientOnly 会让整棵应用树在服务端渲染为空，页面内容对无 JS 的爬虫不可见。
 export function DialogStateProvider({ children }) {
   const [isQuickPostOpen, setIsQuickPostOpen] = useState(false)
 
   return (
-    <ClientOnly>
-      <DialogStateContext.Provider value={{ isQuickPostOpen, setIsQuickPostOpen }}>
-        {children}
-      </DialogStateContext.Provider>
-    </ClientOnly>
+    <DialogStateContext.Provider value={{ isQuickPostOpen, setIsQuickPostOpen }}>
+      {children}
+    </DialogStateContext.Provider>
   )
 }
 
@@ -87,8 +86,15 @@ export function QuickPostButton() {
           window.location.reload()
         }, 10000) // 等待 10 秒让 GitHub Action 完成
       } else {
+        // 服务端错误已改为结构化 JSON：优先展示其中的可读 message，解析失败回退原文
         const errorText = await response.text()
-        toast.error(`Failed to publish: ${errorText}`)
+        let errorMessage = errorText
+        try {
+          errorMessage = JSON.parse(errorText)?.error ?? errorText
+        } catch {
+          // 非 JSON 响应（如网关错误页）直接展示原文
+        }
+        toast.error(`Failed to publish: ${errorMessage}`)
       }
     } catch (error) {
       console.error('Submit error:', error)

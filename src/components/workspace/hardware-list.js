@@ -3,6 +3,10 @@
 import { domAnimation, LazyMotion, m } from 'framer-motion'
 import { CldImage } from 'next-cloudinary'
 
+// Cloudinary 的 cloud name 是构建期输入：CI 等无 env 环境不存在该值。
+// 缺失时跳过这张装饰性照片，否则 next/image 会在预渲染时调用其 loader 并抛错，导致整页构建失败。
+const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+
 export function HardwareList({ items }) {
   const getCategoryIcon = (category) => {
     switch (category) {
@@ -31,18 +35,20 @@ export function HardwareList({ items }) {
         {/* Desk Setup Photo */}
         <div className="flex justify-center">
           <div className="relative aspect-[4/3] w-full max-w-lg overflow-hidden rounded-lg shadow-sm">
-            <CldImage
-              src="IMG_3023_seksb4"
-              alt="My Desk Setup"
-              width={600}
-              height={450}
-              quality="auto"
-              format="auto"
-              sizes="(max-width: 768px) 100vw, 33vw"
-              className="h-full w-full object-cover"
-              crop="fill"
-              gravity="center"
-            />
+            {CLOUD_NAME && (
+              <CldImage
+                src="IMG_3023_seksb4"
+                alt="My Desk Setup"
+                width={600}
+                height={450}
+                quality="auto"
+                format="auto"
+                sizes="(max-width: 768px) 100vw, 33vw"
+                className="h-full w-full object-cover"
+                crop="fill"
+                gravity="center"
+              />
+            )}
 
             {/* Decorative elements */}
             <div className="absolute top-4 right-4 h-8 w-8 rounded-full bg-white/20" />

@@ -15,7 +15,20 @@ export async function generateStaticParams() {
   const allPages = await getAllPageSlugs()
 
   // 排除已有静态页面的路径，防止路由冲突
-  const excludedPaths = ['stack', 'workspace', 'journey', 'writing', 'bookmarks', 'visual', 'musings']
+  const excludedPaths = [
+    'stack',
+    'workspace',
+    'journey',
+    'writing',
+    'bookmarks',
+    'visual',
+    'musings',
+    'friends',
+    'about',
+    'contact',
+    'privacy',
+    'developers'
+  ]
 
   return allPages
     .filter((page) => !page.hasCustomPage) // filter out pages that have custom pages, e.g. /journey

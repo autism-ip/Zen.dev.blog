@@ -1,0 +1,32 @@
+{
+  "name": "zenhungyep",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Command-line client for the public API of zenhungyep.com",
+  "keywords": [
+    "cli",
+    "api",
+    "blog",
+    "markdown",
+    "openapi"
+  ],
+  "homepage": "https://zenhungyep.com/developers",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/autism-ip/Zen.dev.blog.git",
+    "directory": "cli"
+  },
+  "type": "module",
+  "bin": {
+    "zenhungyep": "./index.js"
+  },
+  "files": [
+    "index.js"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node index.js --help"
+  }
+}

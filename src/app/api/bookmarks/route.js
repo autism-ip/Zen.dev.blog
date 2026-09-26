@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 
+import { apiError } from '@/lib/agent/http'
 import { getTokenManager } from '@/lib/auth/get-token-manager'
 import { COLLECTION_IDS } from '@/lib/constants'
 
@@ -31,11 +32,21 @@ export async function GET(request) {
     if (collectionId) {
       // 白名单校验: 拒绝白名单外的 id, 防止越权读取私有收藏夹
       if (!isWhitelistedCollectionId(collectionId)) {
-        return NextResponse.json({ error: 'Invalid collection' }, { status: 400 })
+        return apiError({
+          code: 'invalid_collection',
+          message: 'Invalid collection',
+          hint: 'Use a whitelisted numeric collection id; the accepted ids are listed in /openapi.json',
+          status: 400
+        })
       }
       // 分页参数校验: 防止恶意大页码拖垮回源
       if (!Number.isInteger(page) || page < 0 || page > 200) {
-        return NextResponse.json({ error: 'Invalid page' }, { status: 400 })
+        return apiError({
+          code: 'invalid_page',
+          message: 'Invalid page',
+          hint: 'Pass an integer page between 0 and 200',
+          status: 400
+        })
       }
       return await getCollectionBookmarks(collectionId, page)
     }
@@ -82,7 +93,12 @@ export async function GET(request) {
       }
     }
 
-    return NextResponse.json({ error: 'Failed to fetch bookmarks' }, { status: 500 })
+    return apiError({
+      code: 'upstream_unavailable',
+      message: 'Failed to fetch bookmarks',
+      hint: 'The reading list is temporarily unreachable; retry later or read /bookmarks.xml',
+      status: 500
+    })
   }
 }
 
@@ -141,7 +157,12 @@ async function getCollectionBookmarks(collectionId, page = 0) {
       }
     }
 
-    return NextResponse.json({ error: 'Failed to fetch collection bookmarks' }, { status: 500 })
+    return apiError({
+      code: 'upstream_unavailable',
+      message: 'Failed to fetch collection bookmarks',
+      hint: 'The reading list is temporarily unreachable; retry later or omit the collection parameter',
+      status: 500
+    })
   }
 }
 
