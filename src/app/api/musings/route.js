@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 
+import { apiError } from '@/lib/agent/http'
+
 // 生成智能标题
 function generateTitle(content) {
   // 去除 markdown 格式和多余空白
@@ -42,17 +44,32 @@ export async function POST(request) {
     const blogLabels = [...labels, 'blog-post']
 
     if (!body) {
-      return new NextResponse('内容不能为空', { status: 400 })
+      return apiError({
+        code: 'empty_body',
+        message: '内容不能为空',
+        hint: 'Send JSON { "body": "<text>" } with a non-empty string',
+        status: 400
+      })
     }
 
     // 检查是否包含验证码
     const secretCode = process.env.MUSING_CODE
     if (!secretCode) {
-      return new NextResponse('服务器配置错误', { status: 500 })
+      return apiError({
+        code: 'server_misconfigured',
+        message: '服务器配置错误',
+        hint: 'The owner must configure the publishing secret before this endpoint can be used',
+        status: 500
+      })
     }
 
     if (!body.includes(secretCode)) {
-      return new NextResponse('验证码错误', { status: 401 })
+      return apiError({
+        code: 'invalid_verification_code',
+        message: '验证码错误',
+        hint: 'This endpoint is reserved for the site owner; the body must include the shared verification code',
+        status: 401
+      })
     }
 
     // 移除验证码
@@ -64,7 +81,12 @@ export async function POST(request) {
     // 调用 GitHub API 创建 Issue
     const githubToken = process.env.GITHUB_PAT
     if (!githubToken) {
-      return new NextResponse('GitHub token 未配置', { status: 500 })
+      return apiError({
+        code: 'server_misconfigured',
+        message: 'GitHub token 未配置',
+        hint: 'The owner must configure a GitHub token for the backing repository',
+        status: 500
+      })
     }
 
     // 从环境变量获取仓库信息，如果没有则使用默认值
@@ -88,7 +110,12 @@ export async function POST(request) {
     if (!response.ok) {
       const error = await response.text()
       console.error('GitHub API error:', error)
-      return new NextResponse(`GitHub API 错误: ${response.status}`, { status: 500 })
+      return apiError({
+        code: 'upstream_error',
+        message: `GitHub API 错误: ${response.status}`,
+        hint: 'The backing repository rejected the request; check the GitHub token scope and retry',
+        status: 500
+      })
     }
 
     const issue = await response.json()
@@ -104,6 +131,11 @@ export async function POST(request) {
     })
   } catch (error) {
     console.error('API error:', error)
-    return new NextResponse('服务器内部错误', { status: 500 })
+    return apiError({
+      code: 'internal_error',
+      message: '服务器内部错误',
+      hint: 'Retry later; if it persists, open an issue on the site repository',
+      status: 500
+    })
   }
 }

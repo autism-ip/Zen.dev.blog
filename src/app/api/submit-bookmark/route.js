@@ -3,6 +3,7 @@ import { isbot } from 'isbot'
 import { NextResponse } from 'next/server'
 
 import { formSchema } from '@/components/submit-bookmark/utils'
+import { apiError } from '@/lib/agent/http'
 import rateLimit from '@/lib/rate-limit'
 
 const limiter = rateLimit({
@@ -14,12 +15,21 @@ export async function POST(req) {
   const json = await req.json()
   const data = await formSchema.safeParse(json)
   if (!data.success) {
-    const { error } = data
-    return NextResponse.json({ error }, { status: 400 })
+    return apiError({
+      code: 'invalid_submission',
+      message: 'Invalid submission payload',
+      hint: 'Provide url (absolute URI) and email (valid address); the full schema is in /openapi.json',
+      status: 400
+    })
   }
 
   if (isbot(req.headers.get('User-Agent'))) {
-    return NextResponse.json({ error: 'Bots are not allowed.' }, { status: 403 })
+    return apiError({
+      code: 'bots_not_allowed',
+      message: 'Bots are not allowed.',
+      hint: 'This endpoint serves the human form at /bookmarks; use the read-only public API instead',
+      status: 403
+    })
   }
 
   // Use the @arcjet/ip package to get the client's IP address. This looks at
@@ -32,7 +42,12 @@ export async function POST(req) {
   try {
     await limiter.check(5, clientIp) // Limit to 5 requests
   } catch {
-    return NextResponse.json({ error: 'Rate limit exceeded. Try again later.' }, { status: 429 })
+    return apiError({
+      code: 'rate_limited',
+      message: 'Rate limit exceeded. Try again later.',
+      hint: 'Limit is 5 submissions per IP per 10 minutes',
+      status: 429
+    })
   }
 
   try {
@@ -61,6 +76,11 @@ export async function POST(req) {
     return NextResponse.json({ res })
   } catch (error) {
     console.info(error)
-    return NextResponse.json({ error: 'Error submitting bookmark.' }, { status: 500 })
+    return apiError({
+      code: 'upstream_error',
+      message: 'Error submitting bookmark.',
+      hint: 'The submission store is temporarily unreachable; retry later',
+      status: 500
+    })
   }
 }

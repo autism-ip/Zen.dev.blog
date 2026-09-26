@@ -1,10 +1,39 @@
 import { NextResponse } from 'next/server'
 
-export function middleware(request, event) {
+import { prefersMarkdown, VARIANT_HEADER } from '@/lib/agent/http'
+
+export async function middleware(request, event) {
   const { pathname } = request.nextUrl
 
+  // --- Markdown 内容协商 ---
+  // 仅当客户端显式要求 text/markdown 且非 RSC 导航请求时处理。
+  // 直接返回受控响应而非重写：app 路由管线会给响应追加自己的 Vary（RSC 系列），
+  // 造成重复的 Vary 头，部分客户端只读第一个而判定缺失 Accept。此处在 middleware 收口，
+  // 保证 Vary 唯一且包含 Accept；取回失败时回退为重写，功能不中断。
+  if (!request.headers.get('rsc') && prefersMarkdown(request.headers.get('accept'))) {
+    const url = request.nextUrl.clone()
+    url.pathname = `/api/markdown${pathname === '/' ? '' : pathname}`
+
+    try {
+      const upstream = await fetch(url, { headers: { accept: 'text/markdown' } })
+
+      return new Response(upstream.body, {
+        status: upstream.status,
+        headers: {
+          'Content-Type': 'text/markdown; charset=utf-8',
+          Vary: VARIANT_HEADER,
+          'Cache-Control': 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400'
+        }
+      })
+    } catch (error) {
+      console.error('Markdown negotiation fetch failed, falling back to rewrite', error)
+      return NextResponse.rewrite(url)
+    }
+  }
+
   // --- Writing 分析 ---
-  const writingSlug = pathname.match(/\/writing\/(.*)/)?.[1]
+  // 仅精确匹配 /writing/<单段 slug>（与旧 matcher '/writing/:path' 语义一致）
+  const writingSlug = pathname.match(/^\/writing\/([^/]+)$/)?.[1]
 
   async function sendAnalytics() {
     const URL =
@@ -32,22 +61,13 @@ export function middleware(request, event) {
    * It enables the response to proceed without waiting for the completion of `sendAnalytics()`.
    * This ensures that the user experience remains uninterrupted and free from unnecessary delays.
    */
-  if (writingSlug) event.waitUntil(sendAnalytics())
+  const isPrefetch = request.headers.get('next-router-prefetch') || request.headers.get('purpose') === 'prefetch'
+  if (writingSlug && !isPrefetch) event.waitUntil(sendAnalytics())
+
   return NextResponse.next()
 }
 
 export const config = {
-  // matcher: '/writing/:path' — 无尾斜杠（trailingSlash: false，真实 URL 形态）
-  // 带尾斜杠请求由 Next 308 重定向到无斜杠后才计数，天然避免双计数
-  // The below solution also filters out the user navigations which is not desired:
-  // See: https://github.com/vercel/next.js/discussions/37736#discussioncomment-7886601
-  matcher: [
-    {
-      source: '/writing/:path',
-      missing: [
-        { type: 'header', key: 'next-router-prefetch' },
-        { type: 'header', key: 'purpose', value: 'prefetch' }
-      ]
-    }
-  ]
+  // 页面路径全部进入中间件（用于 Markdown 协商）；排除 API、Next 内部资源与带扩展名的静态文件
+  matcher: ['/((?!api/|_next/|.*\\..*).*)']
 }
