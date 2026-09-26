@@ -1,9 +1,10 @@
 /**
- * [INPUT]: Web Request/Response, NextResponse, SITE and shared JSON errors
+ * [INPUT]: Web Request/Response, NextResponse, @arcjet/ip, trusted host identity, SITE and shared JSON errors
  * [OUTPUT]: apiBoundary: versioned aliases, method errors, discovery and live quota headers
  * [POS]: Public API middleware boundary; owner/OAuth routes keep their existing handlers
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
+import findIp from '@arcjet/ip'
 import { NextResponse } from 'next/server'
 
 import { apiError } from '@/lib/agent/http'
@@ -32,12 +33,20 @@ const INTERNAL_METHODS = {
 }
 
 // Bounded, fixed-window, per-instance limiter, as with the previous route limiters.
-// Aliases deliberately share buckets. Hosting must overwrite client IP headers.
+// Aliases deliberately share buckets. Trust only the platform-controlled identity,
+// or a header explicitly configured for a gateway that overwrites client input.
 const buckets = new Map()
 const MAX_BUCKETS = 5000
-function quota(request, policy) {
-  const token =
-    request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'unknown'
+function clientIp(request) {
+  const header = process.env.VERCEL === '1' ? 'x-real-ip' : process.env.TRUSTED_CLIENT_IP_HEADER
+  if (!header) return ''
+  const value = request.headers.get(header)
+  if (!value) return ''
+  // Restrict the resolver's input: it must not fall back to a caller's X-Forwarded-For.
+  return findIp({ headers: new Headers({ 'x-real-ip': value }) }, { platform: 'vercel' })
+}
+
+function quota(token, policy) {
   const key = `${policy.policy}:${token}`
   const now = Date.now()
   let bucket = buckets.get(key)
@@ -96,7 +105,19 @@ export function apiBoundary(request) {
     })
   }
   if (!policy) return NextResponse.next()
-  const result = quota(request, policy)
+  const token = clientIp(request)
+  // No shared "unknown" bucket: keep public reads available without claiming a
+  // per-client quota. Writes fail closed until the host supplies trusted identity.
+  if (!token && policy.method !== 'GET') {
+    return apiError({
+      code: 'client_identity_unavailable',
+      message: 'Client identity is unavailable',
+      hint: 'The host must configure a trusted client IP source before accepting writes',
+      status: 503,
+      headers
+    })
+  }
+  const result = token ? quota(token, policy) : { allowed: true, headers: {} }
   Object.assign(headers, result.headers)
   if (!result.allowed)
     return apiError({

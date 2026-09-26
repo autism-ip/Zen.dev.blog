@@ -11,7 +11,9 @@ not a remeasured score.
   handler exceptions return structured errors.
 - Live per-IP, per-endpoint, per-instance fixed-window quotas. Versioned aliases share buckets. 429 includes
   Retry-After. No quota state is shared across instances; bounded-memory eviction and restarts can reset counters. This
-  is throttling guidance, not a globally enforced quota. The host must overwrite IP headers.
+  is throttling guidance, not a globally enforced quota. On Vercel, identity is validated from its controlled x-real-ip
+  header. Other gateways must explicitly configure TRUSTED_CLIENT_IP_HEADER and overwrite that header. Without trusted
+  identity, reads omit quota headers and writes return JSON 503; there is no shared anonymous bucket.
 - OpenAPI schemas now include submission results and the OpenAPI document envelope; 19 unique operations cover the
   legacy and versioned routes plus discovery files. Arbitrary OpenAPI extension/Path Item maps intentionally remain
   extensible.
@@ -27,12 +29,12 @@ not a remeasured score.
 
 ## Verification
 
-- `npm run ci:gate`: passed lint, 116 tests across 14 files, and production build. Two pre-existing
+- `npm run ci:gate`: passed lint, 124 tests across 14 files, and production build. Two pre-existing
   anonymous-default-export lint warnings remain. The repository's existing build config skips TypeScript checking; no
   new type-check claim is made.
 - API boundary/HTTP error layer coverage: 100% statements, lines and functions; 90.76% branches (30 focused tests).
   Coverage tooling was temporary; project dependency files were not changed.
-- `node scripts/verify-agent-readiness.mjs http://127.0.0.1:3101`: **51 passed, 0 failed**. See `verification.json` for
+- `AGENT_VERIFY_LOCAL_IP=8.8.8.8 node scripts/verify-agent-readiness.mjs http://127.0.0.1:3100`: **51 passed, 0 failed**. See `verification.json` for
   every checked path. All 19 documented operations were probed; write endpoints received only invalid input. Successful
   writes and upstream rejection were verified with mocked services, without publishing data.
 - JSON success/error bodies were checked against the published response schemas; RSS/sitemap XML, llms.txt, robots.txt,
@@ -78,3 +80,24 @@ wait for Retry-After before repeating. Do not use valid publishing credentials i
 - [Sunset, RFC 8594](https://www.rfc-editor.org/rfc/rfc8594.html)
 - [llms.txt](https://llmstxt.org/)
 - [RSS 2.0](https://www.rssboard.org/rss-specification)
+
+## PR review follow-up
+
+The first review of PR #18 identified trust of caller-controlled forwarding headers and mixed sitemap origins. Both were
+reproduced with regression tests and fixed. All sitemap entries now use SITE.url; the IP resolver validates only the
+explicitly trusted header through the existing @arcjet/ip package. Additional tests cover empty and non-object JSON and
+CLI article URLs with query strings or fragments.
+
+For local end-to-end quota tests, emulate the hosting identity explicitly:
+
+```sh
+VERCEL=1 npm run start -- --hostname 127.0.0.1 --port 3100
+AGENT_VERIFY_LOCAL_IP=8.8.8.8 node scripts/verify-agent-readiness.mjs http://127.0.0.1:3100
+```
+
+The verifier injects this test identity only for localhost/127.0.0.1. Production verification does not inject identity
+headers; Vercel supplies them. This is a test configuration, not guidance to trust caller-supplied headers on a public
+origin.
+
+Merge remains gated on a clean review of the latest revision and a fresh Is Agentic score of 100/100 for the actual
+site. A passing CI gate alone does not permit merge.

@@ -69,11 +69,19 @@ export function apiError({ code, message, hint, status, headers = {} }) {
 }
 
 /** Public JSON route safety net; preserve legacy payloads while containing failures. */
-export function apiHandler(handler) {
+export function apiHandler(handler, { jsonObject = false } = {}) {
   return async (request, context) => {
-    if (['POST', 'PUT', 'PATCH'].includes(request.method) && request.body) {
+    if (['POST', 'PUT', 'PATCH'].includes(request.method) && (request.body || jsonObject)) {
       try {
-        await request.clone().json()
+        const body = await request.clone().json()
+        if (jsonObject && (body === null || typeof body !== 'object' || Array.isArray(body))) {
+          return apiError({
+            code: 'invalid_payload',
+            message: 'Expected a JSON object',
+            hint: 'Send a JSON object matching the endpoint schema in /openapi.json',
+            status: 400
+          })
+        }
       } catch {
         return apiError({
           code: 'invalid_json',

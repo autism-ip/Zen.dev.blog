@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * [INPUT]: 无外部依赖；使用 Node 18+ 内置 fetch，调用 zenhungyep.com 的公开端点（含 Accept: text/markdown 协商）
+ * [INPUT]: 无外部依赖；使用 Node 22+ 内置 fetch，调用 zenhungyep.com 的公开端点（含 Accept: text/markdown 协商）
  * [OUTPUT]: 可执行 CLI —— posts / post / bookmarks / markdown / openapi / llms 子命令，--base 可切换部署
  * [POS]: cli 包的唯一入口；把 /openapi.json 描述的公开 API 封装为脚本化命令，供开发者与 agent 调用
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
@@ -100,9 +100,10 @@ async function fetchJson(options, path) {
   return JSON.parse(await request(options, path))
 }
 
-// 接受 slug、/writing/<slug> 或完整 URL，统一归一化为 slug（非法百分号编码时原样返回）
+// 接受 slug、/writing/<slug> 或完整 URL，统一归一化为 slug，丢弃查询参数与锚点（非法百分号编码时原样返回）
 function toSlug(input) {
-  const withoutOrigin = String(input).replace(/^https?:\/\/[^/]+/, '')
+  const raw = String(input)
+  const withoutOrigin = /^https?:\/\//i.test(raw) ? new URL(raw).pathname : raw.split(/[?#]/, 1)[0]
   const withoutPrefix = withoutOrigin.replace(/^\/?writing\//, '').replace(/^\//, '')
 
   try {

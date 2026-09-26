@@ -21,7 +21,7 @@ export default async function sitemap() {
     const sortedWritings = getSortedPosts(allPosts)
     const writings = sortedWritings.map((post) => {
       return {
-        url: `https://zenhungyep.com/writing/${encodeURIComponent(post.slug)}`,
+        url: `${SITE.url}/writing/${encodeURIComponent(post.slug)}`,
         lastModified: post.sys.publishedAt,
         changeFrequency: 'yearly',
         priority: 0.5
@@ -30,7 +30,7 @@ export default async function sitemap() {
 
     const mappedBookmarks = (bookmarks || []).map((bookmark) => {
       return {
-        url: `https://zenhungyep.com/bookmarks/${encodeURIComponent(bookmark.slug)}`,
+        url: `${SITE.url}/bookmarks/${encodeURIComponent(bookmark.slug)}`,
         lastModified: new Date(),
         changeFrequency: 'daily',
         priority: 1
@@ -50,7 +50,7 @@ export default async function sitemap() {
       if (['bookmarks'].includes(page.slug)) priority = 1
 
       return {
-        url: `https://zenhungyep.com/${encodeURIComponent(page.slug)}`,
+        url: `${SITE.url}/${encodeURIComponent(page.slug)}`,
         lastModified,
         changeFrequency,
         priority

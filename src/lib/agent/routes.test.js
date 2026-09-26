@@ -36,6 +36,19 @@ describe('public route regression cases', () => {
     expect(response.status).toBe(400)
     expect((await response.json()).code).toBe('invalid_json')
   })
+  it.each([submitBookmark, createMusing])(
+    'rejects missing or non-object JSON before upstream calls',
+    async (handler) => {
+      const fetch = vi.fn()
+      vi.stubGlobal('fetch', fetch)
+      for (const body of [undefined, '', 'null', '[]', '123', '"text"']) {
+        const response = await handler(request(body))
+        expect(response.status).toBe(400)
+        expect((await response.json()).hint).toBeTruthy()
+      }
+      expect(fetch).not.toHaveBeenCalled()
+    }
+  )
   it('validates musing body and labels before contacting GitHub', async () => {
     const fetch = vi.fn()
     vi.stubGlobal('fetch', fetch)

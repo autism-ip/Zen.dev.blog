@@ -1,6 +1,6 @@
 {
-  "base": "http://127.0.0.1:3101",
-  "checkedAt": "2026-09-26T20:50:50.418Z",
+  "base": "http://127.0.0.1:3100",
+  "checkedAt": "2026-09-26T21:13:00.058Z",
   "checks": [
     "unique OpenAPI operation IDs",
     "GET /api/posts",

@@ -457,7 +457,7 @@ export function buildOpenApi() {
   for (const [path, methods] of Object.entries(publicPaths)) {
     if (!path.startsWith('/api')) continue
     for (const operation of Object.values(methods)) {
-      Object.assign(operation.responses, errorResponses([404, 405, 429, 500]))
+      Object.assign(operation.responses, errorResponses([404, 405, 429, 500, 503]))
       for (const [status, response] of Object.entries(operation.responses)) {
         response.headers = {
           ...quotaHeaders,

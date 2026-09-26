@@ -61,4 +61,4 @@ async function handle(req) {
   }
 }
 
-export const POST = apiHandler(handle)
+export const POST = apiHandler(handle, { jsonObject: true })

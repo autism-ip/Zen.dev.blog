@@ -103,6 +103,12 @@ export default function DevelopersPage() {
             instance, held in bounded memory; restarts or routing to another instance may reset them. Versioned and
             unversioned aliases share the same bucket. Responses are private and not cached with another client's quota.
           </p>
+          <p className="leading-relaxed text-gray-600">
+            Client identity comes from Vercel's controlled IP header. Other hosts must configure
+            <code> TRUSTED_CLIENT_IP_HEADER</code> for a gateway that overwrites that header. When trusted identity is
+            unavailable, reads remain available without quota headers and writes return 503; clients never share an
+            anonymous quota bucket.
+          </p>
           <pre className={CODE_BLOCK}>
             <code>{'RateLimit-Policy: "posts";q=120;w=60\nRateLimit: "posts";r=119;t=60'}</code>
           </pre>

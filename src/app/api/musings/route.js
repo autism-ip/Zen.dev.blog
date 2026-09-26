@@ -148,4 +148,4 @@ async function handle(request) {
   }
 }
 
-export const POST = apiHandler(handle)
+export const POST = apiHandler(handle, { jsonObject: true })

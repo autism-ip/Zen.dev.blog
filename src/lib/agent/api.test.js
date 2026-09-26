@@ -1,14 +1,20 @@
 // @vitest-environment node
 import { NextRequest } from 'next/server'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { apiHandler } from '@/lib/agent/http'
 import { middleware } from '@/middleware'
 
-const request = (path, method = 'GET', token = crypto.randomUUID()) =>
-  new NextRequest(`https://zenhungyep.com${path}`, { method, headers: { 'x-forwarded-for': token } })
+let clientNumber = 1
+const newClient = () => `8.8.4.${clientNumber++}`
+const request = (path, method = 'GET', token = newClient()) =>
+  new NextRequest(`https://zenhungyep.com${path}`, { method, headers: { 'x-real-ip': token } })
 
-afterEach(() => vi.useRealTimers())
+beforeEach(() => vi.stubEnv('VERCEL', '1'))
+afterEach(() => {
+  vi.useRealTimers()
+  vi.unstubAllEnvs()
+})
 
 describe('public API boundary', () => {
   it.each(['/api', '/api/v1'])('discovers the API at %s', async (path) => {
@@ -43,7 +49,7 @@ describe('public API boundary', () => {
   })
   it('enforces shared alias quotas, accepts the full limit, counts down and resets', async () => {
     vi.useFakeTimers()
-    const token = crypto.randomUUID()
+    const token = newClient()
     for (let i = 0; i < 5; i++) {
       const response = await middleware(request('/api/submit-bookmark', 'POST', token))
       expect(response.status).toBe(200)
@@ -59,6 +65,36 @@ describe('public API boundary', () => {
     expect((await response.json()).code).toBe('rate_limited')
     vi.advanceTimersByTime(590_000)
     expect((await middleware(request('/api/submit-bookmark', 'POST', token))).status).toBe(200)
+  })
+  it('ignores spoofed forwarding chains and uses Vercel-controlled client identity', async () => {
+    const token = newClient()
+    for (let i = 0; i < 5; i++) {
+      const req = request('/api/submit-bookmark', 'POST', token)
+      req.headers.set('x-forwarded-for', `1.1.1.${i + 1}, 9.9.9.9`)
+      expect((await middleware(req)).status).toBe(200)
+    }
+    const spoofed = request('/api/submit-bookmark', 'POST', token)
+    spoofed.headers.set('x-forwarded-for', '4.4.4.4')
+    expect((await middleware(spoofed)).status).toBe(429)
+    expect((await middleware(request('/api/submit-bookmark', 'POST'))).status).toBe(200)
+  })
+  it('does not share an unknown bucket or trust arbitrary headers outside the hosting platform', async () => {
+    vi.stubEnv('VERCEL', '')
+    for (let i = 0; i < 6; i++) {
+      const read = await middleware(request('/api/posts'))
+      expect(read.status).toBe(200)
+      expect(read.headers.get('ratelimit')).toBeNull()
+    }
+    const write = await middleware(request('/api/submit-bookmark', 'POST'))
+    expect(write.status).toBe(503)
+    expect((await write.json()).code).toBe('client_identity_unavailable')
+  })
+  it('never falls back to untrusted forwarded headers when Vercel identity is missing', async () => {
+    const req = new NextRequest('https://zenhungyep.com/api/submit-bookmark', {
+      method: 'POST',
+      headers: { 'x-forwarded-for': '8.8.8.8' }
+    })
+    expect((await middleware(req)).status).toBe(503)
   })
   it('advertises real read quotas and isolates clients', async () => {
     for (const path of ['/api/posts', '/api/bookmarks', '/api/visual/list']) {

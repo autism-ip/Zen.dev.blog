@@ -6,6 +6,8 @@ import { buildJsonLd } from '@/lib/agent/json-ld'
 import { llmsTxt } from '@/lib/agent/markdown'
 import { buildOpenApi } from '@/lib/agent/openapi'
 import { HOME_BIO, HOME_GUIDE, SITE } from '@/lib/agent/site'
+import { getAllPageSlugs, getAllPosts } from '@/lib/contentful'
+import { getBookmarks } from '@/lib/raindrop-with-auth'
 
 vi.mock('@/lib/contentful', () => ({
   getAllPageSlugs: vi.fn().mockRejectedValue(new Error('offline')),
@@ -59,6 +61,22 @@ describe('agent discovery', () => {
     expect(readFileSync('src/app/page.js', 'utf8')).toContain('HOME_GUIDE')
     expect(readFileSync('src/app/layout.js', 'utf8')).toContain('[data-page-transition]')
     expect(readFileSync('src/app/template.tsx', 'utf8')).toContain('data-page-transition')
+  })
+  it('uses the configured canonical origin for every sitemap entry', async () => {
+    const original = SITE.url
+    SITE.url = 'https://custom.example'
+    getAllPosts.mockResolvedValueOnce([{ slug: 'hello world', date: '2026-01-01', sys: { publishedAt: '2026-01-01' } }])
+    getAllPageSlugs.mockResolvedValueOnce([{ slug: 'test-page', sys: { publishedAt: '2026-01-01' } }])
+    getBookmarks.mockResolvedValueOnce([{ slug: 'test-list' }])
+    try {
+      const { default: sitemap } = await import('@/app/sitemap')
+      const entries = await sitemap()
+      expect(entries.every((entry) => new URL(entry.url).origin === SITE.url)).toBe(true)
+      for (const path of ['/writing/hello%20world', '/test-page', '/bookmarks/test-list'])
+        expect(entries.map((entry) => entry.url)).toContain(`${SITE.url}${path}`)
+    } finally {
+      SITE.url = original
+    }
   })
   it('keeps developer resources in the sitemap even when the CMS is unavailable', async () => {
     const { default: sitemap } = await import('@/app/sitemap')

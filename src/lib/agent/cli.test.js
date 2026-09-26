@@ -49,12 +49,15 @@ describe('official CLI package', () => {
   it('prints JSON suitable for scripts', async () => {
     expect(JSON.parse((await run('posts', '--json')).stdout)[0].title).toBe('Article')
   })
-  it.each(['a b', '/writing/a%20b', 'https://zenhungyep.com/writing/a%20b'])(
-    'encodes a post slug once: %s',
-    async (slug) => {
-      expect((await run('post', slug)).stdout).toContain('/writing/a%20b')
-    }
-  )
+  it.each([
+    'a b',
+    '/writing/a%20b',
+    'https://zenhungyep.com/writing/a%20b',
+    'https://zenhungyep.com/writing/a%20b?ref=feed#section',
+    '/writing/a%20b?ref=feed#section'
+  ])('encodes a post slug once: %s', async (slug) => {
+    expect((await run('post', slug)).stdout.trim()).toBe('# Markdown /writing/a%20b')
+  })
   it('requests Markdown', async () => expect((await run('markdown', 'about')).stdout).toContain('# Markdown /about'))
   it('reports machine codes and hints on stderr with a nonzero exit', async () => {
     await expect(run('post', 'missing')).rejects.toMatchObject({
