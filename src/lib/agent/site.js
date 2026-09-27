@@ -1,6 +1,6 @@
 /**
  * [INPUT]: 无外部依赖；仅读取 NEXT_PUBLIC_SITE_URL 环境变量
- * [OUTPUT]: 对外提供 SITE / SOCIAL / CONTACT / HOME_BIO / HOME_GUIDE / AGENT_FILES / SECTIONS / SECTION_BY_PATH
+ * [OUTPUT]: 对外提供 SITE / SOCIAL / CONTACT / HOME_BIO / AGENT_FILES / SECTIONS / SECTION_BY_PATH
  * [POS]: lib/agent 的事实层与唯一真相源；llms.txt、JSON-LD、OpenAPI、markdown 路由与 /developers 均从此处取站点身份，避免多处硬编码漂移
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
@@ -35,13 +35,6 @@ export const HOME_BIO = [
   'Bridging Mathematics & AI—Python & Deep Learning frameworks (MindSpore/PyTorch).',
   'From Mathematical Modeling to AI-driven diagnostics.',
   "Exploring Open Source × Deep Learning; Passionate about building open source projects—let's chat!"
-]
-
-// Useful plain HTML homepage prose, shared with the Markdown representation.
-export const HOME_GUIDE = [
-  'This is the personal website of Zen, also known as 叶振幸 and zenhungyep. I use it to collect my writing, open-source interests, and experiments at the intersection of mathematics, artificial intelligence, and software. The writing section contains longer articles; musings are shorter observations and notes. Together they form a public notebook of what I am learning and building.',
-  'Explore the bookmarks for curated links about AI, design, software tools, reading, and creative work. The visual gallery brings together photography and AI-generated imagery, while the journey, stack, and workspace pages describe experiences, tools, and projects. These sections offer different ways into the same collection, whether you are looking for a technical article or following an idea across topics.',
-  'For developers and agents, the public API provides structured indexes of articles, bookmarks, and visual media. The developer guide explains the versioned endpoints, error responses, and request limits. Articles can also be read as Markdown, and RSS feeds let you follow updates in your own reader. For questions, corrections, or collaboration, use the contact page to reach me through the published email address or GitHub Issues.'
 ]
 
 // 公开联系渠道：邮箱 + GitHub Issues（联系邮箱由站点所有者确认公开）

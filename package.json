@@ -18,7 +18,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "ci:gate": "npm run lint && npm run test:run && npm run build && npm run typecheck",
+    "ci:gate": "npm run lint && npm run test:run && npm run build && node scripts/verify-og-fonts.mjs && npm run typecheck",
     "typecheck": "tsc --noEmit"
   },
   "engines": {

@@ -11,6 +11,11 @@ const nextConfig = {
     }
   },
   trailingSlash: false,
+  // Runtime image functions need font assets even when static tracing misses fs reads.
+  outputFileTracingIncludes: {
+    '/opengraph-image': ['./src/assets/fonts/Geist-*.otf'],
+    '/**/opengraph-image': ['./src/assets/fonts/Geist-*.otf']
+  },
   // Resolve metadata/notFound before flushing HTML, including ordinary crawler UAs.
   htmlLimitedBots: /.*/,
   images: {

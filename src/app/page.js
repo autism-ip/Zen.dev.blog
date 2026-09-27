@@ -14,7 +14,7 @@ import { ScrollArea } from '@/components/scroll-area'
 import { SunnyOverlay, SunnyToggle } from '@/components/sunny-mode'
 import { Button } from '@/components/ui/button'
 import { WritingList } from '@/components/writing-list'
-import { HOME_BIO, HOME_GUIDE } from '@/lib/agent/site'
+import { HOME_BIO } from '@/lib/agent/site'
 import { getAllPosts } from '@/lib/contentful'
 import { getItemsByYear, getSortedPosts } from '@/lib/utils'
 
@@ -67,14 +67,6 @@ export default async function Home() {
           <Suspense fallback={<ScreenLoadingSpinner />}>
             <WritingList items={items} header="Writing" />
           </Suspense>
-          <section className="mt-8">
-            <h2 className="mb-4">About this site</h2>
-            {HOME_GUIDE.map((paragraph) => (
-              <p key={paragraph} className="mb-4">
-                {paragraph}
-              </p>
-            ))}
-          </section>
           <PenflowSignature />
         </div>
       </div>

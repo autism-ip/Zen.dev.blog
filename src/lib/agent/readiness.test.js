@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { buildJsonLd } from '@/lib/agent/json-ld'
 import { llmsTxt } from '@/lib/agent/markdown'
 import { buildOpenApi } from '@/lib/agent/openapi'
-import { HOME_BIO, HOME_GUIDE, SITE } from '@/lib/agent/site'
+import { HOME_BIO, SITE } from '@/lib/agent/site'
 import { getAllPageSlugs, getAllPosts } from '@/lib/contentful'
 import { getBookmarks } from '@/lib/raindrop-with-auth'
 
@@ -57,8 +57,8 @@ describe('agent discovery', () => {
     expect(llmsTxt()).toContain('/developers#cli')
   })
   it('provides meaningful homepage prose independently of upstream posts', () => {
-    expect([...HOME_BIO, ...HOME_GUIDE].join(' ').length).toBeGreaterThan(1200)
-    expect(readFileSync('src/app/page.js', 'utf8')).toContain('HOME_GUIDE')
+    expect(HOME_BIO.join(' ')).toContain('Mathematics')
+    expect(readFileSync('src/app/page.js', 'utf8')).toContain('HOME_BIO')
     expect(readFileSync('src/app/layout.js', 'utf8')).toContain('[data-page-transition]')
     expect(readFileSync('src/app/template.tsx', 'utf8')).toContain('data-page-transition')
   })
