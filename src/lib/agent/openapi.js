@@ -180,7 +180,7 @@ const paths = {
       operationId: 'incrementViewCount',
       summary: 'Record a page view',
       description:
-        'Increments the public view counter for one page slug. Rate limited to 60 requests per IP per 10 minutes; excess returns 429. Unavailable in development environments.',
+        'Increments the view counter for an existing published article; unknown slugs return 404. Limited to 60 requests per trusted client IP per 10 minutes, shared with writing-page views; excess API requests return 429. Within an instance, page-triggered views are deduplicated per visitor/article for 10 minutes. Unavailable in development environments.',
       tags: ['telemetry'],
       parameters: [
         {

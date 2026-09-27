@@ -113,6 +113,13 @@ await check('bodyless query-only POST preserves slug validation', async () => {
   assert.equal(response.status, 400)
   assert.equal((await response.json()).code, 'invalid_slug')
 })
+await check('counter rejects unknown articles without creating a row', async () => {
+  const response = await get(`/api/v1/increment-views?slug=agent-readiness-missing-${crypto.randomUUID()}`, {
+    method: 'POST'
+  })
+  assert.equal(response.status, 404)
+  assert.equal((await response.json()).code, 'not_found')
+})
 await check('real 429 and Retry-After (invalid submissions only)', async () => {
   let response
   for (let i = 0; i < 6; i++) {

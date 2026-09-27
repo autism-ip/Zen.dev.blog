@@ -40,7 +40,14 @@ async function handle(request) {
   }
 
   try {
-    await incrementViewCount(slug)
+    if (!(await incrementViewCount(slug))) {
+      return apiError({
+        code: 'not_found',
+        message: 'Article not found',
+        hint: 'Use a published article slug from /api/v1/posts',
+        status: 404
+      })
+    }
     return NextResponse.json({ messsage: `View count incremented successfully for slug: ${slug}` }, { status: 200 })
   } catch (error) {
     console.error('Error incrementing view count:', error)

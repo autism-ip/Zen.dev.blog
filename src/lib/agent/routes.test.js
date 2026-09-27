@@ -13,7 +13,7 @@ vi.mock('server-only', () => ({}))
 vi.mock('@/lib/contentful', () => ({ getAllPosts: vi.fn() }))
 vi.mock('@/lib/view-count', async (original) => ({
   ...(await original()),
-  incrementViewCount: vi.fn().mockResolvedValue(undefined)
+  incrementViewCount: vi.fn().mockResolvedValue(true)
 }))
 vi.mock('@/lib/utils', () => ({ isDevelopment: false }))
 vi.mock('isbot', () => ({ isbot: () => false }))
@@ -100,6 +100,14 @@ describe('public route regression cases', () => {
     const response = await incrementViews(req)
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({ messsage: 'View count incremented successfully for slug: test' })
+  })
+  it('returns JSON 404 instead of creating a counter for an unknown article', async () => {
+    incrementViewCount.mockResolvedValueOnce(false)
+    const response = await incrementViews(
+      new NextRequest('https://example.com/api/increment-views?slug=nonexistent', { method: 'POST' })
+    )
+    expect(response.status).toBe(404)
+    expect((await response.json()).code).toBe('not_found')
   })
   it('returns a structured failure when the counter RPC reports an error', async () => {
     incrementViewCount.mockRejectedValueOnce(new Error('Counter store request failed'))

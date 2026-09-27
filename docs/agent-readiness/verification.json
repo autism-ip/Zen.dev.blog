@@ -1,6 +1,6 @@
 {
   "base": "http://127.0.0.1:3100",
-  "checkedAt": "2026-09-26T21:48:43.123Z",
+  "checkedAt": "2026-09-27T01:10:58.526Z",
   "checks": [
     "unique OpenAPI operation IDs",
     "GET /api/posts",
@@ -28,6 +28,7 @@
     "JSON 405 and Allow",
     "JSON 400 malformed body",
     "bodyless query-only POST preserves slug validation",
+    "counter rejects unknown articles without creating a row",
     "real 429 and Retry-After (invalid submissions only)",
     "raw homepage content, headings and structured data",
     "robots, sitemap discovery and canonical developer page",

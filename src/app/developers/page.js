@@ -107,7 +107,8 @@ export default function DevelopersPage() {
             Client identity comes from Vercel's controlled IP header. Other hosts must configure
             <code> TRUSTED_CLIENT_IP_HEADER</code> for a gateway that overwrites that header. When trusted identity is
             unavailable, reads remain available without quota headers and writes return 503; clients never share an
-            anonymous quota bucket.
+            anonymous quota bucket. Counter requests share their budget with writing-page views. Within each instance,
+            page views are deduplicated per visitor/article for ten minutes. Only published articles can receive counts.
           </p>
           <pre className={CODE_BLOCK}>
             <code>{'RateLimit-Policy: "posts";q=120;w=60\nRateLimit: "posts";r=119;t=60'}</code>

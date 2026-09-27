@@ -30,7 +30,7 @@ Is Agentic score. The CLI has not been published to npm.
 
 ## Verification
 
-- `npm run ci:gate`: passed lint, 133 tests across 17 files, and production build. Two pre-existing
+- `npm run ci:gate`: passed lint, 138 tests across 17 files, and production build. Two pre-existing
   anonymous-default-export lint warnings remain. The repository's existing build config skips TypeScript checking; no
   new type-check claim is made.
 - API boundary/HTTP error layer coverage: 100% statements, lines and functions; 90.76% branches (30 focused tests).
@@ -115,6 +115,14 @@ and page validation; the public API retains its quotas. The Contentful post inde
 revalidation period independently of the uncached outer API response. Regression tests cover both behaviors.
 
 Internal writing analytics likewise calls the shared server-only counter provider directly, with a five-second timeout,
-instead of self-fetching the public API. A regression test verifies 65 internal updates reach the provider without
-consuming the public 60-request quota; prefetch, HEAD and development requests are excluded. Store failures remain
+instead of self-fetching the public API. A regression test verifies 65 distinct trusted visitors reach the provider without
+sharing an egress bucket; prefetch, HEAD and development requests are excluded. Store failures remain
 nonblocking for page rendering and are reported as structured failures by the public API.
+
+Page-triggered analytics now shares the trusted visitor's 60-per-10-minute counter quota with the public API, deduplicates
+the same visitor/article for ten minutes, and skips visitors without trusted identity. The shared provider checks for an
+existing published article before issuing any privileged counter RPC; unknown slugs return JSON 404 in the public API.
+Tests cover repeat requests, shared API/page budgets, independent visitors, expiry and nonexistent articles.
+
+Article existence validation uses a minimal uncached, parameterized Contentful query with a five-second timeout, so
+nonexistent/deleted posts and CMS errors cannot cause a privileged counter write.

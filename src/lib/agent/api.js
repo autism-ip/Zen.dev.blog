@@ -1,6 +1,6 @@
 /**
  * [INPUT]: Web Request/Response, NextResponse, @arcjet/ip, trusted host identity, SITE and shared JSON errors
- * [OUTPUT]: apiBoundary: versioned aliases, method errors, discovery and live quota headers
+ * [OUTPUT]: claimPageView and apiBoundary: versioned aliases, method errors, discovery and live quota headers
  * [POS]: Public API middleware boundary; owner/OAuth routes keep their existing handlers
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
@@ -71,6 +71,22 @@ function quota(token, policy) {
       ...(!allowed ? { 'Retry-After': String(reset) } : {})
     }
   }
+}
+
+// Page-triggered analytics uses the visitor's trusted identity, never an egress IP.
+// Bound both total writes and repeated views; entries expire after ten minutes.
+const pageViews = new Map()
+export function claimPageView(request, slug) {
+  const token = clientIp(request)
+  if (!token) return false
+  const key = `${token}:${slug}`
+  const now = Date.now()
+  if ((pageViews.get(key) || 0) > now) return false
+  const policy = PUBLIC_API['/api/increment-views']
+  if (!quota(token, policy).allowed) return false
+  if (pageViews.size >= MAX_BUCKETS) pageViews.delete(pageViews.keys().next().value)
+  pageViews.set(key, now + policy.window * 1000)
+  return true
 }
 
 export function apiBoundary(request) {

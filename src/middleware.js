@@ -1,12 +1,12 @@
 /**
  * [INPUT]: NextRequest, API/Markdown boundaries and server-only view-count provider
  * [OUTPUT]: Negotiated responses, public API quotas and background internal page analytics
- * [POS]: Site middleware; internal analytics never loop through public per-client quotas
+ * [POS]: Site middleware; page analytics shares the visitor quota without HTTP self-fetches
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 import { NextResponse } from 'next/server'
 
-import { apiBoundary } from '@/lib/agent/api'
+import { apiBoundary, claimPageView } from '@/lib/agent/api'
 import { prefersMarkdown, VARIANT_HEADER } from '@/lib/agent/http'
 import { decodeViewSlug, incrementViewCount } from '@/lib/view-count'
 
@@ -48,7 +48,13 @@ export async function middleware(request, event) {
   const isPrefetch = request.headers.get('next-router-prefetch') || request.headers.get('purpose') === 'prefetch'
   // Match the legacy query decode followed by the public route slug validation.
   const slug = decodeViewSlug(decodeViewSlug(writingSlug))
-  if (slug && request.method === 'GET' && !isPrefetch && process.env.NODE_ENV === 'production') {
+  if (
+    slug &&
+    request.method === 'GET' &&
+    !isPrefetch &&
+    process.env.NODE_ENV === 'production' &&
+    claimPageView(request, slug)
+  ) {
     event.waitUntil(
       incrementViewCount(slug).catch(() => {
         console.error('Failed to update writing view count')
