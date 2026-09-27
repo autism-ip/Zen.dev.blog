@@ -26,32 +26,9 @@ async function fetchData(slug) {
 
   const sortedBookmarks = sortByProperty(bookmarks, 'title')
 
-  try {
-    const bookmarkItems = await getBookmarkItems(currentBookmark._id)
-
-    // 验证返回的数据
-    if (!bookmarkItems || !bookmarkItems.result) {
-      console.error(`Failed to fetch items for collection ${currentBookmark._id}`)
-      return {
-        bookmarks: sortedBookmarks,
-        currentBookmark,
-        bookmarkItems: { result: false, items: [], count: 0 }
-      }
-    }
-
-    return {
-      bookmarks: sortedBookmarks,
-      currentBookmark,
-      bookmarkItems
-    }
-  } catch (error) {
-    console.error(`Error fetching bookmark items: ${error.message}`)
-    return {
-      bookmarks: sortedBookmarks,
-      currentBookmark,
-      bookmarkItems: { result: false, items: [], count: 0 }
-    }
-  }
+  const bookmarkItems = await getBookmarkItems(currentBookmark._id)
+  if (!bookmarkItems?.result) throw new Error('Bookmark content temporarily unavailable')
+  return { bookmarks: sortedBookmarks, currentBookmark, bookmarkItems }
 }
 
 export default async function CollectionPage(props) {

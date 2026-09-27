@@ -64,3 +64,10 @@ export function decodeRouteSlug(value) {
     return null
   }
 }
+
+export function contentDescription(content, fallback) {
+  const paragraph = content?.json?.content?.find((node) => node.nodeType === 'paragraph')
+  const text = (node) => (node?.nodeType === 'text' ? node.value : (node?.content || []).map(text).join(''))
+  const value = text(paragraph).replace(/\s+/g, ' ').trim()
+  return value ? value.slice(0, 180) : fallback
+}

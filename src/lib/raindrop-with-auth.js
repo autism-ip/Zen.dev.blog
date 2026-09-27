@@ -13,9 +13,12 @@ async function makeAuthenticatedRequest(url, options = {}) {
     try {
       accessToken = await tokenManager.getValidAccessToken()
     } catch (authError) {
-      // 在构建时或没有token时，返回null而不是抛出错误
+      // Credential-free CI may use empty data; configured authentication outages must propagate.
       console.warn('Authentication not available:', authError.message)
-      throw new Error('Authentication required but not configured')
+      if (!process.env.RAINDROP_CLIENT_ID || !process.env.RAINDROP_CLIENT_SECRET) {
+        throw new Error('Authentication required but not configured')
+      }
+      throw new Error('Bookmark authentication temporarily unavailable')
     }
 
     const authOptions = {
@@ -96,7 +99,7 @@ export const getBookmarkItems = async (id, pageIndex = 0) => {
       return { items: [] }
     }
     console.error(`Failed to fetch bookmark items for collection ${id}: ${error.message}`)
-    return null
+    throw error
   }
 }
 
@@ -120,7 +123,7 @@ export const getBookmarks = async () => {
       return []
     }
     console.error(`Failed to fetch bookmarks: ${error.message}`)
-    return null
+    throw error
   }
 }
 
@@ -135,6 +138,6 @@ export const getBookmark = async (id) => {
       return { collection: {} }
     }
     console.error(`Failed to fetch bookmark ${id}:`, error)
-    return null
+    throw error
   }
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { decodeRouteSlug, pageMetadata, safeJsonLd, validDate, validSlug } from '@/lib/seo'
+import { contentDescription, decodeRouteSlug, pageMetadata, safeJsonLd, validDate, validSlug } from '@/lib/seo'
 
 describe('SEO contracts', () => {
   it('gives every section its own canonical and matching social metadata without CMS', () => {
@@ -32,4 +32,27 @@ it('decodes Next prerendered Unicode slugs once without throwing on malformed in
   expect(decodeRouteSlug(encodeURIComponent('Agent 的新变革'))).toBe('Agent 的新变革')
   expect(decodeRouteSlug('invalid%')).toBeNull()
   expect(decodeRouteSlug('100%25')).toBe('100%')
+})
+
+it('derives a real article snippet from the first paragraph when SEO is absent', () => {
+  expect(
+    contentDescription(
+      {
+        json: {
+          content: [
+            { nodeType: 'heading-1', content: [{ nodeType: 'text', value: 'Heading' }] },
+            {
+              nodeType: 'paragraph',
+              content: [
+                { nodeType: 'text', value: 'A useful ' },
+                { nodeType: 'hyperlink', content: [{ nodeType: 'text', value: 'article summary.' }] }
+              ]
+            }
+          ]
+        }
+      },
+      'Fallback'
+    )
+  ).toBe('A useful article summary.')
+  expect(contentDescription(null, 'Fallback')).toBe('Fallback')
 })

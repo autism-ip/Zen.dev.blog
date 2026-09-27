@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/scroll-area'
 import { WritingViews } from '@/components/writing-views'
 import { SITE } from '@/lib/agent/site'
 import { getAllPostSlugs, getPost } from '@/lib/contentful'
-import { decodeRouteSlug, pageMetadata, safeJsonLd, validDate } from '@/lib/seo'
+import { contentDescription, decodeRouteSlug, pageMetadata, safeJsonLd, validDate } from '@/lib/seo'
 import { getDateTimeFormat, isDevelopment } from '@/lib/utils'
 
 export async function generateStaticParams() {
@@ -63,7 +63,7 @@ export default async function WritingSlug(props) {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     headline: seoTitle || title,
-    description: seoDescription,
+    description: seoDescription || contentDescription(content, `An article by ${SITE.author}.`),
     datePublished,
     dateModified,
     author: {
@@ -116,7 +116,8 @@ export async function generateMetadata(props) {
   const { data } = await fetchData(slug)
   const meta = pageMetadata(`/writing/${encodeURIComponent(slug)}`, {
     title: data.seo?.title || data.title,
-    description: data.seo?.description || `Read ${data.title}, an article by ${SITE.author}.`
+    description:
+      data.seo?.description || contentDescription(data.content, `Read ${data.title}, an article by ${SITE.author}.`)
   })
   return {
     ...meta,

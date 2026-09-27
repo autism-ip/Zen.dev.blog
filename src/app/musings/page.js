@@ -36,7 +36,7 @@ async function getMusings() {
       }
     }
 
-    return null
+    throw new Error('Musings temporarily unavailable')
   }
 }
 
@@ -45,48 +45,13 @@ export default async function MusingsPage(props) {
   const searchParams = await props.searchParams
   const selectedTag = searchParams?.tag
 
-  if (musings === null) {
-    return (
-      <ScrollArea useScrollAreaId>
-        <GradientBg5 />
-        <FloatingHeader scrollTitle="Musings" />
-        <div className="content-wrapper">
-          <div className="content">
-            <PageTitle title="Musings" className="lg:hidden" />
-            <div className="mb-8 flex items-center justify-between">
-              <div>
-                <p className="text-gray-500">Thoughts and reflections, powered by GitHub Issues</p>
-                <p className="mt-1 text-xs text-gray-400">
-                  Learn more:{' '}
-                  <a
-                    href="https://github.com/autism-ip/git-thoughts"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-500 transition-colors hover:text-gray-700"
-                  >
-                    git-thoughts
-                  </a>
-                </p>
-              </div>
-              <QuickPostButton />
-            </div>
-            <div className="rounded-2xl border border-gray-100 bg-white py-16 text-center">
-              <p className="text-gray-400">Unable to load musings</p>
-              <p className="mt-1 text-sm text-gray-300">Please try again later</p>
-            </div>
-          </div>
-        </div>
-      </ScrollArea>
-    )
-  }
-
   return (
     <ScrollArea useScrollAreaId>
       <GradientBg5 />
       <FloatingHeader scrollTitle="Musings" />
       <div className="content-wrapper">
         <div className="content">
-          <PageTitle title="Musings" className="lg:hidden" />
+          <PageTitle title="Musings" />
           <div className="mb-8 flex items-center justify-between">
             <div>
               <p className="text-gray-500">Thoughts and reflections, powered by GitHub Issues</p>

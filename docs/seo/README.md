@@ -50,9 +50,15 @@ No Search Console property access or Google index-removal confirmation is claime
 
 ## Validation evidence
 
-- Node 24: lint, 148 tests, production build and TypeScript checks passed locally.
+- Node 24: lint, 151 tests, production build and TypeScript checks passed locally.
 - `local-audit.json`: 20 sitemap pages plus four error routes; all canonical/social/JSON-LD/H1/HTTP checks pass, 25 internal links checked, no failures.
 - Browser: 15 public/detail routes have visible content, no window errors, unhandled rejections or console errors. The published Chinese article renders its complete text and breadcrumb trail.
 - The pre-change live crawl confirmed HTTP 200 for missing articles/collections, incorrect inherited canonicals, missing article description and schema fields, a 500 Stack image, and broken `/og.png` references. Isolated optional-widget CSR bailouts were not treated as whole-page failures.
 
 The local laboratory observations are not a field Core Web Vitals certification. Google recrawl and search appearance remain pending after deployment.
+
+## Post-PR review and resolution
+
+The first review identified two follow-ups: configured Raindrop/GitHub failures still produced empty/error content, and articles without SEO descriptions had a generic snippet. Both are fixed. Provider failures propagate to the error boundary instead of a false 404 or an indexable empty result; credential-free CI remains supported. Article snippets now come from the first actual paragraph, with the same description in BlogPosting. Regression tests cover upstream failure versus missing credentials and article excerpt extraction.
+
+The follow-up passed all 151 tests, lint, production build and typecheck. The full HTML crawl still has zero failures. Preview validation confirmed real 404 for a missing article, production-origin About canonical, ProfilePage markup, and Vercel's expected `X-Robots-Tag: noindex` for previews. Browser client navigation succeeded; a 390px viewport had no horizontal overflow; JavaScript-disabled Visual retained 24 images with visible content.
