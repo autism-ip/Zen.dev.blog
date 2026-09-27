@@ -384,9 +384,14 @@
   .navigation-link {
     @apply flex items-center justify-between rounded-lg p-2;
   }
-  .navigation-link:not([aria-current='page']):hover,
-  .navigation-external:hover {
-    @apply bg-gray-200;
+  @media (hover: hover) {
+    .navigation-link:not([aria-current='page']):hover,
+    .navigation-external:hover {
+      @apply bg-gray-200;
+    }
+    .navigation-link:hover .navigation-shortcut {
+      @apply border-gray-300;
+    }
   }
   .navigation-link[aria-current='page'] {
     @apply bg-black text-white;
@@ -402,9 +407,6 @@
   }
   .navigation-shortcut {
     @apply hidden size-5 place-content-center rounded-sm border border-gray-200 bg-gray-100 text-xs font-medium text-gray-500 transition-colors duration-200 lg:grid;
-  }
-  .navigation-link:hover .navigation-shortcut {
-    @apply border-gray-300;
   }
   .navigation-link[aria-current='page'] .navigation-shortcut {
     @apply border-gray-600 bg-gray-700 text-gray-200;
