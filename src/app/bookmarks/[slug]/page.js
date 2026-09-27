@@ -11,12 +11,6 @@ import { getBookmarkItems, getBookmarks } from '@/lib/raindrop-with-auth'
 import { decodeRouteSlug, pageMetadata } from '@/lib/seo'
 import { sortByProperty } from '@/lib/utils'
 
-export async function generateStaticParams() {
-  const bookmarks = await getBookmarks()
-  if (!bookmarks) return []
-  return bookmarks.map((bookmark) => ({ slug: bookmark.slug }))
-}
-
 async function fetchData(slug) {
   const bookmarks = await getBookmarks()
   if (!bookmarks || bookmarks.length === 0) notFound()

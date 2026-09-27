@@ -3,10 +3,10 @@ import { useEffect, useState } from 'react'
 
 import { toVisualData } from '@/lib/visual-data'
 
-export function useVisualData(initialData) {
+export function useVisualData(initialData, initialError = null) {
   const [data, setData] = useState(initialData ?? null)
   const [isLoading, setIsLoading] = useState(initialData === undefined)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState(initialError)
   async function fetchData() {
     try {
       setIsLoading(true)

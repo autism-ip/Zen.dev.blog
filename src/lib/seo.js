@@ -66,8 +66,10 @@ export function decodeRouteSlug(value) {
 }
 
 export function contentDescription(content, fallback) {
-  const paragraph = content?.json?.content?.find((node) => node.nodeType === 'paragraph')
   const text = (node) => (node?.nodeType === 'text' ? node.value : (node?.content || []).map(text).join(''))
-  const value = text(paragraph).replace(/\s+/g, ' ').trim()
+  const value = (content?.json?.content || [])
+    .filter((node) => node.nodeType === 'paragraph')
+    .map((node) => text(node).replace(/\s+/g, ' ').trim())
+    .find(Boolean)
   return value ? value.slice(0, 180) : fallback
 }

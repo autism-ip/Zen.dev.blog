@@ -50,7 +50,7 @@ No Search Console property access or Google index-removal confirmation is claime
 
 ## Validation evidence
 
-- Node 24: lint, 151 tests, production build and TypeScript checks passed locally.
+- Node 24: lint, 153 tests, production build and TypeScript checks passed locally.
 - `local-audit.json`: 20 sitemap pages plus four error routes; all canonical/social/JSON-LD/H1/HTTP checks pass, 25 internal links checked, no failures.
 - Browser: 15 public/detail routes have visible content, no window errors, unhandled rejections or console errors. The published Chinese article renders its complete text and breadcrumb trail.
 - The pre-change live crawl confirmed HTTP 200 for missing articles/collections, incorrect inherited canonicals, missing article description and schema fields, a 500 Stack image, and broken `/og.png` references. Isolated optional-widget CSR bailouts were not treated as whole-page failures.
@@ -61,4 +61,8 @@ The local laboratory observations are not a field Core Web Vitals certification.
 
 The first review identified two follow-ups: configured Raindrop/GitHub failures still produced empty/error content, and articles without SEO descriptions had a generic snippet. Both are fixed. Provider failures propagate to the error boundary instead of a false 404 or an indexable empty result; credential-free CI remains supported. Article snippets now come from the first actual paragraph, with the same description in BlogPosting. Regression tests cover upstream failure versus missing credentials and article excerpt extraction.
 
-The follow-up passed all 151 tests, lint, production build and typecheck. The full HTML crawl still has zero failures. Preview validation confirmed real 404 for a missing article, production-origin About canonical, ProfilePage markup, and Vercel's expected `X-Robots-Tag: noindex` for previews. Browser client navigation succeeded; a 390px viewport had no horizontal overflow; JavaScript-disabled Visual retained 24 images with visible content.
+The follow-up passed all 153 tests, lint, production build and typecheck. The full HTML crawl still has zero failures. Preview validation confirmed real 404 for a missing article, production-origin About canonical, ProfilePage markup, and Vercel's expected `X-Robots-Tag: noindex` for previews. Browser client navigation succeeded; a 390px viewport had no horizontal overflow; JavaScript-disabled Visual retained 24 images with visible content.
+
+The automated Codex review also requested a resilient Visual page. A request-memoized snapshot now supplies both gallery props and metadata: on Cloudinary failure the page shell stays available, the gallery shows an inline message, and the response has noindex metadata. Tests distinguish outages from a legitimately empty gallery. The bookmark failure review was addressed by propagating configured provider failures, with runtime rendering still permitted for existing collections. Unnecessary static-parameter discovery was removed from the already-dynamic bookmark route, avoiding a build dependency on live collection authentication.
+
+Final local verification: 21 test files / 153 tests, lint, production build and typecheck all pass; the final full crawl has zero failures. Article descriptions skip empty leading paragraphs. `www` redirects preserve path/query and use HTTP 308. No unresolved issue is intentionally deferred to merge.

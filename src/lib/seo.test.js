@@ -40,6 +40,7 @@ it('derives a real article snippet from the first paragraph when SEO is absent',
       {
         json: {
           content: [
+            { nodeType: 'paragraph', content: [{ nodeType: 'text', value: '' }] },
             { nodeType: 'heading-1', content: [{ nodeType: 'text', value: 'Heading' }] },
             {
               nodeType: 'paragraph',
