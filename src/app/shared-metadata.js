@@ -1,7 +1,7 @@
 import { SITE } from '@/lib/agent/site'
 
 export const sharedMetadata = {
-  title: 'Zen',
+  title: SITE.title,
   description:
     "Paris-based AI Product Manager & vibecoder, shipping AI products and open-source projects with a maker's spirit.",
   url: SITE.url,

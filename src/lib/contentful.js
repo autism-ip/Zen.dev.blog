@@ -1,13 +1,20 @@
+/**
+ * [INPUT]: Contentful GraphQL and existing environment credentials, React request memoization
+ * [OUTPUT]: CMS reads; post index data becomes eligible for revalidation after one hour
+ * [POS]: Shared CMS provider for pages, APIs, feeds and machine-readable content
+ * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+ */
 import 'server-only'
 
 import { cache } from 'react'
 
 import { isDevelopment } from '@/lib/utils'
 
-const fetchGraphQL = cache(async (query, preview = isDevelopment) => {
+const fetchGraphQL = cache(async (query, preview = isDevelopment, revalidate) => {
   try {
     const res = await fetch(`https://graphql.contentful.com/content/v1/spaces/${process.env.CONTENTFUL_SPACE_ID}`, {
       cache: 'force-cache',
+      ...(revalidate === undefined ? {} : { next: { revalidate } }),
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -47,7 +54,8 @@ export const getAllPosts = cache(async (preview = isDevelopment) => {
           }
         }
       }`,
-      preview
+      preview,
+      3600
     )
 
     return entries?.data?.postCollection?.items ?? []

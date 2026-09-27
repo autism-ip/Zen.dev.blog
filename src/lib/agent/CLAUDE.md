@@ -5,7 +5,11 @@
 
 成员清单
 site.js: 站点身份唯一真相源（SITE/SOCIAL/CONTACT/HOME_BIO/AGENT_FILES/SECTIONS），被本目录其余文件与页面消费
-http.js: HTTP 语义层（prefersMarkdown 协商判定 / markdownResponse / apiError），edge middleware 与 Node 路由通用，无 next/server 依赖
+api.js: API 边界：/api/v1 映射、JSON 404/405、发现入口、按实例共享配额与 IETF draft 11 响应头；仅信任平台控制的 IP 来源，无身份写入 503；页面计数共享可信访客配额并按文章去重
+api.test.js / routes.test.js: API 边界、限流、错误与已有业务响应回归测试
+cli.test.js: CLI 子进程与本地 HTTP 服务集成测试
+readiness.test.js / feeds.test.js: 发现资源、首页、sitemap 与 RSS 格式回归测试
+http.js: HTTP 语义层（prefersMarkdown 协商判定 / markdownResponse / apiError / apiHandler），edge middleware 与 Node 路由通用，无 next/server 依赖
 markdown.js: 文档层（homeMarkdown/sectionMarkdown/postMarkdown/pageMarkdown/bookmarkCollectionMarkdown/notFoundMarkdown/llmsTxt），HTML 页面的机器可读镜像
 rich-text.js: Contentful 富文本 → Markdown 转换器，与 components/contentful/rich-text.js（转 JSX）方向相反
 posts.js: 文章索引整形（toIndexPosts），不可变排序 + 绝对 URL 编码，供 API 与 Markdown 共用

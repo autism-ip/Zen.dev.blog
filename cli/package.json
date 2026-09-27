@@ -1,7 +1,7 @@
 {
   "name": "zenhungyep",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "description": "Command-line client for the public API of zenhungyep.com",
   "keywords": [
     "cli",
@@ -21,12 +21,16 @@
     "zenhungyep": "./index.js"
   },
   "files": [
-    "index.js"
+    "index.js",
+    "README.md"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "scripts": {
     "start": "node index.js --help"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

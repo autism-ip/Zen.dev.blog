@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import { apiError } from '@/lib/agent/http'
+import { apiError, apiHandler } from '@/lib/agent/http'
 
 // 生成智能标题
 function generateTitle(content) {
@@ -36,11 +36,19 @@ function generateTitle(content) {
   return title + '...'
 }
 
-export async function POST(request) {
+async function handle(request) {
   try {
     const { body, labels = ['Public'] } = await request.json()
 
     // 添加特殊标签标识这是从博客发送的
+    if (typeof body !== 'string' || !Array.isArray(labels) || labels.some((label) => typeof label !== 'string')) {
+      return apiError({
+        code: 'invalid_payload',
+        message: 'Invalid musing payload',
+        hint: 'Send a string body and an array of string labels',
+        status: 400
+      })
+    }
     const blogLabels = [...labels, 'blog-post']
 
     if (!body) {
@@ -139,3 +147,5 @@ export async function POST(request) {
     })
   }
 }
+
+export const POST = apiHandler(handle, { jsonObject: true })

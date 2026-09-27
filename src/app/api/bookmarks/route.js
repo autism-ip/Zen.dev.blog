@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import { apiError } from '@/lib/agent/http'
+import { apiError, apiHandler } from '@/lib/agent/http'
 import { getTokenManager } from '@/lib/auth/get-token-manager'
 import { COLLECTION_IDS } from '@/lib/constants'
 
@@ -22,7 +22,7 @@ function isWhitelistedCollectionId(value) {
   return typeof value === 'string' && /^\d+$/.test(value) && COLLECTION_IDS.includes(Number(value))
 }
 
-export async function GET(request) {
+async function handle(request) {
   try {
     const { searchParams } = new URL(request.url)
     const collectionId = searchParams.get('collection')
@@ -216,3 +216,5 @@ async function fetchAllBookmarks(accessToken) {
 
   return allBookmarks
 }
+
+export const GET = apiHandler(handle)

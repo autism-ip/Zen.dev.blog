@@ -15,10 +15,10 @@ import { AGENT_FILES, CONTACT, SITE } from '@/lib/agent/site'
 const CODE_BLOCK = 'overflow-x-auto rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs leading-relaxed'
 
 const QUICKSTART = `# list writing posts as JSON
-curl -sS ${SITE.url}/api/posts
+curl -sS ${SITE.url}/api/v1/posts
 
 # read the curated bookmarks feed
-curl -sS ${SITE.url}/api/bookmarks
+curl -sS ${SITE.url}/api/v1/bookmarks
 
 # ask any page for Markdown instead of HTML
 curl -sS -H 'Accept: text/markdown' ${SITE.url}/`
@@ -60,12 +60,12 @@ export default function DevelopersPage() {
       <FloatingHeader scrollTitle="Developers" />
       <div className="content-wrapper">
         <div className="content">
-          <PageTitle title="Developers" />
+          <PageTitle title="Zen (zenhungyep) Developers" />
           <p className="leading-relaxed text-gray-600">
             {SITE.url.replace(/^https?:\/\//, '')} exposes a small, read-only HTTP API for its published content, plus
-            machine-readable descriptions of the site itself. Everything on this page is public and unauthenticated:
-            there are no API keys to request and no sandbox to sign up for. Read endpoints are safe to poll; submission
-            endpoints are rate-limited per IP address.
+            machine-readable descriptions of the site itself. Read endpoints need no API keys. Publishing a musing is
+            reserved for the owner; bookmark submissions are for the human form. All JSON endpoints publish their
+            request quotas.
           </p>
 
           <h2 className="mt-8 mb-4">Quickstart</h2>
@@ -79,6 +79,51 @@ export default function DevelopersPage() {
             bookmark suggestions are rate-limited per IP, and publishing a musing requires a shared secret held by the
             site owner. If you receive <code className="inline-code">401</code> or{' '}
             <code className="inline-code">403</code>, the response body explains which rule applied.
+          </p>
+
+          <h2 id="versioning" className="mt-8 mb-4">
+            Versioning and deprecation
+          </h2>
+          <p className="leading-relaxed text-gray-600">
+            Use <code>/api/v1/</code> for new integrations. Existing <code>/api/</code> URLs remain v1 aliases with the
+            same response bodies, permissions, and quotas. Additive fields may appear; clients should ignore unknown
+            fields. Breaking changes require a new major URL. No version is currently deprecated and no retirement is
+            scheduled. Before retiring a version, this page will announce a migration guide and at least 90 days of
+            notice. Affected responses will include <code>Deprecation</code> as a Structured Field Date (RFC 9745),
+            <code> Sunset</code> as an HTTP-date (RFC 8594), and a <code>Link</code> with <code>rel="deprecation"</code>
+            .
+          </p>
+
+          <h2 id="rate-limits" className="mt-8 mb-4">
+            Rate limits
+          </h2>
+          <p className="leading-relaxed text-gray-600">
+            Public JSON reads allow 120 requests per 60 seconds per endpoint. View counting allows 60 per 600 seconds;
+            bookmark submissions and musing publication allow 5 per 600 seconds. Quotas are per client IP and server
+            instance, held in bounded memory; restarts or routing to another instance may reset them. Versioned and
+            unversioned aliases share the same bucket. Responses are private and not cached with another client's quota.
+          </p>
+          <p className="leading-relaxed text-gray-600">
+            Client identity comes from Vercel's controlled IP header. Other hosts must configure
+            <code> TRUSTED_CLIENT_IP_HEADER</code> for a gateway that overwrites that header. When trusted identity is
+            unavailable, reads remain available without quota headers and writes return 503; clients never share an
+            anonymous quota bucket. Counter requests share their budget with writing-page views. Within each instance,
+            page views are deduplicated per visitor/article for ten minutes. Only published articles can receive counts.
+          </p>
+          <pre className={CODE_BLOCK}>
+            <code>{'RateLimit-Policy: "posts";q=120;w=60\nRateLimit: "posts";r=119;t=60'}</code>
+          </pre>
+          <p className="leading-relaxed text-gray-600">
+            These fields follow{' '}
+            <a className="link" href="https://www.ietf.org/archive/id/draft-ietf-httpapi-ratelimit-headers-11.html">
+              IETF RateLimit draft 11
+            </a>
+            , which is not yet an RFC. <code>q</code> is the quota, <code>w</code> the window in seconds,
+            <code>r</code> available requests, and <code>t</code> seconds until reset. Compatibility fields
+            <code> RateLimit-Limit</code>, <code>RateLimit-Remaining</code>, and <code>RateLimit-Reset</code> expose the
+            same values (Reset is seconds, not a timestamp). HTTP 429 includes <code>Retry-After</code> seconds; wait
+            that long before retrying. Unknown paths return JSON 404; unsupported methods return JSON 405 with
+            <code> Allow</code>. Malformed JSON returns 400.
           </p>
 
           <h2 className="mt-8 mb-4">Endpoints</h2>
@@ -114,13 +159,16 @@ export default function DevelopersPage() {
             ))}
           </ul>
 
-          <h2 className="mt-8 mb-4">CLI</h2>
+          <h2 id="cli" className="mt-8 mb-4">
+            Official Zen (zenhungyep) CLI
+          </h2>
           <p className="leading-relaxed text-gray-600">
             A small command-line client lives in the site repository under <code className="inline-code">cli/</code>. It
             wraps the endpoints above (<code className="inline-code">posts</code>,{' '}
             <code className="inline-code">bookmarks</code>, <code className="inline-code">markdown</code>,{' '}
-            <code className="inline-code">openapi</code>) and runs with Node without any global install. It is not yet
-            published to a package registry — run it from a clone, or watch the repository for the published package.
+            <code className="inline-code">openapi</code>) and runs with Node.js 22 or later. It is not yet published to
+            a package registry. From a repository checkout, install with npm install --global ./cli, or run node
+            cli/index.js posts. The CLI uses v1 endpoints and reports error codes and hints on stderr.
           </p>
 
           <p className="mt-8 text-sm text-gray-500">
@@ -136,7 +184,7 @@ export default function DevelopersPage() {
 }
 
 export const metadata = {
-  title: 'Developers',
+  title: 'Developers — API, OpenAPI & CLI',
   description: 'Public API, OpenAPI specification, Markdown negotiation, and CLI for zenhungyep.com.',
   alternates: {
     canonical: '/developers'

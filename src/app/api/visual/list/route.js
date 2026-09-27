@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary'
 
-import { apiError } from '@/lib/agent/http'
+import { apiError, apiHandler } from '@/lib/agent/http'
 
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -8,7 +8,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 })
 
-export async function GET() {
+async function handle() {
   try {
     // 搜索图片和视频内容
     const [imageResult, videoResult] = await Promise.all([
@@ -191,3 +191,5 @@ export async function GET() {
     })
   }
 }
+
+export const GET = apiHandler(handle)

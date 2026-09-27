@@ -1,9 +1,19 @@
+/**
+ * [INPUT]: NextRequest, API/Markdown boundaries and server-only view-count provider
+ * [OUTPUT]: Negotiated responses, public API quotas and background internal page analytics
+ * [POS]: Site middleware; page analytics shares the visitor quota without HTTP self-fetches
+ * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+ */
 import { NextResponse } from 'next/server'
 
+import { apiBoundary, claimPageView } from '@/lib/agent/api'
 import { prefersMarkdown, VARIANT_HEADER } from '@/lib/agent/http'
+import { decodeViewSlug, incrementViewCount } from '@/lib/view-count'
 
 export async function middleware(request, event) {
   const { pathname } = request.nextUrl
+
+  if (pathname === '/api' || pathname.startsWith('/api/')) return apiBoundary(request)
 
   // --- Markdown 内容协商 ---
   // 仅当客户端显式要求 text/markdown 且非 RSC 导航请求时处理。
@@ -35,39 +45,27 @@ export async function middleware(request, event) {
   // 仅精确匹配 /writing/<单段 slug>（与旧 matcher '/writing/:path' 语义一致）
   const writingSlug = pathname.match(/^\/writing\/([^/]+)$/)?.[1]
 
-  async function sendAnalytics() {
-    const URL =
-      process.env.NODE_ENV === 'production'
-        ? `${process.env.NEXT_PUBLIC_BASE_URL}/api/increment-views`
-        : 'http://localhost:3000/api/increment-views'
-
-    try {
-      const res = await fetch(`${URL}?slug=${writingSlug}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        signal: AbortSignal.timeout(5000)
-      })
-
-      if (res.status !== 200) console.error('Failed to send analytics', res)
-    } catch (error) {
-      console.error('Error sending analytics', error)
-    }
-  }
-
-  /**
-   * The `event.waitUntil` function is the real magic here.
-   * It enables the response to proceed without waiting for the completion of `sendAnalytics()`.
-   * This ensures that the user experience remains uninterrupted and free from unnecessary delays.
-   */
   const isPrefetch = request.headers.get('next-router-prefetch') || request.headers.get('purpose') === 'prefetch'
-  if (writingSlug && !isPrefetch) event.waitUntil(sendAnalytics())
+  // Match the legacy query decode followed by the public route slug validation.
+  const slug = decodeViewSlug(decodeViewSlug(writingSlug))
+  if (
+    slug &&
+    request.method === 'GET' &&
+    !isPrefetch &&
+    process.env.NODE_ENV === 'production' &&
+    claimPageView(request, slug)
+  ) {
+    event.waitUntil(
+      incrementViewCount(slug).catch(() => {
+        console.error('Failed to update writing view count')
+      })
+    )
+  }
 
   return NextResponse.next()
 }
 
 export const config = {
-  // 页面路径全部进入中间件（用于 Markdown 协商）；排除 API、Next 内部资源与带扩展名的静态文件
-  matcher: ['/((?!api/|_next/|.*\\..*).*)']
+  // API（含带点路径）由统一边界处理；HTML 页面继续 Markdown 协商。
+  matcher: ['/api/:path*', '/((?!api/|_next/|.*\\..*).*)']
 }

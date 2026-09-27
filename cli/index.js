@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * [INPUT]: 无外部依赖；使用 Node 18+ 内置 fetch，调用 zenhungyep.com 的公开端点（含 Accept: text/markdown 协商）
+ * [INPUT]: 无外部依赖；使用 Node 22+ 内置 fetch，调用 zenhungyep.com 的公开端点（含 Accept: text/markdown 协商）
  * [OUTPUT]: 可执行 CLI —— posts / post / bookmarks / markdown / openapi / llms 子命令，--base 可切换部署
  * [POS]: cli 包的唯一入口；把 /openapi.json 描述的公开 API 封装为脚本化命令，供开发者与 agent 调用
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
@@ -45,11 +45,23 @@ function parseArgs(argv) {
 
     if (token === '--base') {
       options.base = String(argv[index + 1] ?? '').replace(/\/$/, '')
+      const url = new URL(options.base)
+      if (
+        !['http:', 'https:'].includes(url.protocol) ||
+        url.username ||
+        url.password ||
+        url.search ||
+        url.hash ||
+        url.pathname !== '/'
+      )
+        throw new Error('--base must be an HTTP(S) origin')
       index += 1
     } else if (token === '--json') {
       options.json = true
     } else if (token === '-h' || token === '--help') {
       options.command = 'help'
+    } else if (token.startsWith('-')) {
+      throw new Error(`Unknown option: ${token}`)
     } else if (!options.command) {
       options.command = token
     } else {
@@ -62,7 +74,8 @@ function parseArgs(argv) {
 
 async function request(options, path, { accept } = {}) {
   const response = await fetch(`${options.base}${path}`, {
-    headers: accept ? { Accept: accept } : {}
+    headers: accept ? { Accept: accept } : {},
+    signal: AbortSignal.timeout(30000)
   })
 
   const body = await response.text()
@@ -70,7 +83,10 @@ async function request(options, path, { accept } = {}) {
   if (!response.ok) {
     let message = body
     try {
-      message = JSON.parse(body)?.error ?? body
+      const data = JSON.parse(body)
+      message = [data.code, data.error, data.hint].filter(Boolean).join(': ') || body
+      if (response.status === 429 && response.headers.get('retry-after'))
+        message += ` (Retry-After: ${response.headers.get('retry-after')} seconds)`
     } catch {
       // 非 JSON 错误体（如网关页面）直接使用原文
     }
@@ -84,9 +100,10 @@ async function fetchJson(options, path) {
   return JSON.parse(await request(options, path))
 }
 
-// 接受 slug、/writing/<slug> 或完整 URL，统一归一化为 slug（非法百分号编码时原样返回）
+// 接受 slug、/writing/<slug> 或完整 URL，统一归一化为 slug，丢弃查询参数与锚点（非法百分号编码时原样返回）
 function toSlug(input) {
-  const withoutOrigin = String(input).replace(/^https?:\/\/[^/]+/, '')
+  const raw = String(input)
+  const withoutOrigin = /^https?:\/\//i.test(raw) ? new URL(raw).pathname : raw.split(/[?#]/, 1)[0]
   const withoutPrefix = withoutOrigin.replace(/^\/?writing\//, '').replace(/^\//, '')
 
   try {
@@ -115,7 +132,7 @@ async function run(options) {
       return print(USAGE)
 
     case 'posts': {
-      const { posts } = await fetchJson(options, '/api/posts')
+      const { posts } = await fetchJson(options, '/api/v1/posts')
       return printPosts(posts ?? [], options.json)
     }
 
@@ -126,7 +143,7 @@ async function run(options) {
     }
 
     case 'bookmarks': {
-      const bookmarks = await fetchJson(options, '/api/bookmarks')
+      const bookmarks = await fetchJson(options, '/api/v1/bookmarks')
       if (options.json) return print(JSON.stringify(bookmarks, null, 2))
 
       for (const bookmark of bookmarks) {
@@ -152,9 +169,9 @@ async function run(options) {
   }
 }
 
-const options = parseArgs(process.argv.slice(2))
-
-run(options).catch((error) => {
-  console.error(error.message)
-  process.exit(1)
-})
+Promise.resolve()
+  .then(() => run(parseArgs(process.argv.slice(2))))
+  .catch((error) => {
+    console.error(error.message)
+    process.exit(1)
+  })

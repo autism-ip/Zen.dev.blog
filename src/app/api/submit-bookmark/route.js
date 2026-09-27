@@ -1,17 +1,10 @@
-import ip from '@arcjet/ip'
 import { isbot } from 'isbot'
 import { NextResponse } from 'next/server'
 
 import { formSchema } from '@/components/submit-bookmark/utils'
-import { apiError } from '@/lib/agent/http'
-import rateLimit from '@/lib/rate-limit'
+import { apiError, apiHandler } from '@/lib/agent/http'
 
-const limiter = rateLimit({
-  interval: 600 * 1000, // 10 minutes (600 seconds * 1000 ms)
-  uniqueTokenPerInterval: 500 // Max 500 IPs
-})
-
-export async function POST(req) {
+async function handle(req) {
   const json = await req.json()
   const data = await formSchema.safeParse(json)
   if (!data.success) {
@@ -29,24 +22,6 @@ export async function POST(req) {
       message: 'Bots are not allowed.',
       hint: 'This endpoint serves the human form at /bookmarks; use the read-only public API instead',
       status: 403
-    })
-  }
-
-  // Use the @arcjet/ip package to get the client's IP address. This looks at
-  // the headers set by different hosting platforms to try and get the real IP
-  // address before falling back to the request's remote address. This is
-  // necessary because the IP headers could be spoofed. In non-production
-  // environments we allow private/internal IPs.
-  const clientIp = ip(req, req.headers)
-
-  try {
-    await limiter.check(5, clientIp) // Limit to 5 requests
-  } catch {
-    return apiError({
-      code: 'rate_limited',
-      message: 'Rate limit exceeded. Try again later.',
-      hint: 'Limit is 5 submissions per IP per 10 minutes',
-      status: 429
     })
   }
 
@@ -72,6 +47,7 @@ export async function POST(req) {
       }
     )
 
+    if (!response.ok) throw new Error('Submission upstream failed')
     const res = await response.json()
     return NextResponse.json({ res })
   } catch (error) {
@@ -84,3 +60,5 @@ export async function POST(req) {
     })
   }
 }
+
+export const POST = apiHandler(handle, { jsonObject: true })

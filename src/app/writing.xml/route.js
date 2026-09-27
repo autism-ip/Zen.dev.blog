@@ -1,5 +1,6 @@
 import { Feed } from 'feed'
 
+import { SITE } from '@/lib/agent/site'
 import { getAllPosts } from '@/lib/contentful'
 import { getSortedPosts } from '@/lib/utils'
 
@@ -9,10 +10,10 @@ export async function GET() {
   const allPosts = await getAllPosts()
   const sortedPosts = getSortedPosts(allPosts)
   const date = new Date()
-  const siteURL = 'https://zenhungyep.com'
+  const siteURL = SITE.url
   const author = {
-    name: 'Zen',
-    link: 'https://zenhungyep.com'
+    name: SITE.title,
+    link: SITE.url
   }
 
   const feed = new Feed({
@@ -24,7 +25,7 @@ export async function GET() {
     copyright: `All rights reserved ${date.getFullYear()}, ${author.name}`,
     author,
     feedLinks: {
-      rss2: `${siteURL}/writing/rss.xml`
+      rss: `${siteURL}/writing.xml`
     }
   })
 
@@ -41,7 +42,7 @@ export async function GET() {
     })
   })
 
-  return new Response(feed.rss2(), {
+  return new Response(feed.rss2().replaceAll('<guid>', '<guid isPermaLink="false">'), {
     headers: {
       'Content-Type': 'application/rss+xml; charset=utf-8',
       // Cache response for 2 days, revalidate once a day

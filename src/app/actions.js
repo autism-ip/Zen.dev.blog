@@ -1,8 +1,15 @@
+/**
+ * [INPUT]: Validated collection/page parameters, authenticated Raindrop helper, next/cache
+ * [OUTPUT]: Bookmark pagination results and musing cache invalidation server actions
+ * [POS]: Internal provider reads bypass the public HTTP quota while retaining access validation
+ * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+ */
 'use server'
 
 import { revalidatePath } from 'next/cache'
 
 import { COLLECTION_IDS } from '@/lib/constants'
+import { getBookmarkItems } from '@/lib/raindrop-with-auth'
 
 // id 必须是数字或数字字符串, 且属于公开收藏夹白名单 (防止客户端篡改越权读取)
 function isWhitelistedCollectionId(value) {
@@ -23,25 +30,15 @@ export async function getBookmarkItemsByPageIndex(id, pageIndex) {
   }
 
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/bookmarks?collection=${id}&page=${pageIndex}`,
-      {
-        cache: 'no-store'
-      }
-    )
-
-    if (!response.ok) {
-      console.error('Failed to fetch bookmarks:', response.status)
-      return { result: false, items: [] }
-    }
-
-    const data = await response.json()
+    const data = await getBookmarkItems(id, pageIndex)
+    if (!data) return { result: false, items: [] }
+    const items = data.items || []
 
     // 兼容原有数据格式
     return {
       result: true,
-      items: data || [],
-      count: data.length || 0
+      items,
+      count: items.length
     }
   } catch (error) {
     console.error('Error fetching bookmarks:', error)

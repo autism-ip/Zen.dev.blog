@@ -5,13 +5,13 @@
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
-import { apiError } from '@/lib/agent/http'
+import { apiError, apiHandler } from '@/lib/agent/http'
 import { toIndexPosts } from '@/lib/agent/posts'
 import { getAllPosts } from '@/lib/contentful'
 
-export const revalidate = 3600
+export const dynamic = 'force-dynamic'
 
-export async function GET() {
+async function handle() {
   try {
     const posts = toIndexPosts(await getAllPosts())
 
@@ -34,3 +34,5 @@ export async function GET() {
     })
   }
 }
+
+export const GET = apiHandler(handle)
