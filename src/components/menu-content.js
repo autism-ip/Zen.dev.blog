@@ -24,7 +24,7 @@ export const MenuContent = () => (
           <span className="text-gray-600">Open Source enthusiasts</span>
         </div>
       </Link>
-      <div className="flex flex-col gap-2">
+      <nav aria-label="Main navigation" className="flex flex-col gap-2">
         {LINKS.map((link, linkIndex) => (
           <NavigationLink
             key={link.href}
@@ -36,7 +36,16 @@ export const MenuContent = () => (
         ))}
         {/* 公开 API 与 agent 文档入口：让每个页面都能发现 /developers */}
         <NavigationLink href="/developers" label="Developers & API" icon={<CodeIcon size={16} />} />
-      </div>
+        <Link href="/about" className="px-2 py-1">
+          About Zen
+        </Link>
+        <Link href="/contact" className="px-2 py-1">
+          Contact
+        </Link>
+        <Link href="/privacy" className="px-2 py-1">
+          Privacy
+        </Link>
+      </nav>
     </div>
     <VinylPlayer />
     <hr />

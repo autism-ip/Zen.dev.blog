@@ -1,70 +1,45 @@
+/**
+ * [INPUT]: Published CMS indexes, bookmark collections and the local section registry
+ * [OUTPUT]: Deduplicated canonical URLs with real modification dates only
+ * [POS]: Search-engine sitemap; excludes private, diagnostic and unroutable CMS entries
+ * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+ */
 import { SECTIONS, SITE } from '@/lib/agent/site'
 import { getAllPageSlugs, getAllPosts } from '@/lib/contentful'
 import { getBookmarks } from '@/lib/raindrop-with-auth'
-import { getSortedPosts } from '@/lib/utils'
+import { validDate, validSlug } from '@/lib/seo'
+
+export const revalidate = 3600
 
 export default async function sitemap() {
-  const staticPages = [
-    { url: SITE.url, changeFrequency: 'yearly', priority: 1 },
-    ...SECTIONS.map((section) => ({ url: `${SITE.url}${section.path}`, changeFrequency: 'monthly', priority: 0.8 }))
+  const staticPages = [{ url: SITE.url }, ...SECTIONS.map(({ path }) => ({ url: `${SITE.url}${path}` }))]
+  const [posts, collections, pages] = await Promise.all([
+    getAllPosts(false).catch(() => []),
+    getBookmarks().catch(() => []),
+    getAllPageSlugs(false).catch(() => [])
+  ])
+  const reserved = new Set([
+    'admin',
+    'api',
+    'debug-og',
+    'icon',
+    'opengraph-image',
+    ...SECTIONS.map(({ path }) => path.slice(1))
+  ])
+  const entry = (path, date) => ({
+    url: `${SITE.url}${path}`,
+    ...(validDate(date) && { lastModified: validDate(date) })
+  })
+  const dynamic = [
+    ...(posts || [])
+      .filter((post) => validSlug(post?.slug))
+      .map((post) => entry(`/writing/${encodeURIComponent(post.slug)}`, post.sys?.publishedAt)),
+    ...(collections || [])
+      .filter((collection) => validSlug(collection?.slug))
+      .map((collection) => entry(`/bookmarks/${encodeURIComponent(collection.slug)}`, collection.lastUpdate)),
+    ...(pages || [])
+      .filter((page) => validSlug(page?.slug) && !page.hasCustomPage && !reserved.has(page.slug))
+      .map((page) => entry(`/${encodeURIComponent(page.slug)}`, page.sys?.publishedAt))
   ]
-  try {
-    const [allPosts, bookmarks, allPages] = await Promise.all([
-      getAllPosts().catch(() => []),
-      getBookmarks().catch((error) => {
-        console.info('Sitemap: Bookmarks unavailable during build:', error.message)
-        return []
-      }),
-      getAllPageSlugs().catch(() => [])
-    ])
-
-    const sortedWritings = getSortedPosts(allPosts)
-    const writings = sortedWritings.map((post) => {
-      return {
-        url: `${SITE.url}/writing/${encodeURIComponent(post.slug)}`,
-        lastModified: post.sys.publishedAt,
-        changeFrequency: 'yearly',
-        priority: 0.5
-      }
-    })
-
-    const mappedBookmarks = (bookmarks || []).map((bookmark) => {
-      return {
-        url: `${SITE.url}/bookmarks/${encodeURIComponent(bookmark.slug)}`,
-        lastModified: new Date(),
-        changeFrequency: 'daily',
-        priority: 1
-      }
-    })
-
-    const pages = allPages.map((page) => {
-      let changeFrequency = 'yearly'
-      if (['writing', 'journey'].includes(page.slug)) changeFrequency = 'monthly'
-      if (['bookmarks'].includes(page.slug)) changeFrequency = 'daily'
-
-      let lastModified = page.sys.publishedAt
-      if (['writing', 'journey', 'bookmarks'].includes(page.slug)) lastModified = new Date()
-
-      let priority = 0.5
-      if (['writing', 'journey'].includes(page.slug)) priority = 0.8
-      if (['bookmarks'].includes(page.slug)) priority = 1
-
-      return {
-        url: `${SITE.url}/${encodeURIComponent(page.slug)}`,
-        lastModified,
-        changeFrequency,
-        priority
-      }
-    })
-
-    return [
-      ...new Map(
-        [...staticPages, ...pages, ...writings, ...mappedBookmarks].map((entry) => [entry.url, entry])
-      ).values()
-    ]
-  } catch (error) {
-    console.error('Sitemap generation failed:', error)
-    // 返回基本的 sitemap，不包含书签
-    return staticPages
-  }
+  return [...new Map([...staticPages, ...dynamic].map((item) => [item.url, item])).values()]
 }

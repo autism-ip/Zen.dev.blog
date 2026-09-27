@@ -1,7 +1,12 @@
+import { notFound } from 'next/navigation'
+
 import { sharedMetadata } from '@/app/shared-metadata'
 
+export const metadata = { title: 'Open Graph diagnostics', robots: { index: false, follow: false } }
+
 export default function DebugOG() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://me.deeptoai.com'
+  if (process.env.NODE_ENV === 'production') notFound()
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || sharedMetadata.url
 
   return (
     <div className="container mx-auto p-8">

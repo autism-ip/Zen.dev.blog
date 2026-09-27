@@ -9,14 +9,14 @@ import { Gallery } from './gallery'
 import { LightboxViewer } from './lightbox-viewer'
 import { TabSelector } from './tab-selector'
 
-export function VisualExplorer() {
+export function VisualExplorer({ initialData }) {
   const [mediaType, setMediaType] = useState('image')
   const [sourceType, setSourceType] = useState('photography')
   const [selectedMedia, setSelectedMedia] = useState(null)
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
   const [showAll, setShowAll] = useState(false)
 
-  const { data: visualData, isLoading, error } = useVisualData()
+  const { data: visualData, isLoading, error } = useVisualData(initialData)
 
   const filteredData = showAll
     ? visualData || []
@@ -64,7 +64,7 @@ export function VisualExplorer() {
         <AnimatePresence mode="wait">
           <m.div
             key={showAll ? 'all' : `${mediaType}-${sourceType}`}
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}

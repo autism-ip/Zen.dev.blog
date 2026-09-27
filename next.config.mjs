@@ -5,15 +5,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    ignoreBuildErrors: true
-  },
   logging: {
     fetches: {
       fullUrl: process.env.NODE_ENV === 'development'
     }
   },
   trailingSlash: false,
+  // Resolve metadata/notFound before flushing HTML, including ordinary crawler UAs.
+  htmlLimitedBots: /.*/,
   images: {
     deviceSizes: [390, 435, 768, 1024, 1280],
     formats: ['image/avif'],
@@ -121,6 +120,10 @@ const nextConfig = {
   // 安全响应头应用于全部路径（不加完整 CSP，避免破坏 Next.js 内联脚本与 RSC payload）
   async headers() {
     return [
+      ...['/admin/:path*', '/debug-og', '/api/:path*', '/test-musings.json'].map((source) => ({
+        source,
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }]
+      })),
       {
         source: '/:path*',
         headers: [

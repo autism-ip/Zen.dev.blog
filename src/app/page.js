@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { Fragment, Suspense } from 'react'
 
+import { pageMetadata } from '@/lib/seo'
+
 // ISR 兜底：即使 webhook 失效，最多 1 小时自动刷新
 export const revalidate = 3600
 
@@ -32,7 +34,7 @@ export default async function Home() {
       <FloatingHeader scrollTitle="Zen" />
       <div className="content-wrapper">
         <div className="content">
-          <PageTitle title="Zen (zenhungyep)" className="lg:hidden" />
+          <PageTitle title="Zen (zenhungyep)" />
           <p>
             {HOME_BIO.map((line, index) => (
               <Fragment key={line}>
@@ -79,3 +81,5 @@ export default async function Home() {
     </ScrollArea>
   )
 }
+
+export const metadata = pageMetadata('/')

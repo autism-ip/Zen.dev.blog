@@ -78,6 +78,22 @@ describe('agent discovery', () => {
       SITE.url = original
     }
   })
+  it('excludes private and unroutable CMS pages and does not invent lastmod', async () => {
+    getAllPageSlugs.mockResolvedValueOnce([
+      { slug: 'admin' },
+      { slug: 'debug-og' },
+      { slug: 'not-implemented', hasCustomPage: true },
+      { slug: null }
+    ])
+    getAllPosts.mockResolvedValueOnce([{ slug: 'valid', sys: { publishedAt: 'invalid' } }, { slug: '' }, null])
+    getBookmarks.mockResolvedValueOnce([{ slug: 'tools' }])
+    const { default: sitemap } = await import('@/app/sitemap')
+    const entries = await sitemap()
+    for (const path of ['/admin', '/debug-og', '/not-implemented'])
+      expect(entries.some((entry) => entry.url.endsWith(path))).toBe(false)
+    expect(entries.find((entry) => entry.url.endsWith('/writing/valid')).lastModified).toBeUndefined()
+    expect(entries.find((entry) => entry.url.endsWith('/bookmarks/tools')).lastModified).toBeUndefined()
+  })
   it('keeps developer resources in the sitemap even when the CMS is unavailable', async () => {
     const { default: sitemap } = await import('@/app/sitemap')
     const urls = (await sitemap()).map((item) => item.url)

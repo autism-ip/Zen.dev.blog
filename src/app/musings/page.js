@@ -4,6 +4,7 @@ import { MusingsList } from '@/components/musings-list'
 import { PageTitle } from '@/components/page-title'
 import { QuickPostButton } from '@/components/quick-post-button'
 import { ScrollArea } from '@/components/scroll-area'
+import { pageMetadata } from '@/lib/seo'
 
 async function getMusings() {
   try {
@@ -111,9 +112,6 @@ export default async function MusingsPage(props) {
   )
 }
 
-export const metadata = {
-  title: 'Musings',
-  description: 'Thoughts and reflections powered by GitHub Issues'
-}
+export const metadata = pageMetadata('/musings')
 
 export const revalidate = 3600

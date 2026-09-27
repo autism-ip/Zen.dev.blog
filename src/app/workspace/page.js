@@ -12,6 +12,7 @@ import logData from '@/data/workspace/log.json'
 import nowData from '@/data/workspace/now.json'
 import projectsData from '@/data/workspace/projects.json'
 import { getPageSeo } from '@/lib/contentful'
+import { pageMetadata } from '@/lib/seo'
 
 export default async function Workspace() {
   return (
@@ -89,45 +90,6 @@ export default async function Workspace() {
 }
 
 export async function generateMetadata() {
-  const seoData = await getPageSeo('workspace')
-
-  const defaultMeta = {
-    title: 'Workspace - Developer Portfolio & Projects',
-    description:
-      'Explore my digital workspace featuring current projects, development workflow, tools, and insights from my journey as a developer and researcher.',
-    openGraph: {
-      title: 'Workspace - Developer Portfolio & Projects',
-      description:
-        'Explore my digital workspace featuring current projects, development workflow, tools, and insights from my journey as a developer and researcher.',
-      url: '/workspace',
-      type: 'website'
-    },
-    alternates: {
-      canonical: '/workspace'
-    },
-    keywords: ['developer workspace', 'projects', 'development workflow', 'coding tools', 'software development']
-  }
-
-  if (!seoData) {
-    return defaultMeta
-  }
-
-  // 安全解构，避免 seo 为 undefined 或 null 时出错
-  const seo = seoData.seo || {}
-  const { title, description } = seo
-
-  return {
-    title: title || defaultMeta.title,
-    description: description || defaultMeta.description,
-    openGraph: {
-      title: title || defaultMeta.openGraph.title,
-      description: description || defaultMeta.openGraph.description,
-      url: defaultMeta.openGraph.url,
-      type: defaultMeta.openGraph.type
-    },
-    alternates: {
-      canonical: defaultMeta.alternates.canonical
-    },
-    keywords: defaultMeta.keywords
-  }
+  const data = await getPageSeo('workspace')
+  return pageMetadata('/workspace', data?.seo)
 }

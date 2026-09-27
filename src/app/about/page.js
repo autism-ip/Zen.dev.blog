@@ -4,12 +4,12 @@
  * [POS]: app/about 的页面入口；信任锚点页之一，向人与 agent 说明站点主体、发布内容与技术构成
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
-
 import { FloatingHeader } from '@/components/floating-header'
 import { GradientBg } from '@/components/gradient-bg'
 import { PageTitle } from '@/components/page-title'
 import { ScrollArea } from '@/components/scroll-area'
 import { CONTACT, SITE, SOCIAL } from '@/lib/agent/site'
+import { pageMetadata, safeJsonLd } from '@/lib/seo'
 
 export default function AboutPage() {
   return (
@@ -18,13 +18,26 @@ export default function AboutPage() {
       <FloatingHeader scrollTitle="About" />
       <div className="content-wrapper">
         <div className="content">
-          <PageTitle title="About" />
+          <PageTitle title="About Zen" />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: safeJsonLd({
+                '@context': 'https://schema.org',
+                '@type': 'ProfilePage',
+                '@id': `${SITE.url}/about#profile`,
+                url: `${SITE.url}/about`,
+                name: `About ${SITE.author}`,
+                mainEntity: { '@id': `${SITE.url}/#person` }
+              })
+            }}
+          />
           <div className="flex flex-col gap-4 leading-relaxed text-gray-600">
             <p>
-              {SITE.author} — known online as <strong>Zen</strong> — is an AI Product Manager and vibecoder based in
-              Paris. This site, <strong>zenhungyep.com</strong>, is his personal website: a place to publish long-form
-              writing, keep public collections of links, and document the tools, projects, and photographs that make up
-              his work.
+              {SITE.author} — known online as <strong>Zen</strong> — is a mathematics and applied mathematics student,
+              open-source intern, and AI developer. This site, <strong>zenhungyep.com</strong>, is his personal website:
+              a place to publish long-form writing, keep public collections of links, and document the tools, projects,
+              and photographs that make up his work.
             </p>
             <p>
               The writing here focuses on AI agents, mathematical modeling, deep learning frameworks such as MindSpore
@@ -62,10 +75,4 @@ export default function AboutPage() {
   )
 }
 
-export const metadata = {
-  title: 'About',
-  description: `Who ${SITE.author} is, what zenhungyep.com publishes, and how the site is built.`,
-  alternates: {
-    canonical: '/about'
-  }
-}
+export const metadata = pageMetadata('/about')

@@ -1,10 +1,12 @@
 import { draftMode } from 'next/headers'
+import { notFound } from 'next/navigation'
 import { ImageResponse } from 'next/og'
 
 import { sharedMetadata } from '@/app/shared-metadata'
 import { OpenGraphImage } from '@/components/og-image'
 import { getAllPageSlugs, getPageSeo } from '@/lib/contentful'
 import { getBoldFont, getRegularFont } from '@/lib/fonts'
+import { decodeRouteSlug } from '@/lib/seo'
 
 export const size = {
   width: sharedMetadata.ogImage.width,
@@ -23,16 +25,17 @@ export async function generateStaticParams() {
 
 export default async function OpenGraphImagePage({ params }) {
   const { isEnabled } = await draftMode()
-  const { slug } = await params
+  const { slug: rawSlug } = await params
+  const slug = decodeRouteSlug(rawSlug)
+  if (!slug) notFound()
   const [seoData = {}, regularFontData, boldFontData] = await Promise.all([
     getPageSeo(slug, isEnabled),
     getRegularFont(),
     getBoldFont()
   ])
 
-  const {
-    seo: { title, ogImageTitle, ogImageSubtitle }
-  } = seoData
+  if (!seoData) notFound()
+  const { title, ogImageTitle, ogImageSubtitle } = seoData.seo || {}
 
   return new ImageResponse(
     <OpenGraphImage title={ogImageTitle || title} description={ogImageSubtitle || 'by Zen'} url={slug} />,

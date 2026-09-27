@@ -13,7 +13,7 @@ http.js: HTTP 语义层（prefersMarkdown 协商判定 / markdownResponse / apiE
 markdown.js: 文档层（homeMarkdown/sectionMarkdown/postMarkdown/pageMarkdown/bookmarkCollectionMarkdown/notFoundMarkdown/llmsTxt），HTML 页面的机器可读镜像
 rich-text.js: Contentful 富文本 → Markdown 转换器，与 components/contentful/rich-text.js（转 JSX）方向相反
 posts.js: 文章索引整形（toIndexPosts），不可变排序 + 绝对 URL 编码，供 API 与 Markdown 共用
-json-ld.js: 站点级 schema.org @graph（Organization + Person + WebSite），被根布局注入
+json-ld.js: 站点级 schema.org @graph（Person + WebSite），被根布局注入
 openapi.js: OpenAPI 3.1 文档构造器，端点契约的唯一真相源，被 /openapi.json 与 /developers 共同渲染
 documents.test.js: 文档层测试（500+ 字符首页镜像、404 说明、llms.txt when-to-use、富文本转换、JSON-LD 完整性）
 http.test.js: 协商与响应构造测试（Accept 解析、单一 Vary: Accept、结构化错误）

@@ -7,6 +7,7 @@ import { PageTitle } from '@/components/page-title'
 import { ScreenLoadingSpinner } from '@/components/screen-loading-spinner'
 import { ScrollArea } from '@/components/scroll-area'
 import { getAllLogbook, getPageSeo } from '@/lib/contentful'
+import { pageMetadata } from '@/lib/seo'
 
 async function fetchData() {
   const allLogbook = await getAllLogbook()
@@ -76,23 +77,6 @@ export default async function Journey() {
 }
 
 export async function generateMetadata() {
-  const seoData = await getPageSeo('journey')
-  if (!seoData) return null
-
-  const seo = seoData.seo || {}
-  const { title, description } = seo
-  const siteUrl = '/journey'
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      url: siteUrl
-    },
-    alternates: {
-      canonical: siteUrl
-    }
-  }
+  const data = await getPageSeo('journey')
+  return pageMetadata('/journey', data?.seo)
 }

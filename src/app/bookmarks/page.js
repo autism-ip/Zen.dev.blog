@@ -2,10 +2,12 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 
 import { FloatingHeader } from '@/components/floating-header'
+import { PageTitle } from '@/components/page-title'
 import { ScreenLoadingSpinner } from '@/components/screen-loading-spinner'
 import { ScrollArea } from '@/components/scroll-area'
 import { getPageSeo } from '@/lib/contentful'
 import { getBookmarks } from '@/lib/raindrop-with-auth'
+import { pageMetadata } from '@/lib/seo'
 import { sortByProperty } from '@/lib/utils'
 
 // 禁用静态生成，使用动态渲染
@@ -21,8 +23,11 @@ export default async function Writing() {
   const { bookmarks } = await fetchData()
 
   return (
-    <ScrollArea className="lg:hidden">
+    <ScrollArea>
       <FloatingHeader title="Bookmarks" bookmarks={bookmarks} />
+      <div className="px-4 pt-6">
+        <PageTitle title="Bookmarks" />
+      </div>
       <Suspense fallback={<ScreenLoadingSpinner />}>
         {bookmarks?.map((bookmark) => {
           return (
@@ -42,23 +47,6 @@ export default async function Writing() {
 }
 
 export async function generateMetadata() {
-  const seoData = await getPageSeo('bookmarks')
-  if (!seoData) return null
-
-  const seo = seoData.seo || {}
-  const { title, description } = seo
-  const siteUrl = '/bookmarks'
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      url: siteUrl
-    },
-    alternates: {
-      canonical: siteUrl
-    }
-  }
+  const data = await getPageSeo('bookmarks')
+  return pageMetadata('/bookmarks', data?.seo)
 }

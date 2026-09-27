@@ -4,12 +4,12 @@
  * [POS]: app/contact 的页面入口；信任锚点页之一，声明唯一的公开联系渠道与预期响应
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
-
 import { FloatingHeader } from '@/components/floating-header'
 import { GradientBg5 } from '@/components/gradient-bg'
 import { PageTitle } from '@/components/page-title'
 import { ScrollArea } from '@/components/scroll-area'
 import { CONTACT, SOCIAL } from '@/lib/agent/site'
+import { pageMetadata } from '@/lib/seo'
 
 export default function ContactPage() {
   return (
@@ -78,10 +78,4 @@ export default function ContactPage() {
   )
 }
 
-export const metadata = {
-  title: 'Contact',
-  description: 'How to reach Zen for corrections, questions, and open-source collaboration.',
-  alternates: {
-    canonical: '/contact'
-  }
-}
+export const metadata = pageMetadata('/contact')

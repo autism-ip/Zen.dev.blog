@@ -1,0 +1,35 @@
+import { describe, expect, it } from 'vitest'
+
+import { decodeRouteSlug, pageMetadata, safeJsonLd, validDate, validSlug } from '@/lib/seo'
+
+describe('SEO contracts', () => {
+  it('gives every section its own canonical and matching social metadata without CMS', () => {
+    const meta = pageMetadata('/musings')
+    expect(meta.alternates.canonical).toBe('/musings')
+    expect(meta.title).toBe('Musings')
+    expect(meta.description).toBeTruthy()
+    expect(meta.openGraph.url).toBe('/musings')
+    expect(meta.twitter.title).toBe(meta.openGraph.title)
+    expect(meta.openGraph.images[0].url).toBe('/opengraph-image')
+  })
+  it('preserves editorial metadata and safely serializes untrusted CMS JSON-LD', () => {
+    expect(pageMetadata('/writing/hello', { title: 'Hello', description: 'An essay' }).title).toBe('Hello')
+    const value = { headline: '</script><script>alert(1)</script>' }
+    expect(safeJsonLd(value)).not.toContain('<')
+    expect(JSON.parse(safeJsonLd(value))).toEqual(value)
+  })
+  it('omits invalid dates instead of throwing or inventing modification times', () => {
+    for (const value of [undefined, null, '', 'not-a-date']) expect(validDate(value)).toBeUndefined()
+    expect(validDate('2026-09-27')).toBe('2026-09-27T00:00:00.000Z')
+  })
+  it('accepts Unicode slugs but rejects missing or ambiguous path segments', () => {
+    expect(validSlug('Agent 的新变革')).toBe(true)
+    for (const slug of [null, '', '.', '..', 'a/b', 'a?b', 'a#b']) expect(validSlug(slug)).toBe(false)
+  })
+})
+
+it('decodes Next prerendered Unicode slugs once without throwing on malformed input', () => {
+  expect(decodeRouteSlug(encodeURIComponent('Agent 的新变革'))).toBe('Agent 的新变革')
+  expect(decodeRouteSlug('invalid%')).toBeNull()
+  expect(decodeRouteSlug('100%25')).toBe('100%')
+})

@@ -2,7 +2,7 @@
   "name": "onur.dev",
   "description": "My personal website.",
   "author": {
-    "name": "Onur Şuyalçınkaya",
+    "name": "Onur \u015euyal\u00e7\u0131nkaya",
     "url": "https://onur.dev"
   },
   "scripts": {
@@ -18,10 +18,11 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "ci:gate": "npm run lint && npm run test:run && npm run build"
+    "ci:gate": "npm run lint && npm run test:run && npm run build && npm run typecheck",
+    "typecheck": "tsc --noEmit"
   },
   "engines": {
-    "node": "20.x"
+    "node": "24.x"
   },
   "dependencies": {
     "@arcjet/ip": "^1.0.0-beta.7",

@@ -52,7 +52,7 @@ export function MediaCard({ item, isHovered, onClick }) {
               {thumbnailUrl ? (
                 <img
                   src={thumbnailUrl}
-                  alt={`${item.sourceType} ${item.mediaType}`}
+                  alt={item.description || item.title || `${item.sourceType} ${item.mediaType}`}
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                   loading="lazy"
                   decoding="async"
@@ -79,7 +79,7 @@ export function MediaCard({ item, isHovered, onClick }) {
           ) : /* 处理图片 */ item.cloudinaryId ? (
             <CldImage
               src={item.cloudinaryId}
-              alt={`${item.sourceType} ${item.mediaType}`}
+              alt={item.description || item.title || `${item.sourceType} ${item.mediaType}`}
               width={baseWidth}
               height={calculatedHeight}
               sizes="(max-width: 435px) 100vw, (max-width: 768px) 50vw, 33vw"
@@ -92,7 +92,7 @@ export function MediaCard({ item, isHovered, onClick }) {
           ) : (
             <img
               src={item.imageUrl}
-              alt={`${item.sourceType} ${item.mediaType}`}
+              alt={item.description || item.title || `${item.sourceType} ${item.mediaType}`}
               className="h-auto w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
               style={{ height: `${calculatedHeight}px` }}
               loading="lazy"

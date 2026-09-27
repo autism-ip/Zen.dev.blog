@@ -112,14 +112,14 @@ function options(links) {
         const id = dasherize(children)
         const url = `h1-${id}`
         return (
-          <h1
+          <h2
             id={url}
             className="group relative mt-8 mb-3 w-fit cursor-pointer before:absolute before:-left-4 hover:before:content-['#']"
           >
             <a href={`#${url}`} className="group-hover:underline group-hover:underline-offset-4">
               {children}
             </a>
-          </h1>
+          </h2>
         )
       },
       [BLOCKS.HEADING_2]: (_, children) => {

@@ -2,8 +2,7 @@ import { SITE } from '@/lib/agent/site'
 
 export const sharedMetadata = {
   title: SITE.title,
-  description:
-    "Paris-based AI Product Manager & vibecoder, shipping AI products and open-source projects with a maker's spirit.",
+  description: SITE.description,
   url: SITE.url,
   ogImage: {
     width: 1200,

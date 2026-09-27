@@ -1,6 +1,8 @@
 import { Suspense } from 'react'
 
 import { FloatingHeader } from '@/components/floating-header'
+import { PageTitle } from '@/components/page-title'
+import { pageMetadata } from '@/lib/seo'
 
 // ISR 兜底：即使 webhook 失效，最多 1 小时自动刷新
 export const revalidate = 3600
@@ -20,8 +22,11 @@ export default async function Writing() {
   const { sortedPosts } = await fetchData()
 
   return (
-    <ScrollArea className="lg:hidden">
+    <ScrollArea>
       <FloatingHeader title="Writing" />
+      <div className="px-4 pt-6">
+        <PageTitle title="Writing" />
+      </div>
       <Suspense fallback={<ScreenLoadingSpinner />}>
         <WritingListLayout list={sortedPosts} isMobile />
       </Suspense>
@@ -30,23 +35,6 @@ export default async function Writing() {
 }
 
 export async function generateMetadata() {
-  const seoData = await getPageSeo('writing')
-  if (!seoData) return null
-
-  const seo = seoData.seo || {}
-  const { title, description } = seo
-  const siteUrl = '/writing'
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      url: siteUrl
-    },
-    alternates: {
-      canonical: siteUrl
-    }
-  }
+  const data = await getPageSeo('writing')
+  return pageMetadata('/writing', data?.seo)
 }
