@@ -21,7 +21,7 @@ vercel.json - Vercel cron configuration for token refresh
 
 架构决策:
 src/lib/view-count.js 为 middleware 内部浏览计数与公共 API 共用的服务端 provider，内部更新直接访问服务，并与公共 API 共享可信访客配额及文章去重。
-CI 只认一个入口: `npm run ci:gate`。本地与 GitHub Actions 走同一条 lint -> test -> build -> typecheck 路径，避免门禁与开发命令分裂。
+CI 只认一个入口: `npm run ci:gate`。本地与 GitHub Actions 走同一条 lint -> test -> build -> OG font packaging check -> typecheck 路径，避免门禁与开发命令分裂。
 
 开发规范:
 业务文件维护 L3 头部契约；目录级结构变更同步最近的 CLAUDE.md；新增门禁必须可在本地复现。

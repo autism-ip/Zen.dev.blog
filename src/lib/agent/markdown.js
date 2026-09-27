@@ -6,7 +6,7 @@
  */
 
 import { richTextToMarkdown } from '@/lib/agent/rich-text'
-import { AGENT_FILES, CONTACT, HOME_GUIDE, SECTIONS, SITE, SOCIAL } from '@/lib/agent/site'
+import { AGENT_FILES, CONTACT, SECTIONS, SITE, SOCIAL } from '@/lib/agent/site'
 
 // ---------------------------------------------------------------------------
 // 公共片段
@@ -65,7 +65,6 @@ export function homeMarkdown({ posts = [], bio = [] } = {}) {
     '## About',
     '',
     ...bio,
-    ...HOME_GUIDE,
     '',
     '## Writing',
     '',
