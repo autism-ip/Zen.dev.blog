@@ -68,7 +68,8 @@ export function decodeRouteSlug(value) {
 export function contentDescription(content, fallback) {
   const text = (node) => (node?.nodeType === 'text' ? node.value : (node?.content || []).map(text).join(''))
   const value = (content?.json?.content || [])
-    .filter((node) => node.nodeType === 'paragraph')
+    // Match RichText: this CMS also stores ordinary paragraphs as heading-6.
+    .filter((node) => ['paragraph', 'heading-6'].includes(node.nodeType))
     .map((node) => text(node).replace(/\s+/g, ' ').trim())
     .find(Boolean)
   return value ? value.slice(0, 180) : fallback

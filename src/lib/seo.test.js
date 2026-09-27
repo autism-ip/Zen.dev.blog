@@ -57,3 +57,16 @@ it('derives a real article snippet from the first paragraph when SEO is absent',
   ).toBe('A useful article summary.')
   expect(contentDescription(null, 'Fallback')).toBe('Fallback')
 })
+
+it('matches the live CMS heading-6 paragraphs used by the article renderer', () => {
+  expect(
+    contentDescription(
+      {
+        json: {
+          content: [{ nodeType: 'heading-6', content: [{ nodeType: 'text', value: 'Actual opening paragraph.' }] }]
+        }
+      },
+      'Fallback'
+    )
+  ).toBe('Actual opening paragraph.')
+})

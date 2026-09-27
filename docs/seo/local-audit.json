@@ -1,6 +1,6 @@
 {
   "base": "http://localhost:3100",
-  "checkedAt": "2026-09-27T05:04:37.874Z",
+  "checkedAt": "2026-09-27T05:38:28.771Z",
   "pages": [
     {
       "path": "/",
@@ -203,7 +203,7 @@
       "status": 200,
       "title": "Agent 的新变革在于人类注意力的重新分配 — Zen (zenhungyep)",
       "canonical": "https://zenhungyep.com/writing/Agent%20%E7%9A%84%E6%96%B0%E5%8F%98%E9%9D%A9%E5%9C%A8%E4%BA%8E%E4%BA%BA%E7%B1%BB%E6%B3%A8%E6%84%8F%E5%8A%9B%E7%9A%84%E9%87%8D%E6%96%B0%E5%88%86%E9%85%8D",
-      "description": "Read Agent 的新变革在于人类注意力的重新分配, an article by 叶振幸 (Zen).",
+      "description": "过去一段时间，我一直在看 2026 年几个 Agent 相关产品和技术方向，主要来自开发者社区和 X。大家已经不满足于仅仅用 vibe coding 来描述 AI 编程，开始寻找更准确的词，比如 agentic engineering；同时也出现了 “slop coding”“vibe slop” 这类反向词汇，用来批评低质量、缺少审查的 AI 生成代码。B",
       "h1": [
         "Agent 的新变革在于人类注意力的重新分配"
       ],
