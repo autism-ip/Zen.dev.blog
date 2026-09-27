@@ -12,6 +12,7 @@ actions.js: Server Actions，书签分页经白名单校验后直接调用已认
 robots.js: robots.txt 生成
 sitemap.js: sitemap.xml 生成，CMS 不可用时仍包含所有静态分区与开发者页面
 llms.txt/: GET /llms.txt 路由，面向 agent 的指南（when-to-use + 如何调用），数据来自 lib/agent
+tools.json/: GET /tools.json，发布从 OpenAPI 派生的 Responses API function 定义
 openapi.json/: GET /openapi.json 路由，发布 lib/agent/openapi 的 OpenAPI 3.1 规格
 bookmarks.xml: bookmarks RSS feed（规范站点身份、合法 XML、GUID 与 self 链接）
 writing.xml: writing RSS feed

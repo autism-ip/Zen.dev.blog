@@ -28,7 +28,7 @@ export function buildJsonLd() {
         '@id': `${SITE.url}/#website`,
         url: SITE.url,
         name: SITE.name,
-        alternateName: ['zenhungyep', 'Zen (zenhungyep)'],
+        alternateName: ['zenhungyep', 'Zen'],
         description: SITE.description,
         inLanguage: SITE.language,
         publisher: { '@id': personId },

@@ -84,6 +84,21 @@ for (const [path, methods] of Object.entries(spec.paths)) {
     })
   }
 }
+await check('function definitions match every OpenAPI operation with explicit typed arguments', async () => {
+  const tools = await (await get('/tools.json')).json()
+  const operations = Object.values(spec.paths).flatMap(Object.values)
+  assert.deepEqual(tools.map((tool) => tool.name), operations.map((operation) => operation.operationId))
+  for (const tool of tools) {
+    assert.equal(tool.type, 'function')
+    assert.equal(tool.strict, false)
+    assert.equal(tool.parameters.type, 'object')
+    assert.equal(tool.parameters.additionalProperties, false)
+    assert.match(tool.description, /^(GET|POST) \//)
+  }
+  assert.deepEqual(tools.find((tool) => tool.name === 'listPostsV1').parameters, {
+    type: 'object', properties: {}, required: [], additionalProperties: false
+  })
+})
 for (const path of ['/api/no-such-endpoint', '/api/no-such.json', '/api/v2/posts'])
   await check(`JSON 404 ${path}`, async () => {
     const response = await get(path)
@@ -139,7 +154,7 @@ await check('raw homepage content, headings and structured data', async () => {
   const html = await (await get('/')).text()
   const document = new JSDOM(html).window.document
   const graph = JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent)['@graph']
-  assert(graph.some((node) => node['@type'] === 'WebSite' && node.alternateName.includes('zenhungyep')))
+  assert(graph.some((node) => node['@type'] === 'WebSite' && node.name === 'Zen (zenhungyep)' && node.alternateName.includes('zenhungyep')))
   document.querySelectorAll('script,style').forEach((node) => node.remove())
   const text = document.body.textContent.replace(/\s+/g, ' ').trim()
   const markup = document.documentElement.outerHTML.length
@@ -166,11 +181,13 @@ await check('robots, sitemap discovery and canonical developer page', async () =
   const doc = new JSDOM(await (await get('/developers')).text()).window.document
   assert(doc.title.includes('zenhungyep'))
   assert.equal(doc.querySelector('link[rel="canonical"]').href, 'https://zenhungyep.com/developers')
-  for (const anchor of ['cli', 'versioning', 'rate-limits']) assert(doc.getElementById(anchor))
+  assert(doc.querySelector('a[href="/tools.json"]'))
+  for (const anchor of ['cli', 'versioning', 'rate-limits', 'function-tools']) assert(doc.getElementById(anchor))
 })
 const llms = await (await get('/llms.txt')).text()
 await check('llms.txt structure and integration links', () => {
   assert.match(llms, /^# Zen.*\n\n> /)
+  assert(llms.includes('/tools.json'))
   assert(llms.includes('/api/v1/posts'))
   assert(llms.includes('/developers#versioning'))
   assert(llms.includes('/developers#cli'))

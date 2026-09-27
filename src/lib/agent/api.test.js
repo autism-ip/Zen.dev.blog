@@ -12,7 +12,10 @@ const newClient = () => `8.8.4.${clientNumber++}`
 const request = (path, method = 'GET', token = newClient()) =>
   new NextRequest(`https://zenhungyep.com${path}`, { method, headers: { 'x-real-ip': token } })
 
-beforeEach(() => vi.stubEnv('VERCEL', '1'))
+beforeEach(() => {
+  vi.stubEnv('VERCEL', '1')
+  vi.stubEnv('TRUSTED_CLIENT_IP_HEADER', '')
+})
 afterEach(() => {
   vi.useRealTimers()
   vi.unstubAllEnvs()
