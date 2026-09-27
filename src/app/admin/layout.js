@@ -64,3 +64,5 @@ export default async function AdminLayout({ children }) {
 
   return <>{children}</>
 }
+
+export const metadata = { title: 'Administration', robots: { index: false, follow: false } }

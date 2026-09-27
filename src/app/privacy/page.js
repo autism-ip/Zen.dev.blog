@@ -4,12 +4,12 @@
  * [POS]: app/privacy 的页面入口；信任锚点页之一，逐项声明本站实际采集与不采集的数据
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
-
 import { FloatingHeader } from '@/components/floating-header'
 import { GradientBg3 } from '@/components/gradient-bg'
 import { PageTitle } from '@/components/page-title'
 import { ScrollArea } from '@/components/scroll-area'
 import { CONTACT, SITE } from '@/lib/agent/site'
+import { pageMetadata } from '@/lib/seo'
 
 export default function PrivacyPage() {
   return (
@@ -63,10 +63,4 @@ export default function PrivacyPage() {
   )
 }
 
-export const metadata = {
-  title: 'Privacy',
-  description: 'What zenhungyep.com collects, why, and what it never collects.',
-  alternates: {
-    canonical: '/privacy'
-  }
-}
+export const metadata = pageMetadata('/privacy')

@@ -1,9 +1,11 @@
+import { notFound } from 'next/navigation'
 import { ImageResponse } from 'next/og'
 
 import { sharedMetadata } from '@/app/shared-metadata'
 import { OpenGraphImage } from '@/components/og-image'
 import { getBoldFont, getRegularFont } from '@/lib/fonts'
 import { getBookmarks } from '@/lib/raindrop-with-auth'
+import { decodeRouteSlug } from '@/lib/seo'
 
 export const size = {
   width: sharedMetadata.ogImage.width,
@@ -12,26 +14,10 @@ export const size = {
 export const contentType = sharedMetadata.ogImage.type
 export const alt = 'Bookmark'
 
-export async function generateImageMetadata() {
-  const bookmarks = await getBookmarks()
-  if (!bookmarks || bookmarks.length === 0) {
-    return [
-      {
-        slug: 'default',
-        size: { width: 1200, height: 630 },
-        contentType: 'image/png'
-      }
-    ]
-  }
-  return bookmarks.map((bookmark) => ({
-    slug: bookmark.slug,
-    size: { width: 1200, height: 630 },
-    contentType: 'image/png'
-  }))
-}
-
 export default async function Image({ params }) {
-  const { slug } = await params
+  const { slug: rawSlug } = await params
+  const slug = decodeRouteSlug(rawSlug)
+  if (!slug) notFound()
   const [bookmarks, regularFontData, boldFontData] = await Promise.all([
     getBookmarks(),
     getRegularFont(),
@@ -43,7 +29,8 @@ export default async function Image({ params }) {
     currentBookmark = bookmarks.find((b) => b.slug === slug)
   }
 
-  const title = currentBookmark?.title || 'Bookmarks'
+  if (!currentBookmark) notFound()
+  const title = currentBookmark.title
   const description = currentBookmark
     ? `A curated selection of handpicked ${currentBookmark.title.toLowerCase()} bookmarks by Zen`
     : 'A curated selection of bookmarks by Zen'

@@ -4,13 +4,13 @@
  * [POS]: app/developers 的页面入口；公开 API 的开发者门户，端点清单直接从 OpenAPI 文档渲染以避免文档漂移
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
-
 import { FloatingHeader } from '@/components/floating-header'
 import { GradientBg2 } from '@/components/gradient-bg'
 import { PageTitle } from '@/components/page-title'
 import { ScrollArea } from '@/components/scroll-area'
 import { buildOpenApi } from '@/lib/agent/openapi'
 import { AGENT_FILES, CONTACT, SITE } from '@/lib/agent/site'
+import { pageMetadata } from '@/lib/seo'
 
 const CODE_BLOCK = 'overflow-x-auto rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs leading-relaxed'
 
@@ -183,10 +183,4 @@ export default function DevelopersPage() {
   )
 }
 
-export const metadata = {
-  title: 'Developers — API, OpenAPI & CLI',
-  description: 'Public API, OpenAPI specification, Markdown negotiation, and CLI for zenhungyep.com.',
-  alternates: {
-    canonical: '/developers'
-  }
-}
+export const metadata = pageMetadata('/developers')

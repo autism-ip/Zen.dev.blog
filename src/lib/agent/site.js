@@ -19,10 +19,8 @@ export const SITE = {
   url: RAW_SITE_URL.replace(/\/$/, ''),
   title: 'Zen (zenhungyep)',
   description:
-    "Paris-based AI Product Manager & vibecoder, shipping AI products and open-source projects with a maker's spirit.",
-  language: 'en',
-  // 取自站点自身公开描述，用于 Organization JSON-LD 的 PostalAddress
-  address: { addressLocality: 'Paris', addressCountry: 'FR' }
+    'Zen (叶振幸 / zenhungyep), a mathematics student and open-source developer, shares writing and projects on AI, deep learning, and software.',
+  language: 'en'
 }
 
 export const SOCIAL = {

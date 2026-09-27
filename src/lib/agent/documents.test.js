@@ -1,7 +1,7 @@
 /**
  * [INPUT]: 依赖 vitest 与 @/lib/agent 的 markdown / rich-text / posts / json-ld / site
  * [OUTPUT]: 文档层行为测试：首页与 404 的 Markdown 镜像、llms.txt 的 when-to-use、富文本转换、索引排序不可变、JSON-LD 完整性
- * [POS]: lib/agent 的文档与结构化数据测试；守护 audit 要求的关键契约（500+ 字符首页、20+ 字符 404 说明、Organization 联系与地址）
+ * [POS]: lib/agent 的文档与结构化数据测试；守护 audit 要求的关键契约（500+ 字符首页、20+ 字符 404 说明、Person identity and public contact）
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
@@ -179,24 +179,19 @@ describe('toIndexPosts', () => {
 
 describe('buildJsonLd', () => {
   const graph = buildJsonLd()['@graph']
-  const organization = graph.find((node) => node['@type'] === 'Organization')
   const person = graph.find((node) => node['@type'] === 'Person')
   const website = graph.find((node) => node['@type'] === 'WebSite')
 
-  it('describes the organization with a contact point and a postal address', () => {
-    expect(organization.name).toBe('Zen (zenhungyep)')
-    expect(organization.contactPoint.contactType).toBeTruthy()
-    expect(organization.contactPoint.url).toContain('github.com')
-    expect(organization.contactPoint.email).toBe('y1327514070@gmail.com')
-    expect(organization.email).toBe('y1327514070@gmail.com')
-    expect(organization.address.addressLocality).toBe('Paris')
-    expect(organization.address.addressCountry).toBe('FR')
+  it('represents a personal site without inventing a business or location', () => {
+    expect(graph.some((node) => node['@type'] === 'Organization')).toBe(false)
+    expect(person.email).toBe('y1327514070@gmail.com')
+    expect(person.address).toBeUndefined()
   })
 
   it('describes the person and the website, cross-linked by @id', () => {
     expect(person.sameAs).toContain('https://github.com/autism-ip')
     expect(person.alternateName).toContain('叶振幸')
-    expect(website.publisher['@id']).toBe(organization['@id'])
+    expect(website.publisher['@id']).toBe(person['@id'])
     expect(website.author['@id']).toBe(person['@id'])
   })
 })

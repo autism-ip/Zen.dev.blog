@@ -6,7 +6,7 @@ import classix from 'classix'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
 import { EyeIcon } from 'lucide-react'
-import { Noto_Serif_SC as NotoSerifSC } from 'next/font/google'
+import localFont from 'next/font/local'
 import { draftMode } from 'next/headers'
 import Script from 'next/script'
 import { Suspense } from 'react'
@@ -22,11 +22,15 @@ import { buildJsonLd } from '@/lib/agent/json-ld'
 import { SITE } from '@/lib/agent/site'
 import { PROFILES } from '@/lib/constants'
 import { preloadGetAllPosts } from '@/lib/contentful'
+import { safeJsonLd } from '@/lib/seo'
 
-const notoSerifSC = NotoSerifSC({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+const notoSerifSC = localFont({
+  src: [
+    { path: '../../public/fonts/noto-serif-sc-400.woff2', weight: '400', style: 'normal' },
+    { path: '../../public/fonts/noto-serif-sc-700.woff2', weight: '700', style: 'normal' }
+  ],
   display: 'swap',
+  preload: false,
   variable: '--font-noto-serif-sc'
 })
 
@@ -49,8 +53,8 @@ export default async function RootLayout({ children }) {
         </noscript>
       </head>
       <body suppressHydrationWarning>
-        {/* 站点级结构化数据：Organization + Person + WebSite，供 AI agent 解析身份与联系渠道 */}
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(buildJsonLd()) }} />
+        {/* 站点级结构化数据：Person + WebSite，供 AI agent 解析身份与联系渠道 */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(buildJsonLd()) }} />
         <ErrorBoundary>
           <DialogStateProvider>
             {}
@@ -92,12 +96,8 @@ export default async function RootLayout({ children }) {
   )
 }
 
-export const metadata = {
+const siteMetadata = {
   metadataBase: new URL(SITE.url),
-  robots: {
-    index: true,
-    follow: true
-  },
   title: {
     default: sharedMetadata.title,
     template: `%s — ${sharedMetadata.title}`
@@ -114,7 +114,7 @@ export const metadata = {
     type: 'website',
     url: SITE.url,
     siteName: sharedMetadata.title,
-    locale: 'en_IE',
+    locale: 'en_US',
     images: [
       {
         url: '/opengraph-image',
@@ -124,9 +124,7 @@ export const metadata = {
       }
     ]
   },
-  alternates: {
-    canonical: '/'
-  },
+  icons: { icon: [{ url: '/icon', type: 'image/png', sizes: '96x96' }] },
   twitter: {
     card: 'summary_large_image',
     site: `@${PROFILES.twitter.username}`,
@@ -144,4 +142,9 @@ export const viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover'
+}
+
+export async function generateMetadata() {
+  const { isEnabled } = await draftMode()
+  return { ...siteMetadata, ...(isEnabled && { robots: { index: false, follow: false } }) }
 }

@@ -1,0 +1,349 @@
+{
+  "base": "http://localhost:3100",
+  "checkedAt": "2026-09-27T06:16:40.968Z",
+  "pages": [
+    {
+      "path": "/",
+      "status": 200,
+      "title": "Zen (zenhungyep)",
+      "canonical": "https://zenhungyep.com/",
+      "description": "Zen (叶振幸 / zenhungyep), a mathematics student and open-source developer, shares writing and projects on AI, deep learning, and software.",
+      "h1": [
+        "Zen (zenhungyep)"
+      ],
+      "ssrCharacters": 1773,
+      "schema": [
+        "Person",
+        "WebSite"
+      ]
+    },
+    {
+      "path": "/writing",
+      "status": 200,
+      "title": "Writing — Zen (zenhungyep)",
+      "canonical": "https://zenhungyep.com/writing",
+      "description": "Long-form essays on AI agents, mathematics, and software engineering.",
+      "h1": [
+        "Writing"
+      ],
+      "ssrCharacters": 177,
+      "schema": [
+        "Person",
+        "WebSite"
+      ]
+    },
+    {
+      "path": "/journey",
+      "status": 200,
+      "title": "Journey — Zen (zenhungyep)",
+      "canonical": "https://zenhungyep.com/journey",
+      "description": "Timeline of milestones and experiences.",
+      "h1": [
+        "Journey"
+      ],
+      "ssrCharacters": 1191,
+      "schema": [
+        "Person",
+        "WebSite"
+      ]
+    },
+    {
+      "path": "/stack",
+      "status": 200,
+      "title": "Stack — Zen (zenhungyep)",
+      "canonical": "https://zenhungyep.com/stack",
+      "description": "Tools, software, and hardware used daily.",
+      "h1": [
+        "Stack"
+      ],
+      "ssrCharacters": 921,
+      "schema": [
+        "Person",
+        "WebSite"
+      ]
+    },
+    {
+      "path": "/workspace",
+      "status": 200,
+      "title": "Workspace — Zen (zenhungyep)",
+      "canonical": "https://zenhungyep.com/workspace",
+      "description": "Current projects, hardware inventory, and a public work log.",
+      "h1": [
+        "Workspace"
+      ],
+      "ssrCharacters": 2425,
+      "schema": [
+        "Person",
+        "WebSite"
+      ]
+    },
+    {
+      "path": "/visual",
+      "status": 200,
+      "title": "Visual — Zen (zenhungyep)",
+      "canonical": "https://zenhungyep.com/visual",
+      "description": "Photography and AI-generated imagery.",
+      "h1": [
+        "Visual Portfolio"
+      ],
+      "ssrCharacters": 277,
+      "schema": [
+        "Person",
+        "WebSite"
+      ]
+    },
+    {
+      "path": "/bookmarks",
+      "status": 200,
+      "title": "Bookmarks — Zen (zenhungyep)",
+      "canonical": "https://zenhungyep.com/bookmarks",
+      "description": "Curated links on AI, tools, books, templates, and music.",
+      "h1": [
+        "Bookmarks"
+      ],
+      "ssrCharacters": 327,
+      "schema": [
+        "Person",
+        "WebSite"
+      ]
+    },
+    {
+      "path": "/musings",
+      "status": 200,
+      "title": "Musings — Zen (zenhungyep)",
+      "canonical": "https://zenhungyep.com/musings",
+      "description": "Short thoughts and reflections, published via GitHub Issues.",
+      "h1": [
+        "Musings"
+      ],
+      "ssrCharacters": 1468,
+      "schema": [
+        "Person",
+        "WebSite"
+      ]
+    },
+    {
+      "path": "/friends",
+      "status": 200,
+      "title": "Friends — Zen (zenhungyep)",
+      "canonical": "https://zenhungyep.com/friends",
+      "description": "Blogroll of people writing and building in the open.",
+      "h1": [
+        "Friends"
+      ],
+      "ssrCharacters": 236,
+      "schema": [
+        "Person",
+        "WebSite"
+      ]
+    },
+    {
+      "path": "/about",
+      "status": 200,
+      "title": "About — Zen (zenhungyep)",
+      "canonical": "https://zenhungyep.com/about",
+      "description": "Who Zen is, what this site publishes, and how it is built.",
+      "h1": [
+        "About Zen"
+      ],
+      "ssrCharacters": 1439,
+      "schema": [
+        "Person",
+        "WebSite",
+        "ProfilePage"
+      ]
+    },
+    {
+      "path": "/contact",
+      "status": 200,
+      "title": "Contact — Zen (zenhungyep)",
+      "canonical": "https://zenhungyep.com/contact",
+      "description": "How to reach Zen for collaboration, corrections, or questions.",
+      "h1": [
+        "Contact"
+      ],
+      "ssrCharacters": 1089,
+      "schema": [
+        "Person",
+        "WebSite"
+      ]
+    },
+    {
+      "path": "/privacy",
+      "status": 200,
+      "title": "Privacy — Zen (zenhungyep)",
+      "canonical": "https://zenhungyep.com/privacy",
+      "description": "What data this site collects, why, and how it is stored.",
+      "h1": [
+        "Privacy"
+      ],
+      "ssrCharacters": 1693,
+      "schema": [
+        "Person",
+        "WebSite"
+      ]
+    },
+    {
+      "path": "/developers",
+      "status": 200,
+      "title": "Developers — Zen (zenhungyep)",
+      "canonical": "https://zenhungyep.com/developers",
+      "description": "Public API, OpenAPI spec, and agent integration guide.",
+      "h1": [
+        "Zen (zenhungyep) Developers"
+      ],
+      "ssrCharacters": 7763,
+      "schema": [
+        "Person",
+        "WebSite"
+      ]
+    },
+    {
+      "path": "/writing/Agent%20%E7%9A%84%E6%96%B0%E5%8F%98%E9%9D%A9%E5%9C%A8%E4%BA%8E%E4%BA%BA%E7%B1%BB%E6%B3%A8%E6%84%8F%E5%8A%9B%E7%9A%84%E9%87%8D%E6%96%B0%E5%88%86%E9%85%8D",
+      "status": 200,
+      "title": "Agent 的新变革在于人类注意力的重新分配 — Zen (zenhungyep)",
+      "canonical": "https://zenhungyep.com/writing/Agent%20%E7%9A%84%E6%96%B0%E5%8F%98%E9%9D%A9%E5%9C%A8%E4%BA%8E%E4%BA%BA%E7%B1%BB%E6%B3%A8%E6%84%8F%E5%8A%9B%E7%9A%84%E9%87%8D%E6%96%B0%E5%88%86%E9%85%8D",
+      "description": "过去一段时间，我一直在看 2026 年几个 Agent 相关产品和技术方向，主要来自开发者社区和 X。大家已经不满足于仅仅用 vibe coding 来描述 AI 编程，开始寻找更准确的词，比如 agentic engineering；同时也出现了 “slop coding”“vibe slop” 这类反向词汇，用来批评低质量、缺少审查的 AI 生成代码。B",
+      "h1": [
+        "Agent 的新变革在于人类注意力的重新分配"
+      ],
+      "ssrCharacters": 10937,
+      "schema": [
+        "Person",
+        "WebSite",
+        "BreadcrumbList",
+        "BlogPosting"
+      ]
+    },
+    {
+      "path": "/bookmarks/templates",
+      "status": 200,
+      "title": "Templates | Bookmarks — Zen (zenhungyep)",
+      "canonical": "https://zenhungyep.com/bookmarks/templates",
+      "description": "Handpicked templates bookmarks curated by Zen.",
+      "h1": [
+        "Templates"
+      ],
+      "ssrCharacters": 238,
+      "schema": [
+        "Person",
+        "WebSite",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "path": "/bookmarks/books",
+      "status": 200,
+      "title": "Books | Bookmarks — Zen (zenhungyep)",
+      "canonical": "https://zenhungyep.com/bookmarks/books",
+      "description": "Handpicked books bookmarks curated by Zen.",
+      "h1": [
+        "Books"
+      ],
+      "ssrCharacters": 288,
+      "schema": [
+        "Person",
+        "WebSite",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "path": "/bookmarks/ai",
+      "status": 200,
+      "title": "AI | Bookmarks — Zen (zenhungyep)",
+      "canonical": "https://zenhungyep.com/bookmarks/ai",
+      "description": "Handpicked ai bookmarks curated by Zen.",
+      "h1": [
+        "AI"
+      ],
+      "ssrCharacters": 3830,
+      "schema": [
+        "Person",
+        "WebSite",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "path": "/bookmarks/tools",
+      "status": 200,
+      "title": "Tools | Bookmarks — Zen (zenhungyep)",
+      "canonical": "https://zenhungyep.com/bookmarks/tools",
+      "description": "Handpicked tools bookmarks curated by Zen.",
+      "h1": [
+        "Tools"
+      ],
+      "ssrCharacters": 5604,
+      "schema": [
+        "Person",
+        "WebSite",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "path": "/bookmarks/tweets",
+      "status": 200,
+      "title": "Tweets | Bookmarks — Zen (zenhungyep)",
+      "canonical": "https://zenhungyep.com/bookmarks/tweets",
+      "description": "Handpicked tweets bookmarks curated by Zen.",
+      "h1": [
+        "Tweets"
+      ],
+      "ssrCharacters": 258,
+      "schema": [
+        "Person",
+        "WebSite",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "path": "/bookmarks/music",
+      "status": 200,
+      "title": "Music | Bookmarks — Zen (zenhungyep)",
+      "canonical": "https://zenhungyep.com/bookmarks/music",
+      "description": "Handpicked music bookmarks curated by Zen.",
+      "h1": [
+        "Music"
+      ],
+      "ssrCharacters": 1160,
+      "schema": [
+        "Person",
+        "WebSite",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "path": "/seo-missing-page-2026",
+      "status": 404
+    },
+    {
+      "path": "/writing/seo-missing-post-2026",
+      "status": 404
+    },
+    {
+      "path": "/bookmarks/seo-missing-collection-2026",
+      "status": 404
+    },
+    {
+      "path": "/debug-og",
+      "status": 404
+    }
+  ],
+  "images": [
+    "/opengraph-image",
+    "/writing/opengraph-image",
+    "/journey/opengraph-image",
+    "/stack/opengraph-image",
+    "/workspace/opengraph-image",
+    "/visual/opengraph-image",
+    "/bookmarks/opengraph-image",
+    "/writing/Agent%20%E7%9A%84%E6%96%B0%E5%8F%98%E9%9D%A9%E5%9C%A8%E4%BA%8E%E4%BA%BA%E7%B1%BB%E6%B3%A8%E6%84%8F%E5%8A%9B%E7%9A%84%E9%87%8D%E6%96%B0%E5%88%86%E9%85%8D/opengraph-image",
+    "/bookmarks/templates/opengraph-image",
+    "/bookmarks/books/opengraph-image",
+    "/bookmarks/ai/opengraph-image",
+    "/bookmarks/tools/opengraph-image",
+    "/bookmarks/tweets/opengraph-image",
+    "/bookmarks/music/opengraph-image"
+  ],
+  "internalLinks": 25,
+  "failures": []
+}

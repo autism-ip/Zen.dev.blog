@@ -4,7 +4,6 @@
  * [POS]: app/friends/ 的页面入口，友链展示页面
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
-
 import { FloatingHeader } from '@/components/floating-header'
 import { FriendCard } from '@/components/friend-card'
 import { GradientBg5 } from '@/components/gradient-bg'
@@ -12,7 +11,8 @@ import { PageTitle } from '@/components/page-title'
 import { ScrollArea } from '@/components/scroll-area'
 import { SubmitFriendDialog } from '@/components/submit-friend/dialog'
 import friendsData from '@/data/friends.json'
-import { getPageSeo } from '@/lib/contentful'
+import { getOptionalPageSeo } from '@/lib/contentful'
+import { pageMetadata } from '@/lib/seo'
 
 export default function FriendsPage() {
   return (
@@ -40,20 +40,6 @@ export default function FriendsPage() {
 }
 
 export async function generateMetadata() {
-  const seoData = await getPageSeo('friends')
-  const fallback = {
-    title: 'Friends',
-    description: '互联网上志同道合的朋友们'
-  }
-
-  const seo = seoData?.seo || {}
-  const title = seo.title || fallback.title
-  const description = seo.description || fallback.description
-
-  return {
-    title,
-    description,
-    openGraph: { title, description, url: '/friends' },
-    alternates: { canonical: '/friends' }
-  }
+  const data = await getOptionalPageSeo('friends')
+  return pageMetadata('/friends', data?.seo)
 }

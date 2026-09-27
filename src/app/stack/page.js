@@ -5,7 +5,8 @@ import { GradientBg4 } from '@/components/gradient-bg'
 import { PageTitle } from '@/components/page-title'
 import { ScrollArea } from '@/components/scroll-area'
 import toolsData from '@/data/tools.json'
-import { getPageSeo } from '@/lib/contentful'
+import { getOptionalPageSeo } from '@/lib/contentful'
+import { pageMetadata } from '@/lib/seo'
 
 export default async function StackPage() {
   return (
@@ -36,38 +37,6 @@ export default async function StackPage() {
 }
 
 export async function generateMetadata() {
-  const seoData = await getPageSeo('stack')
-  if (!seoData) {
-    return {
-      title: 'Stack',
-      description: 'My curated collection of daily tools and productivity boosters',
-      openGraph: {
-        title: 'Stack',
-        description: 'My curated collection of daily tools and productivity boosters',
-        url: '/stack'
-      },
-      alternates: {
-        canonical: '/stack'
-      }
-    }
-  }
-
-  const seo = seoData.seo || {}
-  const { title, description } = seo
-  const siteUrl = '/stack'
-
-  return {
-    title: title || 'Stack',
-    description: description || 'My curated collection of daily tools and productivity boosters',
-    openGraph: {
-      title: title || 'Stack',
-      description: description || 'My curated collection of daily tools and productivity boosters',
-      url: siteUrl
-    },
-    alternates: {
-      canonical: siteUrl
-    }
-  }
+  const data = await getOptionalPageSeo('stack')
+  return pageMetadata('/stack', data?.seo)
 }
-
-// Force cache refresh - 2025-01-07

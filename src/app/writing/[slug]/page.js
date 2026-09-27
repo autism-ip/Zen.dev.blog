@@ -1,12 +1,15 @@
 import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 
+import { Breadcrumbs } from '@/components/breadcrumbs'
 import { RichText } from '@/components/contentful/rich-text'
 import { FloatingHeader } from '@/components/floating-header'
 import { PageTitle } from '@/components/page-title'
 import { ScrollArea } from '@/components/scroll-area'
 import { WritingViews } from '@/components/writing-views'
-import { getAllPostSlugs, getPost, getWritingSeo } from '@/lib/contentful'
+import { SITE } from '@/lib/agent/site'
+import { getAllPostSlugs, getPost } from '@/lib/contentful'
+import { contentDescription, decodeRouteSlug, pageMetadata, safeJsonLd, validDate } from '@/lib/seo'
 import { getDateTimeFormat, isDevelopment } from '@/lib/utils'
 
 export async function generateStaticParams() {
@@ -31,8 +34,8 @@ async function fetchData(slug) {
     seo: data.seo || { title, description: '', ogImageTitle: title, ogImageSubtitle: '' },
     content: data.content || { json: null },
     sys: data.sys || {
-      firstPublishedAt: new Date().toISOString(),
-      publishedAt: new Date().toISOString()
+      firstPublishedAt: undefined,
+      publishedAt: undefined
     }
   }
 
@@ -43,7 +46,7 @@ async function fetchData(slug) {
 
 export default async function WritingSlug(props) {
   const params = await props.params
-  const slug = decodeURIComponent(params.slug)
+  const slug = decodeRouteSlug(params.slug)
   const { data } = await fetchData(slug)
 
   const { title, date, seo = {}, content, sys = {} } = data
@@ -52,22 +55,26 @@ export default async function WritingSlug(props) {
   const { title: seoTitle, description: seoDescription } = seo
 
   const postDate = date || firstPublishedAt
-  const dateString = getDateTimeFormat(postDate)
-  const datePublished = new Date(postDate).toISOString()
-  const dateModified = new Date(updatedAt).toISOString()
+  const dateString = validDate(postDate) ? getDateTimeFormat(postDate) : null
+  const datePublished = validDate(postDate)
+  const dateModified = validDate(updatedAt)
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
-    headline: seoTitle,
-    description: seoDescription,
+    headline: seoTitle || title,
+    description: seoDescription || contentDescription(content, `An article by ${SITE.author}.`),
     datePublished,
     dateModified,
     author: {
       '@type': 'Person',
-      name: '叶振幸 (Zen)'
+      '@id': `${SITE.url}/#person`,
+      name: SITE.author,
+      url: `${SITE.url}/about`
     },
-    url: `https://zenhungyep.com/writing/${slug}`
+    url: `${SITE.url}/writing/${encodeURIComponent(slug)}`,
+    mainEntityOfPage: `${SITE.url}/writing/${encodeURIComponent(slug)}`,
+    image: `${SITE.url}/opengraph-image`
   }
 
   return (
@@ -78,10 +85,16 @@ export default async function WritingSlug(props) {
         </FloatingHeader>
         <div className="content-wrapper @container/writing">
           <article className="content">
+            <Breadcrumbs
+              items={[
+                { name: 'Writing', path: '/writing' },
+                { name: title, path: `/writing/${encodeURIComponent(slug)}` }
+              ]}
+            />
             <PageTitle
               title={title}
               subtitle={
-                <time dateTime={postDate} className="text-gray-400">
+                <time dateTime={datePublished} className="text-gray-400">
                   {dateString}
                 </time>
               }
@@ -91,49 +104,29 @@ export default async function WritingSlug(props) {
           </article>
         </div>
       </ScrollArea>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd, null, 2) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }} />
     </>
   )
 }
 
 export async function generateMetadata(props) {
-  const params = await props.params
-  const slug = decodeURIComponent(params.slug)
-  const seoData = await getWritingSeo(slug)
-  if (!seoData) {
-    return {
-      title: 'Blog Post',
-      description: 'A blog post by 叶振幸 (Zen)'
-    }
-  }
-
-  const { date, seo = {}, sys = {} } = seoData
-
-  const { firstPublishedAt, publishedAt: updatedAt } = sys
-  const { title, description, keywords } = seo
-
-  const siteUrl = `/writing/${slug}`
-  const postDate = date || firstPublishedAt
-  const publishedTime = new Date(postDate).toISOString()
-  const modifiedTime = new Date(updatedAt).toISOString()
-
+  const { slug: rawSlug } = await props.params
+  const slug = decodeRouteSlug(rawSlug)
+  if (!slug) notFound()
+  const { data } = await fetchData(slug)
+  const meta = pageMetadata(`/writing/${encodeURIComponent(slug)}`, {
+    title: data.seo?.title || data.title,
+    description:
+      data.seo?.description || contentDescription(data.content, `Read ${data.title}, an article by ${SITE.author}.`)
+  })
   return {
-    title,
-    description,
-    keywords,
+    ...meta,
     openGraph: {
-      title,
-      description,
+      ...meta.openGraph,
       type: 'article',
-      publishedTime,
-      ...(updatedAt && {
-        modifiedTime
-      }),
-      url: siteUrl,
-      images: siteUrl + '/og.png'
-    },
-    alternates: {
-      canonical: siteUrl
+      publishedTime: validDate(data.date || data.sys?.firstPublishedAt),
+      modifiedTime: validDate(data.sys?.publishedAt),
+      authors: [`${SITE.url}/about`]
     }
   }
 }

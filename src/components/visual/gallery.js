@@ -18,7 +18,7 @@ export function Gallery({ items, onItemClick }) {
         {items.map((item, index) => (
           <m.div
             key={item.id}
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: index * 0.1 }}
             className="mb-1 break-inside-avoid"

@@ -13,8 +13,8 @@ export function GET() {
       </div>
     ),
     {
-      width: 32,
-      height: 32
+      width: 96,
+      height: 96
     }
   )
 }
