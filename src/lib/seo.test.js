@@ -70,3 +70,24 @@ it('matches the live CMS heading-6 paragraphs used by the article renderer', () 
     )
   ).toBe('Actual opening paragraph.')
 })
+
+it('advertises page-specific sharing images and retains the root image for plain sections', () => {
+  for (const path of [
+    '/visual',
+    '/stack',
+    '/workspace',
+    '/journey',
+    '/writing',
+    '/bookmarks',
+    '/writing/hello',
+    '/bookmarks/ai'
+  ]) {
+    const meta = pageMetadata(path)
+    expect(meta.openGraph.images[0].url).toBe(`${path}/opengraph-image`)
+    expect(meta.twitter.images[0]).toBe(`${path}/opengraph-image`)
+  }
+  expect(pageMetadata('/about').openGraph.images[0].url).toBe('/opengraph-image')
+  expect(pageMetadata('/custom', { image: '/custom/opengraph-image' }).twitter.images[0]).toBe(
+    '/custom/opengraph-image'
+  )
+})

@@ -76,5 +76,9 @@ export async function generateMetadata(props) {
   const slug = decodeRouteSlug(rawSlug)
   if (!slug) notFound()
   const { page } = await fetchData(slug)
-  return pageMetadata(`/${encodeURIComponent(slug)}`, { ...page.seo, title: page.seo?.title || page.title })
+  return pageMetadata(`/${encodeURIComponent(slug)}`, {
+    ...page.seo,
+    title: page.seo?.title || page.title,
+    image: `/${encodeURIComponent(slug)}/opengraph-image`
+  })
 }

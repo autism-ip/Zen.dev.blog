@@ -6,7 +6,7 @@ import { JourneyCard } from '@/components/journey-card'
 import { PageTitle } from '@/components/page-title'
 import { ScreenLoadingSpinner } from '@/components/screen-loading-spinner'
 import { ScrollArea } from '@/components/scroll-area'
-import { getAllLogbook, getPageSeo } from '@/lib/contentful'
+import { getAllLogbook, getOptionalPageSeo } from '@/lib/contentful'
 import { pageMetadata } from '@/lib/seo'
 
 async function fetchData() {
@@ -77,6 +77,6 @@ export default async function Journey() {
 }
 
 export async function generateMetadata() {
-  const data = await getPageSeo('journey')
+  const data = await getOptionalPageSeo('journey')
   return pageMetadata('/journey', data?.seo)
 }

@@ -2,7 +2,8 @@ import { ImageResponse } from 'next/og'
 
 import { sharedMetadata } from '@/app/shared-metadata'
 import { OpenGraphImage } from '@/components/og-image'
-import { getPageSeo } from '@/lib/contentful'
+import { SECTION_BY_PATH } from '@/lib/agent/site'
+import { getOptionalPageSeo } from '@/lib/contentful'
 import { getBoldFont, getRegularFont } from '@/lib/fonts'
 
 export const alt = 'Workspace'
@@ -14,7 +15,7 @@ export const contentType = sharedMetadata.ogImage.type
 
 export default async function Image() {
   const [seoData = {}, regularFontData, boldFontData] = await Promise.all([
-    getPageSeo('workspace'),
+    getOptionalPageSeo('workspace'),
     getRegularFont(),
     getBoldFont()
   ])
@@ -26,8 +27,8 @@ export default async function Image() {
   return new ImageResponse(
     (
       <OpenGraphImage
-        title={ogImageTitle || title}
-        description={ogImageSubtitle || description}
+        title={ogImageTitle || title || SECTION_BY_PATH['/workspace'].title}
+        description={ogImageSubtitle || description || SECTION_BY_PATH['/workspace'].description}
         icon={
           <svg
             xmlns="http://www.w3.org/2000/svg"

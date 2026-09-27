@@ -3,7 +3,7 @@ import { GradientBg4 } from '@/components/gradient-bg'
 import { PageTitle } from '@/components/page-title'
 import { ScrollArea } from '@/components/scroll-area'
 import { VisualExplorer } from '@/components/visual/visual-explorer'
-import { getPageSeo } from '@/lib/contentful'
+import { getOptionalPageSeo } from '@/lib/contentful'
 import { pageMetadata } from '@/lib/seo'
 import { toVisualData } from '@/lib/visual-data'
 import { getVisualPageData } from '@/lib/visual-page-data'
@@ -32,6 +32,6 @@ export default async function VisualPage() {
 }
 
 export async function generateMetadata() {
-  const [data, { unavailable }] = await Promise.all([getPageSeo('visual'), getVisualPageData()])
+  const [data, { unavailable }] = await Promise.all([getOptionalPageSeo('visual'), getVisualPageData()])
   return { ...pageMetadata('/visual', data?.seo), ...(unavailable && { robots: { index: false, follow: true } }) }
 }

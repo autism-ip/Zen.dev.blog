@@ -9,7 +9,7 @@ export const revalidate = 3600
 import { ScreenLoadingSpinner } from '@/components/screen-loading-spinner'
 import { ScrollArea } from '@/components/scroll-area'
 import { WritingListLayout } from '@/components/writing/writing-list-layout'
-import { getAllPosts, getPageSeo } from '@/lib/contentful'
+import { getAllPosts, getOptionalPageSeo } from '@/lib/contentful'
 import { getSortedPosts } from '@/lib/utils'
 
 async function fetchData() {
@@ -35,6 +35,6 @@ export default async function Writing() {
 }
 
 export async function generateMetadata() {
-  const data = await getPageSeo('writing')
+  const data = await getOptionalPageSeo('writing')
   return pageMetadata('/writing', data?.seo)
 }

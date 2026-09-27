@@ -1,16 +1,19 @@
 /**
  * [INPUT]: Canonical site identity, section registry and optional editorial metadata
- * [OUTPUT]: Page metadata, safe JSON-LD, validated dates and slugs
+ * [OUTPUT]: Page metadata with matching share images, safe JSON-LD, validated dates and slugs
  * [POS]: Shared SEO contracts for pages, structured data and the sitemap
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 import { SECTION_BY_PATH, SITE } from '@/lib/agent/site'
 
+const imageSections = new Set(['/visual', '/stack', '/workspace', '/journey', '/writing', '/bookmarks'])
+
 export function pageMetadata(path, values = {}) {
   const section = SECTION_BY_PATH[path]
   const title = values.title?.trim() || section?.title || SITE.title
   const description = values.description?.trim() || section?.description || SITE.description
-  const image = values.image || '/opengraph-image'
+  const hasPageImage = imageSections.has(path) || /^\/(writing|bookmarks)\/[^/]+$/.test(path)
+  const image = values.image || (hasPageImage ? `${path}/opengraph-image` : '/opengraph-image')
   const socialTitle = path === '/' ? title : `${title} — ${SITE.title}`
   return {
     title,

@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { afterEach, expect, it, vi } from 'vitest'
 
-import { getAllPosts, getPost } from '@/lib/contentful'
+import { getAllPosts, getOptionalPageSeo, getPageSeo, getPost } from '@/lib/contentful'
 
 vi.mock('server-only', () => ({}))
 afterEach(() => {
@@ -42,4 +42,12 @@ it('escapes URL slugs in GraphQL queries', async () => {
   vi.stubGlobal('fetch', fetch)
   await getPost('a"b', false)
   expect(JSON.parse(fetch.mock.calls[0][1].body).query).toContain('slug: ' + JSON.stringify('a"b'))
+})
+
+it('falls back only for optional SEO reads while required CMS reads still reject', async () => {
+  vi.stubEnv('CONTENTFUL_SPACE_ID', 'test-space')
+  vi.stubEnv('CONTENTFUL_ACCESS_TOKEN', 'test-token')
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('', { status: 503 })))
+  expect(await getOptionalPageSeo('visual', false)).toBeNull()
+  await expect(getPageSeo('custom-content', false)).rejects.toThrow('Content service unavailable')
 })

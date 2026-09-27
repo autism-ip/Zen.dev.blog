@@ -59,7 +59,13 @@ for (const url of urls) {
   for (const property of ['og:title', 'og:description', 'og:url', 'og:image']) check(doc.querySelector(`meta[property="${property}"]`)?.content, `${path}: missing ${property}`)
   check(new URL(doc.querySelector('meta[property="og:url"]')?.content || '/', canonicalOrigin).href === new URL(canonical || '/', canonicalOrigin).href, `${path}: OG URL differs from canonical`)
   for (const name of ['twitter:title', 'twitter:description', 'twitter:card', 'twitter:image']) check(doc.querySelector(`meta[name="${name}"]`)?.content, `${path}: missing ${name}`)
-  for (const node of doc.querySelectorAll('meta[property="og:image"],meta[name="twitter:image"]')) assets.add(new URL(node.content, canonicalOrigin).pathname)
+  for (const node of doc.querySelectorAll('meta[property="og:image"],meta[name="twitter:image"]')) {
+    const imagePath = new URL(node.content, canonicalOrigin).pathname
+    assets.add(imagePath)
+    if (/^\/(visual|stack|workspace|journey|writing|bookmarks)(\/|$)/.test(path)) {
+      check(imagePath === `${path}/opengraph-image`, `${path}: generic or mismatched social image ${imagePath}`)
+    }
+  }
   for (const node of doc.querySelectorAll('a[href]')) {
     const target = new URL(node.getAttribute('href'), url)
     if (target.origin === canonicalOrigin && !target.pathname.startsWith('/api/')) internalLinks.add(target.pathname)

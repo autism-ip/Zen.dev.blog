@@ -11,7 +11,7 @@ import hardwareData from '@/data/workspace/hardware.json'
 import logData from '@/data/workspace/log.json'
 import nowData from '@/data/workspace/now.json'
 import projectsData from '@/data/workspace/projects.json'
-import { getPageSeo } from '@/lib/contentful'
+import { getOptionalPageSeo } from '@/lib/contentful'
 import { pageMetadata } from '@/lib/seo'
 
 export default async function Workspace() {
@@ -90,6 +90,6 @@ export default async function Workspace() {
 }
 
 export async function generateMetadata() {
-  const data = await getPageSeo('workspace')
+  const data = await getOptionalPageSeo('workspace')
   return pageMetadata('/workspace', data?.seo)
 }

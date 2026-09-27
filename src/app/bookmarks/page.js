@@ -5,7 +5,7 @@ import { FloatingHeader } from '@/components/floating-header'
 import { PageTitle } from '@/components/page-title'
 import { ScreenLoadingSpinner } from '@/components/screen-loading-spinner'
 import { ScrollArea } from '@/components/scroll-area'
-import { getPageSeo } from '@/lib/contentful'
+import { getOptionalPageSeo } from '@/lib/contentful'
 import { getBookmarks } from '@/lib/raindrop-with-auth'
 import { pageMetadata } from '@/lib/seo'
 import { sortByProperty } from '@/lib/utils'
@@ -47,6 +47,6 @@ export default async function Writing() {
 }
 
 export async function generateMetadata() {
-  const data = await getPageSeo('bookmarks')
+  const data = await getOptionalPageSeo('bookmarks')
   return pageMetadata('/bookmarks', data?.seo)
 }

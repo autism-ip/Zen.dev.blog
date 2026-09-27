@@ -1,6 +1,6 @@
 {
   "base": "http://localhost:3100",
-  "checkedAt": "2026-09-27T05:38:28.771Z",
+  "checkedAt": "2026-09-27T06:16:40.968Z",
   "pages": [
     {
       "path": "/",
@@ -288,7 +288,7 @@
       "h1": [
         "Tweets"
       ],
-      "ssrCharacters": 223,
+      "ssrCharacters": 258,
       "schema": [
         "Person",
         "WebSite",
@@ -329,7 +329,20 @@
     }
   ],
   "images": [
-    "/opengraph-image"
+    "/opengraph-image",
+    "/writing/opengraph-image",
+    "/journey/opengraph-image",
+    "/stack/opengraph-image",
+    "/workspace/opengraph-image",
+    "/visual/opengraph-image",
+    "/bookmarks/opengraph-image",
+    "/writing/Agent%20%E7%9A%84%E6%96%B0%E5%8F%98%E9%9D%A9%E5%9C%A8%E4%BA%8E%E4%BA%BA%E7%B1%BB%E6%B3%A8%E6%84%8F%E5%8A%9B%E7%9A%84%E9%87%8D%E6%96%B0%E5%88%86%E9%85%8D/opengraph-image",
+    "/bookmarks/templates/opengraph-image",
+    "/bookmarks/books/opengraph-image",
+    "/bookmarks/ai/opengraph-image",
+    "/bookmarks/tools/opengraph-image",
+    "/bookmarks/tweets/opengraph-image",
+    "/bookmarks/music/opengraph-image"
   ],
   "internalLinks": 25,
   "failures": []

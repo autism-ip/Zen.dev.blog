@@ -1,6 +1,6 @@
 /**
  * [INPUT]: Contentful GraphQL and existing environment credentials, React request memoization
- * [OUTPUT]: CMS reads using actual Entry/Seo fragments; hourly caching and explicit upstream failures
+ * [OUTPUT]: CMS reads using actual Entry/Seo fragments; hourly caching, explicit content failures and optional SEO fallbacks
  * [POS]: Shared CMS provider for pages, APIs, feeds and machine-readable content
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
@@ -242,6 +242,16 @@ export const getPageSeo = cache(async (slug, preview = isDevelopment) => {
 
   const data = entry?.data?.pageCollection?.items?.[0]
   return data ? { ...data, seo: { title: data.title, ...data.seo } } : null
+})
+
+// Local-content pages can render without optional editorial SEO overrides.
+// Keep getPageSeo strict for CMS resources whose existence depends on it.
+export const getOptionalPageSeo = cache(async (slug, preview = isDevelopment) => {
+  try {
+    return await getPageSeo(slug, preview)
+  } catch {
+    return null
+  }
 })
 
 export const getAllPageSlugs = cache(async (preview = isDevelopment) => {

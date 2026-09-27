@@ -5,7 +5,7 @@ import { GradientBg4 } from '@/components/gradient-bg'
 import { PageTitle } from '@/components/page-title'
 import { ScrollArea } from '@/components/scroll-area'
 import toolsData from '@/data/tools.json'
-import { getPageSeo } from '@/lib/contentful'
+import { getOptionalPageSeo } from '@/lib/contentful'
 import { pageMetadata } from '@/lib/seo'
 
 export default async function StackPage() {
@@ -37,6 +37,6 @@ export default async function StackPage() {
 }
 
 export async function generateMetadata() {
-  const data = await getPageSeo('stack')
+  const data = await getOptionalPageSeo('stack')
   return pageMetadata('/stack', data?.seo)
 }

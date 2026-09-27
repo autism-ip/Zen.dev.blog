@@ -11,7 +11,7 @@ import { PageTitle } from '@/components/page-title'
 import { ScrollArea } from '@/components/scroll-area'
 import { SubmitFriendDialog } from '@/components/submit-friend/dialog'
 import friendsData from '@/data/friends.json'
-import { getPageSeo } from '@/lib/contentful'
+import { getOptionalPageSeo } from '@/lib/contentful'
 import { pageMetadata } from '@/lib/seo'
 
 export default function FriendsPage() {
@@ -40,6 +40,6 @@ export default function FriendsPage() {
 }
 
 export async function generateMetadata() {
-  const data = await getPageSeo('friends')
+  const data = await getOptionalPageSeo('friends')
   return pageMetadata('/friends', data?.seo)
 }
