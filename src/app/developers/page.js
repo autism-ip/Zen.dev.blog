@@ -62,10 +62,9 @@ export default function DevelopersPage() {
         <div className="content">
           <PageTitle title="Zen (zenhungyep) Developers" />
           <p className="leading-relaxed text-gray-600">
-            {SITE.url.replace(/^https?:\/\//, '')} exposes a small, read-only HTTP API for its published content, plus
-            machine-readable descriptions of the site itself. Read endpoints need no API keys. Publishing a musing is
-            reserved for the owner; bookmark submissions are for the human form. All JSON endpoints publish their
-            request quotas.
+            {SITE.name} exposes a small, read-only HTTP API for its published content, plus machine-readable
+            descriptions of the site itself. Read endpoints need no API keys. Publishing a musing is reserved for the
+            owner; bookmark submissions are for the human form. All JSON endpoints publish their request quotas.
           </p>
 
           <h2 className="mt-8 mb-4">Quickstart</h2>
@@ -128,6 +127,24 @@ export default function DevelopersPage() {
 
           <h2 className="mt-8 mb-4">Endpoints</h2>
           <EndpointList />
+
+          <h2 id="function-tools" className="mt-8 mb-4">
+            Function calling
+          </h2>
+          <p className="leading-relaxed text-gray-600">
+            <a className="link" href="/tools.json">
+              Zen (zenhungyep) function tools
+            </a>{' '}
+            provides an array of OpenAI Responses API function definitions generated from{' '}
+            <a className="link" href="/openapi.json">
+              OpenAPI
+            </a>
+            . Each function name matches an operationId. Your client executes the corresponding HTTP request: map query
+            arguments to URL query parameters and body arguments to the JSON request body. Reads without arguments use
+            an empty object schema. Strict mode is disabled to preserve optional arguments. These definitions grant no
+            credentials or permissions; owner-only operations and human bookmark submissions retain their existing
+            restrictions. For public reading, select the GET operations you need.
+          </p>
 
           <h2 className="mt-8 mb-4">Markdown for agents</h2>
           <p className="leading-relaxed text-gray-600">

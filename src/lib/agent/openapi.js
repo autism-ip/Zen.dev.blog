@@ -334,7 +334,7 @@ const paths = {
     get: {
       operationId: 'getSitemap',
       summary: 'Sitemap',
-      description: 'Every indexable URL on the site, with change frequency and priority.',
+      description: 'Every indexable URL on the site, with last-modified dates when reliably available.',
       tags: ['discovery'],
       responses: {
         200: { description: 'Sitemap document', content: { 'application/xml': { schema: { type: 'string' } } } }
@@ -355,6 +355,32 @@ const paths = {
     }
   },
 
+  '/tools.json': {
+    get: {
+      operationId: 'getFunctionTools',
+      summary: 'Get Zen (zenhungyep) function tools',
+      description:
+        'Returns OpenAI Responses API function definitions generated from this OpenAPI document. Clients execute the HTTP requests; endpoint access restrictions still apply.',
+      tags: ['discovery'],
+      responses: {
+        200: jsonResponse('Function definitions', {
+          type: 'array',
+          items: {
+            type: 'object',
+            required: ['type', 'name', 'description', 'parameters', 'strict'],
+            properties: {
+              type: { type: 'string', const: 'function' },
+              name: { type: 'string' },
+              description: { type: 'string' },
+              parameters: { type: 'object', additionalProperties: true },
+              strict: { type: 'boolean', const: false }
+            },
+            additionalProperties: false
+          }
+        })
+      }
+    }
+  },
   '/openapi.json': {
     get: {
       operationId: 'getOpenApiSpec',
@@ -478,6 +504,9 @@ export function buildOpenApi() {
         { ...operation, operationId: `${operation.operationId}V1` }
       ])
     )
+  }
+  for (const methods of Object.values(publicPaths)) {
+    for (const operation of Object.values(methods)) operation.parameters ??= []
   }
   return {
     openapi: '3.1.0',

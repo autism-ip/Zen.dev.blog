@@ -17,6 +17,8 @@ json-ld.js: 站点级 schema.org @graph（Person + WebSite），被根布局注�
 openapi.js: OpenAPI 3.1 文档构造器，端点契约的唯一真相源，被 /openapi.json 与 /developers 共同渲染
 documents.test.js: 文档层测试（500+ 字符首页镜像、404 说明、llms.txt when-to-use、富文本转换、JSON-LD 完整性）
 http.test.js: 协商与响应构造测试（Accept 解析、单一 Vary: Accept、结构化错误）
+function-tools.js / function-tools.test.js: 从 OpenAPI 生成 Responses API 函数定义；无参数操作显式空对象、保留可选参数与访问限制、JSON 发布点回归测试
+identity.test.js: 品牌名称、首页个人简介与文档发现链接回归测试
 openapi.test.js: 契约测试（唯一 operationId、逐操作描述、类型化参数、可序列化）
 
 依赖方向

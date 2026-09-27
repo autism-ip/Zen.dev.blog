@@ -14,7 +14,7 @@
 const RAW_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://zenhungyep.com'
 
 export const SITE = {
-  name: 'Zen',
+  name: 'Zen (zenhungyep)',
   author: '叶振幸 (Zen)',
   url: RAW_SITE_URL.replace(/\/$/, ''),
   title: 'Zen (zenhungyep)',
@@ -30,11 +30,11 @@ export const SOCIAL = {
 
 // 首页自我介绍（首页 hero 与 Markdown 镜像的唯一事实源）
 export const HOME_BIO = [
-  'Hi, I am Zen(叶振幸).',
-  'Open Source Intern , Mathematics & Applied Math Student 👋',
-  'Bridging Mathematics & AI—Python & Deep Learning frameworks (MindSpore/PyTorch).',
-  'From Mathematical Modeling to AI-driven diagnostics.',
-  "Exploring Open Source × Deep Learning; Passionate about building open source projects—let's chat!"
+  'Hi, I am Zen (叶振幸), also known online as zenhungyep. I am a Mathematics & Applied Math student and an Open Source Intern 👋',
+  'I explore the connections between mathematics and AI, working with Python and deep learning frameworks including MindSpore and PyTorch.',
+  'My interests range from mathematical modeling to AI-driven diagnostics, with a focus on how mathematical ideas can inform practical software.',
+  'I write about AI agents, mathematics, and software engineering, and share the open-source projects, tools, and experiments I am exploring.',
+  "Beyond writing code, I collect useful reading, share photographs and short reflections, and keep a record of my learning journey. If you work on open source or deep learning, let's chat!"
 ]
 
 // 公开联系渠道：邮箱 + GitHub Issues（联系邮箱由站点所有者确认公开）
@@ -59,6 +59,11 @@ export const AGENT_FILES = [
     path: '/openapi.json',
     contentType: 'application/json; charset=utf-8',
     description: 'OpenAPI 3.1 specification of the public HTTP API.'
+  },
+  {
+    path: '/tools.json',
+    contentType: 'application/json; charset=utf-8',
+    description: 'Zen (zenhungyep) function definitions generated from OpenAPI for the OpenAI Responses API.'
   },
   {
     path: '/sitemap.xml',
@@ -140,7 +145,8 @@ export const SECTIONS = [
   {
     path: '/developers',
     title: 'Developers',
-    description: 'Public API, OpenAPI spec, and agent integration guide.'
+    description:
+      'Zen (zenhungyep) developer documentation: public API, OpenAPI specification, function tools, and agent integration guide.'
   }
 ]
 

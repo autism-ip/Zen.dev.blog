@@ -378,3 +378,43 @@
 .prose tbody tr:hover {
   @apply border-l-4 border-blue-400 bg-blue-50/40 shadow-md;
 }
+
+/* Shared navigation styles keep the initial HTML compact without changing layout. */
+@layer components {
+  .navigation-link {
+    @apply flex items-center justify-between rounded-lg p-2;
+  }
+  @media (hover: hover) {
+    .navigation-link:not([aria-current='page']):hover,
+    .navigation-external:hover {
+      @apply bg-gray-200;
+    }
+    .navigation-link:hover .navigation-shortcut {
+      @apply border-gray-300;
+    }
+  }
+  .navigation-link[aria-current='page'] {
+    @apply bg-black text-white;
+  }
+  .navigation-label {
+    @apply flex items-center gap-2;
+  }
+  .navigation-label-text {
+    @apply font-medium;
+  }
+  .navigation-link[aria-current='page'] .navigation-label-text {
+    @apply text-white;
+  }
+  .navigation-shortcut {
+    @apply hidden size-5 place-content-center rounded-sm border border-gray-200 bg-gray-100 text-xs font-medium text-gray-500 transition-colors duration-200 lg:grid;
+  }
+  .navigation-link[aria-current='page'] .navigation-shortcut {
+    @apply border-gray-600 bg-gray-700 text-gray-200;
+  }
+  .navigation-external {
+    @apply flex items-center justify-between gap-2 rounded-lg p-2;
+  }
+  .navigation-external-label {
+    @apply inline-flex items-center gap-2 font-medium;
+  }
+}

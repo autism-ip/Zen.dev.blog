@@ -27,6 +27,7 @@ CI 只认一个入口: `npm run ci:gate`。本地与 GitHub Actions 走同一条
 业务文件维护 L3 头部契约；目录级结构变更同步最近的 CLAUDE.md；新增门禁必须可在本地复现。
 
 变更日志:
+2026-09-27: Agent 审计修复：统一 Zen (zenhungyep) 品牌、补充已有个人简介、导航共享 CSS 精简 HTML；新增 tools.json 与 OpenAPI 派生函数定义，保留无参数 GET 与原有访问限制。navigation-link 改为 .jsx 并添加组件回归测试。
 2026-09-27: 技术 SEO：统一页面 canonical/social、Person/ProfilePage/BreadcrumbList、错误页 noindex、可信 sitemap 日期、图库 SSR 与本地字体；Node 24 门禁启用类型检查。新增 lib/seo.js、visual-media.js、visual-data.js、scripts/verify-seo.mjs 与 docs/seo/。
 2026-09-27: Agent readiness 后续修复：v1 兼容别名、JSON 404/405/400/500、共享按实例配额响应头、类型化契约、品牌发现、静态 sitemap、首页说明及 no-JS 动画兜底、CLI 可发布包与 RSS XML 修复。验证入口 scripts/verify-agent-readiness.mjs；尚未部署或发布 npm。
 2026-09-27: Agent 就绪度改造（lib/agent 新模块 + 7 个新路由 + cli/）：修复 CSR bailout（Analytics/SpeedInsights 加 Suspense 边界、DialogStateProvider 去 ClientOnly、penflow ssr:false）使首页有 658 字符 SSR 内容且未知路径返回真实 404；新增 Markdown 内容协商（middleware 受控响应，单一 Vary: Accept）、/llms.txt、/openapi.json、/api/posts、/developers、/about、/contact、/privacy 与站点级 JSON-LD；全部公开 API 错误改为 {ok,error,code,hint} 结构化 JSON。
