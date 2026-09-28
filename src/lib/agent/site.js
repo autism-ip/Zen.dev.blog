@@ -1,6 +1,6 @@
 /**
  * [INPUT]: 无外部依赖；仅读取 NEXT_PUBLIC_SITE_URL 环境变量
- * [OUTPUT]: 对外提供 SITE / SOCIAL / CONTACT / HOME_BIO / AGENT_FILES / SECTIONS / SECTION_BY_PATH
+ * [OUTPUT]: 对外提供 SITE（含展示名 displayName）/ SOCIAL / CONTACT / HOME_BIO / AGENT_FILES / SECTIONS / SECTION_BY_PATH
  * [POS]: lib/agent 的事实层与唯一真相源；llms.txt、JSON-LD、OpenAPI、markdown 路由与 /developers 均从此处取站点身份，避免多处硬编码漂移
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
@@ -15,6 +15,7 @@ const RAW_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://zenhungyep.com
 
 export const SITE = {
   name: 'Zen (zenhungyep)',
+  displayName: 'Zenhung Yep',
   author: '叶振幸 (Zen)',
   url: RAW_SITE_URL.replace(/\/$/, ''),
   title: 'Zen (zenhungyep)',
@@ -30,16 +31,15 @@ export const SOCIAL = {
 
 // 首页自我介绍（首页 hero 与 Markdown 镜像的唯一事实源）
 export const HOME_BIO = [
-  'Hi, I am Zen (叶振幸), also known online as zenhungyep. I am a Mathematics & Applied Math student and an Open Source Intern 👋',
+  `Hi, I am Zen (叶振幸), also known online as ${SITE.displayName}. I am a Mathematics & Applied Math student and an Open Source Intern 👋`,
   'I explore the connections between mathematics and AI, working with Python and deep learning frameworks including MindSpore and PyTorch.',
   'My interests range from mathematical modeling to AI-driven diagnostics, with a focus on how mathematical ideas can inform practical software.',
   'I write about AI agents, mathematics, and software engineering, and share the open-source projects, tools, and experiments I am exploring.',
   "Beyond writing code, I collect useful reading, share photographs and short reflections, and keep a record of my learning journey. If you work on open source or deep learning, let's chat!"
 ]
 
-// 公开联系渠道：邮箱 + GitHub Issues（联系邮箱由站点所有者确认公开）
+// 公开联系渠道仅为 GitHub Issues；不发布个人邮箱。
 export const CONTACT = {
-  email: 'y1327514070@gmail.com',
   url: `${SOCIAL.github}/Zen.dev.blog/issues`,
   contactType: 'technical support',
   label: 'GitHub Issues'
@@ -130,7 +130,7 @@ export const SECTIONS = [
   {
     path: '/about',
     title: 'About',
-    description: 'Who Zen is, what this site publishes, and how it is built.'
+    description: 'A short introduction to Zen and the writing published here.'
   },
   {
     path: '/contact',
@@ -140,13 +140,12 @@ export const SECTIONS = [
   {
     path: '/privacy',
     title: 'Privacy',
-    description: 'What data this site collects, why, and how it is stored.'
+    description: 'A concise summary of data used to operate this site.'
   },
   {
     path: '/developers',
     title: 'Developers',
-    description:
-      'Zen (zenhungyep) developer documentation: public API, OpenAPI specification, function tools, and agent integration guide.'
+    description: 'Zen (zenhungyep) public API overview and links to machine-readable documentation.'
   }
 ]
 

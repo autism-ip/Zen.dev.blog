@@ -1,7 +1,7 @@
 /**
  * [INPUT]: 依赖 vitest 与 @/lib/agent 的 markdown / rich-text / posts / json-ld / site
  * [OUTPUT]: 文档层行为测试：首页与 404 的 Markdown 镜像、llms.txt 的 when-to-use、富文本转换、索引排序不可变、JSON-LD 完整性
- * [POS]: lib/agent 的文档与结构化数据测试；守护 audit 要求的关键契约（500+ 字符首页、20+ 字符 404 说明、Person identity and public contact）
+ * [POS]: lib/agent 的文档与结构化数据测试；守护 audit 要求的关键契约（500+ 字符首页、20+ 字符 404 说明、Person identity and GitHub contact）
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
@@ -184,7 +184,8 @@ describe('buildJsonLd', () => {
 
   it('represents a personal site without inventing a business or location', () => {
     expect(graph.some((node) => node['@type'] === 'Organization')).toBe(false)
-    expect(person.email).toBe('y1327514070@gmail.com')
+    expect(person.email).toBeUndefined()
+    expect(person.contactPoint.url).toContain('github.com')
     expect(person.address).toBeUndefined()
   })
 

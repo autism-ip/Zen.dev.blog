@@ -45,7 +45,7 @@ function footer() {
     '---',
     '',
     `Source: ${SITE.url}`,
-    `Contact: ${CONTACT.email} · ${CONTACT.url}`,
+    `Contact: ${CONTACT.url}`,
     `Agent guide: ${absolute('/llms.txt')} · Sitemap: ${absolute('/sitemap.xml')}`
   ].join('\n')
 }
@@ -192,7 +192,7 @@ export function llmsTxt({ posts = [] } = {}) {
     '',
     `> ${SITE.description}`,
     '',
-    `${SITE.author} writes essays and keeps public collections on AI agents, mathematics, and open-source software. The site is a statically generated Next.js app; every HTML page is also available as Markdown through content negotiation.`,
+    `${SITE.author} writes essays and keeps public collections on AI agents, mathematics, and open-source software. Every HTML page is also available as Markdown through content negotiation.`,
     '',
     '## When to use this site',
     '',
@@ -207,7 +207,7 @@ export function llmsTxt({ posts = [] } = {}) {
     '- Send `Accept: text/markdown` to any HTML page to receive Markdown instead of HTML.',
     '- Machine-readable files: `/openapi.json`, `/tools.json`, `/sitemap.xml`, `/writing.xml`, `/bookmarks.xml`.',
     '- Unknown paths return HTTP 404 with a Markdown explanation when Markdown is requested.',
-    `- The site accepts no form submissions through the API on behalf of third parties; contact goes to ${CONTACT.email} or via ${CONTACT.label}: ${CONTACT.url}`,
+    `- The site accepts no form submissions through the API on behalf of third parties; contact is through ${CONTACT.label}: ${CONTACT.url}`,
     '',
     '## Writing',
     '',
@@ -220,13 +220,13 @@ export function llmsTxt({ posts = [] } = {}) {
     '## Public API',
     '',
     `- [Zen (zenhungyep) OpenAPI 3.1 specification](${absolute('/openapi.json')}): every public HTTP endpoint, with parameters and response schemas.`,
-    `- [Zen (zenhungyep) developer guide](${absolute('/developers')}): quickstart, endpoint list, and agent integration notes.`,
+    `- [Zen (zenhungyep) developer guide](${absolute('/developers')}): public API overview and machine-readable resources.`,
     `- [Bookmarks JSON](${absolute('/api/v1/bookmarks')}): public read-only JSON of curated bookmarks.`,
     `- [Posts JSON](${absolute('/api/v1/posts')}): public read-only JSON of writing posts.`,
     '',
     `- [Versioning and deprecation](${absolute('/developers#versioning')}): v1 stability and retirement policy.`,
-    `- [Rate limits](${absolute('/developers#rate-limits')}): live quota headers and Retry-After conventions.`,
-    `- [CLI](${absolute('/developers#cli')}): official Node.js client, local installation and publishing status.`,
+    `- [Usage limits](${absolute('/developers#rate-limits')}): response headers and Retry-After conventions.`,
+    `- [CLI](${absolute('/developers#cli')}): command-line client availability.`,
     '',
     '## Machine-readable resources',
     '',
@@ -234,7 +234,7 @@ export function llmsTxt({ posts = [] } = {}) {
     '',
     '## Optional',
     '',
-    `- [Contact](mailto:${CONTACT.email}): corrections, questions, and collaboration (email, or open an issue on GitHub).`,
+    `- [Contact](${CONTACT.url}): corrections, questions, and collaboration through GitHub Issues.`,
     `- [Privacy](${absolute('/privacy')}) · [About](${absolute('/about')}) · [Contact page](${absolute('/contact')})`,
     ''
   ].join('\n')

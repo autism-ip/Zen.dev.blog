@@ -48,6 +48,9 @@ export default async function RootLayout({ children }) {
       suppressHydrationWarning
     >
       <head>
+        <link rel="alternate" type="text/plain" href="/llms.txt" title="Agent guide" />
+        <link rel="service-desc" type="application/json" href="/openapi.json" />
+        <link rel="service-doc" href="/developers" />
         <noscript>
           <style>{'[data-page-transition] { opacity: 1 !important; transform: none !important; }'}</style>
         </noscript>

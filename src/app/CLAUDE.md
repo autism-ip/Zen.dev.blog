@@ -17,10 +17,10 @@ openapi.json/: GET /openapi.json 路由，发布 lib/agent/openapi 的 OpenAPI 3
 bookmarks.xml: bookmarks RSS feed（规范站点身份、合法 XML、GUID 与 self 链接）
 writing.xml: writing RSS feed
 [slug]/: 动态页面路由 + OG 图片
-about/: Person/ProfilePage 结构化数据与信任锚点页（Who/What/How，500+ 字符）
+about/: 简短公开介绍与 Person/ProfilePage 结构化数据，不展示基础设施细节
 contact/: 信任锚点页（唯一公开联系渠道为 GitHub Issues）
-privacy/: 信任锚点页（逐项声明采集与不采集的数据）
-developers/: 开发者门户，端点清单直接渲染自 OpenAPI 文档
+privacy/: 简短公开隐私说明，说明数据类别而不披露基础设施细节
+developers/: 简短公开开发者入口，API 的详细契约保留在 OpenAPI 文档中
 admin/: 管理后台
 api/: API 路由（auth、bookmarks、draft、revalidate、posts、markdown 等）
 bookmarks/: 书签功能

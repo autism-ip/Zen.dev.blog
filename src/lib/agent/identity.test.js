@@ -15,7 +15,7 @@ it('uses the distinctive existing site title as its primary name across discover
 it('keeps meaningful personal biography in the shared homepage content without restoring the removed section', () => {
   expect(HOME_BIO.join(' ').length).toBeGreaterThanOrEqual(600)
   expect(HOME_BIO).toHaveLength(5)
-  expect(HOME_BIO.join(' ')).toContain('zenhungyep')
+  expect(HOME_BIO.join(' ')).toContain(SITE.displayName)
   const markdown = homeMarkdown({ bio: HOME_BIO })
   for (const line of HOME_BIO) expect(markdown).toContain(line)
   expect(markdown).not.toContain('About this site')

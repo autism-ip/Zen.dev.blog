@@ -46,14 +46,14 @@ const postSchema = {
 
 const bookmarkSchema = {
   type: 'object',
-  description: 'A curated bookmark (Raindrop.io item).',
+  description: 'A curated bookmark.',
   properties: {
-    _id: { type: 'integer', description: 'Raindrop item id.' },
+    _id: { type: 'integer', description: 'Bookmark identifier.' },
     link: { type: 'string', format: 'uri', description: 'Target URL of the bookmark.' },
     title: { type: 'string', description: 'Bookmark title.' },
     excerpt: { type: 'string', description: 'Short excerpt or summary from the target page.' },
     note: { type: 'string', description: 'Personal note added by the site owner.' },
-    type: { type: 'string', description: 'Raindrop item type.', examples: ['link'] },
+    type: { type: 'string', description: 'Bookmark type.', examples: ['link'] },
     cover: { type: ['string', 'null'], format: 'uri', description: 'Cover image URL when available.' },
     tags: { type: 'array', items: { type: 'string' }, description: 'Tag list.' },
     created: { type: 'string', format: 'date-time', description: 'Creation timestamp (ISO 8601).' },
@@ -65,7 +65,7 @@ const visualMediaSchema = {
   type: 'object',
   description: 'A photograph or AI-generated image/video from the public Visual gallery.',
   properties: {
-    public_id: { type: 'string', description: 'Cloudinary public identifier.' },
+    public_id: { type: 'string', description: 'Public media identifier.' },
     url: { type: 'string', format: 'uri', description: 'Direct asset URL.' },
     width: { type: 'integer', description: 'Pixel width.' },
     height: { type: 'integer', description: 'Pixel height.' },
@@ -409,7 +409,7 @@ const quotaHeaders = {
     example: '"posts";r=119;t=60'
   },
   'RateLimit-Policy': {
-    description: 'Policy name with q (quota) and w (window seconds). Limits are per IP, endpoint and server instance.',
+    description: 'Policy name with q (quota) and w (window seconds).',
     schema: { type: 'string' },
     example: '"posts";q=120;w=60'
   },
@@ -516,15 +516,14 @@ export function buildOpenApi() {
       summary: 'Read-only content API and discovery endpoints for a personal writing site.',
       description: [
         'Public, unauthenticated API for reading posts, bookmarks, and visual media published on zenhungyep.com.',
-        'Read endpoints are safe to call without credentials. Telemetry and submission endpoints are rate limited per IP.',
+        'Read endpoints are safe to call without credentials. Telemetry and submission endpoints may be rate limited.',
         'Every HTML page can additionally be requested as Markdown by sending `Accept: text/markdown`; unknown paths then return HTTP 404 with a Markdown explanation.',
         'Structured errors always use the Error schema with a stable `code` field.',
         'Versioning: use /api/v1/*; unversioned /api/* aliases retain v1 behavior. Breaking changes require a new major URL. No version is currently deprecated. Before retiring a version, publish a migration guide and at least 90 days notice at /developers#versioning, with Deprecation (RFC 9745 Structured Field Date), Sunset (RFC 8594 HTTP-date) and a Link with rel=deprecation on affected responses.',
-        'Quotas: public reads 120 requests/60 seconds, views 60/600 seconds, submissions and musings 5/600 seconds; per client IP, endpoint and server instance. Aliases share quotas. RateLimit and RateLimit-Policy follow IETF draft-ietf-httpapi-ratelimit-headers-11, not a finalized RFC. 429 includes Retry-After delay-seconds.'
+        'RateLimit and RateLimit-Policy describe available request budgets. HTTP 429 includes Retry-After delay-seconds.'
       ].join(' '),
       contact: {
         name: CONTACT.label,
-        email: CONTACT.email,
         url: CONTACT.url
       }
     },

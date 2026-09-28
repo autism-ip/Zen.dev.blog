@@ -9,10 +9,10 @@ import { useInView } from 'react-intersection-observer'
 // 签名是纯装饰性动画，SSR 缺失不影响内容与视觉。
 const Penflow = dynamic(() => import('penflow/react').then((mod) => mod.Penflow), {
   ssr: false,
-  loading: () => <div className="h-14 w-48 max-w-full" />
+  loading: () => <div className="h-14 w-64 max-w-full" />
 })
 
-export function PenflowSignature() {
+export function PenflowSignature({ text }) {
   const [playCount, setPlayCount] = useState(0)
 
   const { ref, inView } = useInView({
@@ -34,16 +34,16 @@ export function PenflowSignature() {
         {inView ? (
           <Penflow
             key={playCount}
-            text="Zen Yep"
+            text={text}
             fontUrl="/fonts/BrittanySignature.ttf"
             color="#222222"
             size={32}
             lineHeight={1.6}
             speed={1}
-            className="w-48 max-w-full"
+            className="w-64 max-w-full"
           />
         ) : (
-          <div className="h-14 w-48 max-w-full" />
+          <div className="h-14 w-64 max-w-full" />
         )}
       </div>
     </section>
